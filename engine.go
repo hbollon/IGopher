@@ -1,15 +1,15 @@
 package main
 
 import (
-	"log"
 	"os"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
 )
 
 const (
-	seleniumPath    = "lib/selenium-server.jar"
-	geckoDriverPath = "lib/geckodriver"
+	seleniumPath    = "./lib/selenium-server.jar"
+	geckoDriverPath = "./lib/geckodriver"
 	port            = 8080
 )
 

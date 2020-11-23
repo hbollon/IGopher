@@ -30,6 +30,8 @@ import (
 	"google.golang.org/api/option"
 )
 
+var forceDl = flag.Bool("forceDownload", false, "Force redownload of all dependencies even if exists")
+
 func init() {
 	// Output to stderr
 	log.SetOutput(os.Stderr)
@@ -37,6 +39,7 @@ func init() {
 	// Get loglevel flag and set thresold to it
 	// If undefined or wrong set it to WARNING
 	loglevel := flag.String("loglevel", "warning", "Log level threasold")
+
 	flag.Parse()
 	level, err := log.ParseLevel(*loglevel)
 	if err == nil {
@@ -83,7 +86,7 @@ var files = []file{
 		url:    "https://saucelabs.com/downloads/sc-4.5.4-linux.tar.gz",
 		name:   "sauce-connect.tar.gz",
 		path:   downloadDirectory + "sauce-connect.tar.gz",
-		rename: []string{"sc-4.5.4-linux", "sauce-connect"},
+		rename: []string{downloadDirectory + "sc-4.5.4-linux", downloadDirectory + "sauce-connect"},
 	},
 }
 
@@ -173,7 +176,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		name:   chromeDriverTargetFilename,
 		path:   downloadDirectory + chromeDriverTargetFilename,
 		url:    cpAttrs.MediaLink,
-		rename: []string{"chromedriver_linux64/chromedriver", "chromedriver"},
+		rename: []string{downloadDirectory + "chromedriver_linux64/chromedriver", downloadDirectory + "chromedriver"},
 	})
 	return nil
 }
@@ -230,6 +233,7 @@ func DownloadDependencies(downloadBrowsers, downloadLatest bool) {
 
 	var wg sync.WaitGroup
 	for _, file := range files {
+		//if !alreadyInstalled(file)
 		wg.Add(1)
 		file := file
 		go func() {
@@ -247,7 +251,7 @@ func handleFile(file file, downloadBrowsers bool) error {
 		log.Infof("Skipping %q because --download_browser is not set.", file.name)
 		return nil
 	}
-	if _, err := os.Stat(file.path); err == nil {
+	if _, err := os.Stat(file.path); err == nil && !*forceDl {
 		log.Infof("Skipping file %q which has already been downloaded.", file.name)
 	} else {
 		log.Infof("Downloading %q from %q", file.name, file.url)
