@@ -25,23 +25,25 @@ import (
 	"sync"
 
 	"cloud.google.com/go/storage"
-	"github.com/golang/glog"
 	"github.com/google/go-github/v27/github"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 )
 
-func usage() {
-	flag.PrintDefaults()
-}
-
 func init() {
-	flag.Usage = usage
-	flag.Set("logtostderr", "true")
-	//if flag.Lookup("stderrthreshold") == nil {
-	flag.Set("stderrthreshold", "ERROR")
-	//}
-	flag.Set("v", "2")
+	// Output to stderr
+	log.SetOutput(os.Stderr)
+
+	// Get loglevel flag and set thresold to it
+	// If undefined or wrong set it to WARNING
+	loglevel := flag.String("loglevel", "warning", "Log level threasold")
 	flag.Parse()
+	level, err := log.ParseLevel(*loglevel)
+	if err == nil {
+		log.SetLevel(level)
+	} else {
+		log.SetLevel(log.WarnLevel)
+	}
 }
 
 const (
@@ -76,8 +78,6 @@ var files = []file{
 		url:  "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar",
 		name: "selenium-server.jar",
 		path: downloadDirectory + "selenium-server.jar",
-		// TODO(minusnine): reimplement hashing so that it is less annoying for maintenance.
-		// hash: "acf71b77d1b66b55db6fb0bed6d8bae2bbd481311bcbedfeff472c0d15e8f3cb",
 	},
 	{
 		url:    "https://saucelabs.com/downloads/sc-4.5.4-linux.tar.gz",
@@ -215,17 +215,17 @@ func DownloadDependencies(downloadBrowsers, downloadLatest bool) {
 		}
 
 		if err := addChrome(ctx, chromeBuild); err != nil {
-			glog.Errorf("Unable to download Google Chrome browser: %v", err)
+			log.Errorf("Unable to download Google Chrome browser: %v", err)
 		}
 		addFirefox(firefoxVersion)
 	}
 
 	if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar", "htmlunit-driver.jar"); err != nil {
-		glog.Errorf("Unable to find the latest HTMLUnit Driver: %s", err)
+		log.Errorf("Unable to find the latest HTMLUnit Driver: %s", err)
 	}
 
 	if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*linux64.tar.gz", "geckodriver.tar.gz"); err != nil {
-		glog.Errorf("Unable to find the latest Geckodriver: %s", err)
+		log.Errorf("Unable to find the latest Geckodriver: %s", err)
 	}
 
 	var wg sync.WaitGroup
@@ -234,7 +234,7 @@ func DownloadDependencies(downloadBrowsers, downloadLatest bool) {
 		file := file
 		go func() {
 			if err := handleFile(file, downloadBrowsers); err != nil {
-				glog.Exitf("Error handling %s: %s", file.name, err)
+				log.Fatalf("Error handling %s: %s", file.name, err)
 			}
 			wg.Done()
 		}()
@@ -244,13 +244,13 @@ func DownloadDependencies(downloadBrowsers, downloadLatest bool) {
 
 func handleFile(file file, downloadBrowsers bool) error {
 	if file.browser && !downloadBrowsers {
-		glog.Infof("Skipping %q because --download_browser is not set.", file.name)
+		log.Infof("Skipping %q because --download_browser is not set.", file.name)
 		return nil
 	}
-	if file.hash != "" && fileSameHash(file) {
-		glog.Infof("Skipping file %q which has already been downloaded.", file.name)
+	if _, err := os.Stat(file.path); err == nil {
+		log.Infof("Skipping file %q which has already been downloaded.", file.name)
 	} else {
-		glog.Infof("Downloading %q from %q", file.name, file.url)
+		log.Infof("Downloading %q from %q", file.name, file.url)
 		if err := downloadFile(file); err != nil {
 			return err
 		}
@@ -258,26 +258,26 @@ func handleFile(file file, downloadBrowsers bool) error {
 
 	switch path.Ext(file.name) {
 	case ".zip":
-		glog.Infof("Unzipping %q", file.path)
+		log.Infof("Unzipping %q", file.path)
 		if err := exec.Command("unzip", "-o", file.path, "-d", downloadDirectory).Run(); err != nil {
 			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
 		}
 	case ".gz":
-		glog.Infof("Unzipping %q", file.path)
+		log.Infof("Unzipping %q", file.path)
 		if err := exec.Command("tar", "-xzf", file.path, "-C", downloadDirectory).Run(); err != nil {
 			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
 		}
 	case ".bz2":
-		glog.Infof("Unzipping %q", file.path)
+		log.Infof("Unzipping %q", file.path)
 		if err := exec.Command("tar", "-xjf", file.path, "-C", downloadDirectory).Run(); err != nil {
 			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
 		}
 	}
 	if rename := file.rename; len(rename) == 2 {
-		glog.Infof("Renaming %q to %q", rename[0], rename[1])
+		log.Infof("Renaming %q to %q", rename[0], rename[1])
 		os.RemoveAll(rename[1]) // Ignore error.
 		if err := os.Rename(rename[0], rename[1]); err != nil {
-			glog.Warningf("Error renaming %q to %q: %v", rename[0], rename[1], err)
+			log.Warningf("Error renaming %q to %q: %v", rename[0], rename[1], err)
 		}
 	}
 	return nil
@@ -346,7 +346,7 @@ func fileSameHash(file file) bool {
 
 	sum := hex.EncodeToString(h.Sum(nil))
 	if sum != file.hash {
-		glog.Warningf("File %q: got hash %q, expect hash %q", file.path, sum, file.hash)
+		log.Warningf("File %q: got hash %q, expect hash %q", file.path, sum, file.hash)
 		return false
 	}
 	return true
