@@ -10,6 +10,7 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
+	"flag"
 	"fmt"
 	"hash"
 	"io"
@@ -28,6 +29,20 @@ import (
 	"github.com/google/go-github/v27/github"
 	"google.golang.org/api/option"
 )
+
+func usage() {
+	flag.PrintDefaults()
+}
+
+func init() {
+	flag.Usage = usage
+	flag.Set("logtostderr", "true")
+	//if flag.Lookup("stderrthreshold") == nil {
+	flag.Set("stderrthreshold", "ERROR")
+	//}
+	flag.Set("v", "2")
+	flag.Parse()
+}
 
 const (
 	// desiredChromeBuild is the known build of Chromium to download from the
