@@ -2,7 +2,7 @@
 // between this WebDriver client and multiple versions of Selenium and
 // browsers.
 
-package lib
+package main
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
-	"flag"
 	"fmt"
 	"hash"
 	"io"
@@ -29,25 +28,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 )
-
-var forceDl = flag.Bool("forceDownload", false, "Force redownload of all dependencies even if exists")
-
-func init() {
-	// Output to stderr
-	log.SetOutput(os.Stderr)
-
-	// Get loglevel flag and set thresold to it
-	// If undefined or wrong set it to WARNING
-	loglevel := flag.String("loglevel", "warning", "Log level threasold")
-
-	flag.Parse()
-	level, err := log.ParseLevel(*loglevel)
-	if err == nil {
-		log.SetLevel(level)
-	} else {
-		log.SetLevel(log.WarnLevel)
-	}
-}
 
 const (
 	// desiredChromeBuild is the known build of Chromium to download from the

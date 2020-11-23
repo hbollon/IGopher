@@ -32,7 +32,7 @@ func (s *Selenium) InitializeSelenium() {
 		selenium.Output(os.Stderr),            // Output debug information to stderr.
 	}
 
-	selenium.SetDebug(true)
+	selenium.SetDebug(*debug)
 	s.Instance, err = selenium.NewSeleniumService(seleniumPath, port, s.Opts...)
 	if err != nil {
 		log.Fatal(err) // Fatal error, exit if webdriver can't be initialize.
