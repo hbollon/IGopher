@@ -13,7 +13,7 @@ import (
 const (
 	seleniumPath    = "./lib/selenium-server.jar"
 	geckoDriverPath = "./lib/geckodriver"
-	port            = 8080
+	port            = 8081
 )
 
 var err error
@@ -28,10 +28,17 @@ type Selenium struct {
 // InitializeSelenium start a Selenium WebDriver server instance
 // (if one is not already running).
 func (s *Selenium) InitializeSelenium() {
+	var output *os.File
+	if *debug {
+		output = os.Stderr
+	} else {
+		output = nil
+	}
+
 	s.Opts = []selenium.ServiceOption{
 		selenium.StartFrameBuffer(),           // Start an X frame buffer for the browser to run in.
 		selenium.GeckoDriver(geckoDriverPath), // Specify the path to GeckoDriver in order to use Firefox.
-		selenium.Output(os.Stderr),            // Output debug information to stderr.
+		selenium.Output(output),               // Output debug information to stderr.
 	}
 
 	selenium.SetDebug(*debug)
