@@ -13,7 +13,7 @@ import (
 const (
 	seleniumPath    = "./lib/selenium-server.jar"
 	geckoDriverPath = "./lib/geckodriver"
-	port            = 8081
+	port            = 8080
 )
 
 var err error
@@ -59,10 +59,10 @@ func (s *Selenium) InitFirefoxWebDriver() {
 
 // CloseSelenium close webdriver and selenium instance
 func (s *Selenium) CloseSelenium() {
-	s.Instance.Stop()
 	if s.WebDriver != nil {
 		s.WebDriver.Quit()
 	}
+	s.Instance.Stop()
 }
 
 /* Browser methods */
@@ -71,7 +71,7 @@ func (s *Selenium) CloseSelenium() {
 func (s *Selenium) IsElementPresent(by, value string) bool {
 	_, err := s.WebDriver.FindElement(by, value)
 	if err != nil {
-		log.Infof("Element not found by %s: %v", by, err)
+		log.Debugf("Element not found by %s: %v", by, err)
 		return false
 	}
 	return true

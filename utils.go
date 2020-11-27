@@ -3,6 +3,8 @@ package main
 import (
 	"math/rand"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -20,4 +22,9 @@ func randomSleep() {
 
 func randomSecondsDuration(min, max float64) time.Duration {
 	return time.Duration(min+rand.Float64()*(max-min)) * time.Second
+}
+
+func (s *Selenium) fatal(msg string, err error) {
+	s.CloseSelenium()
+	logrus.Fatal(msg, err)
 }

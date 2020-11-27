@@ -37,9 +37,10 @@ func main() {
 		DownloadDependencies(true, true)
 	}
 
-	// var webDriver Selenium
+	// Initialize Selenium and WebDriver and defer their closing
 	SeleniumStruct.InitializeSelenium()
 	SeleniumStruct.InitFirefoxWebDriver()
-	SeleniumStruct.ConnectToInstagram()
 	defer SeleniumStruct.CloseSelenium()
+
+	SeleniumStruct.ConnectToInstagram()
 }

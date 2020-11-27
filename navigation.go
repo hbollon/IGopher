@@ -12,7 +12,7 @@ func (s *Selenium) ConnectToInstagram() {
 	log.Info("Connecting to Instagram account...")
 	// Access Instagram url
 	if err := s.WebDriver.Get("https://instagram.com/?hl=en"); err != nil {
-		log.Fatal(err)
+		s.fatal("Can't access to Instagram. ", err)
 	}
 	randomSleep()
 	// Accept cookies if requested
@@ -36,19 +36,19 @@ func (s *Selenium) ConnectToInstagram() {
 		elem.SendKeys("")
 		log.Debug("Username injection done!")
 	} else {
-		log.Fatal(err)
+		s.fatal("Exception during username inject. ", err)
 	}
 	if elem, err := s.GetElement("password", "name"); err == nil {
 		elem.SendKeys("")
 		log.Debug("Password injection done!")
 	} else {
-		log.Fatal(err)
+		s.fatal("Exception during password inject. ", err)
 	}
 	if elem, err := s.GetElement("//button/*[text()='Log In']", "xpath"); err == nil {
 		elem.Click()
 		log.Debug("Sent login request")
 	} else {
-		log.Fatal(err)
+		s.fatal("Log in button not found. ", err)
 	}
 	randomSleep()
 	time.Sleep(10 * time.Second)
@@ -56,6 +56,6 @@ func (s *Selenium) ConnectToInstagram() {
 	if s.IsElementPresent(selenium.ByXPATH, "//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {
 		log.Info("Login Successful!")
 	} else {
-		log.Fatal("Login Failed: Incorrect credentials")
+		s.fatal("Login failed! ", err)
 	}
 }
