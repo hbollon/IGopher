@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
 )
@@ -39,24 +37,23 @@ func (s *Selenium) ConnectToInstagram() {
 		elem.SendKeys("boursorama_parrainage__")
 		log.Debug("Username injection done!")
 	} else {
-		s.fatal("Exception during username inject. ", err)
+		s.fatal("Exception during username inject: ", err)
 	}
 	if find, err := s.WaitForElement("password", "name", 10); err == nil && find {
 		elem, _ := s.GetElement("password", "name")
 		elem.SendKeys("IAMHARDSTYLE74")
 		log.Debug("Password injection done!")
 	} else {
-		s.fatal("Exception during password inject. ", err)
+		s.fatal("Exception during password inject: ", err)
 	}
 	if find, err := s.WaitForElement("//button/*[text()='Log In']", "xpath", 10); err == nil && find {
 		elem, _ := s.GetElement("//button/*[text()='Log In']", "xpath")
 		elem.Click()
 		log.Debug("Sent login request")
 	} else {
-		s.fatal("Log in button not found. ", err)
+		s.fatal("Log in button not found: ", err)
 	}
-	randomSleep()
-	time.Sleep(10 * time.Second)
+	randomSleepCustom(10, 15)
 	// Check if login was successful
 	if s.IsElementPresent(selenium.ByXPATH, "//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {
 		log.Info("Login Successful!")
