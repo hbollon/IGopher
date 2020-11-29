@@ -16,7 +16,8 @@ func (s *Selenium) ConnectToInstagram() {
 	}
 	randomSleep()
 	// Accept cookies if requested
-	if elem, err := s.GetElement("//button[text()='Accept']", "xpath"); err == nil {
+	if find, err := s.WaitForElement("//button[text()='Accept']", "xpath", 10); err == nil && find {
+		elem, _ := s.GetElement("//button[text()='Accept']", "xpath")
 		elem.Click()
 		log.Debug("Cookies validation done!")
 	} else {
@@ -24,7 +25,8 @@ func (s *Selenium) ConnectToInstagram() {
 	}
 	randomSleep()
 	// Access to login screen if needed
-	if elem, err := s.GetElement("//button[text()='Log In']", "xpath"); err == nil {
+	if find, err := s.WaitForElement("//button[text()='Log In']", "xpath", 10); err == nil && find {
+		elem, _ := s.GetElement("//button[text()='Log In']", "xpath")
 		elem.Click()
 		log.Debug("Log in screen access done!")
 	} else {
@@ -32,19 +34,22 @@ func (s *Selenium) ConnectToInstagram() {
 	}
 	randomSleep()
 	// Inject username and password to input fields and log in
-	if elem, err := s.GetElement("username", "name"); err == nil {
-		elem.SendKeys("")
+	if find, err := s.WaitForElement("username", "name", 10); err == nil && find {
+		elem, _ := s.GetElement("username", "name")
+		elem.SendKeys("boursorama_parrainage__")
 		log.Debug("Username injection done!")
 	} else {
 		s.fatal("Exception during username inject. ", err)
 	}
-	if elem, err := s.GetElement("password", "name"); err == nil {
-		elem.SendKeys("")
+	if find, err := s.WaitForElement("password", "name", 10); err == nil && find {
+		elem, _ := s.GetElement("password", "name")
+		elem.SendKeys("IAMHARDSTYLE74")
 		log.Debug("Password injection done!")
 	} else {
 		s.fatal("Exception during password inject. ", err)
 	}
-	if elem, err := s.GetElement("//button/*[text()='Log In']", "xpath"); err == nil {
+	if find, err := s.WaitForElement("//button/*[text()='Log In']", "xpath", 10); err == nil && find {
+		elem, _ := s.GetElement("//button/*[text()='Log In']", "xpath")
 		elem.Click()
 		log.Debug("Sent login request")
 	} else {

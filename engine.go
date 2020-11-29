@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
@@ -91,5 +92,28 @@ func (s *Selenium) GetElement(elementTag, locator string) (selenium.WebElement, 
 	} else {
 		log.Debugf("Incorrect locator '%s'", locator)
 		return nil, errors.New("Incorrect locator")
+	}
+}
+
+// WaitForElement search and wait until searched element appears.
+// Delay argument is in seconds.
+func (s *Selenium) WaitForElement(elementTag, locator string, delay int) (bool, error) {
+	locator = strings.ToUpper(locator)
+	s.WebDriver.SetImplicitWaitTimeout(0)
+
+	timeout := time.After(time.Duration(delay) * time.Second)
+	tick := time.Tick(500 * time.Millisecond)
+	for {
+		select {
+		case <-timeout:
+			return false, errors.New("Timed out : element not found")
+		case <-tick:
+			if (locator == "ID" && s.IsElementPresent(selenium.ByID, elementTag)) ||
+				(locator == "NAME" && s.IsElementPresent(selenium.ByName, elementTag)) ||
+				(locator == "XPATH" && s.IsElementPresent(selenium.ByXPATH, elementTag)) ||
+				(locator == "CSS" && s.IsElementPresent(selenium.ByCSSSelector, elementTag)) {
+				return true, nil
+			}
+		}
 	}
 }
