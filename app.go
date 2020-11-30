@@ -43,4 +43,10 @@ func main() {
 	defer SeleniumStruct.CloseSelenium()
 
 	SeleniumStruct.ConnectToInstagram()
+	res, err := SeleniumStruct.SendMessage("_motivation.business", "Test message ! :)")
+	if res == true && err == nil {
+		log.Info("Message successfuly sent!")
+	} else {
+		log.Errorf("Error during message sending: %v", err)
+	}
 }
