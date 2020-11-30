@@ -39,7 +39,7 @@ func main() {
 
 	// Initialize Selenium and WebDriver and defer their closing
 	SeleniumStruct.InitializeSelenium()
-	SeleniumStruct.InitFirefoxWebDriver()
+	SeleniumStruct.InitChromeWebDriver()
 	defer SeleniumStruct.CloseSelenium()
 
 	SeleniumStruct.ConnectToInstagram()

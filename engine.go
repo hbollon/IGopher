@@ -9,12 +9,14 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
+	"github.com/tebeka/selenium/chrome"
 )
 
 const (
-	seleniumPath    = "./lib/selenium-server.jar"
-	geckoDriverPath = "./lib/geckodriver"
-	port            = 8080
+	seleniumPath     = "./lib/selenium-server.jar"
+	geckoDriverPath  = "./lib/geckodriver"
+	chromeDriverPath = "./lib/chromedriver"
+	port             = 8080
 )
 
 var err error
@@ -37,9 +39,10 @@ func (s *Selenium) InitializeSelenium() {
 	}
 
 	s.Opts = []selenium.ServiceOption{
-		selenium.StartFrameBuffer(),           // Start an X frame buffer for the browser to run in.
-		selenium.GeckoDriver(geckoDriverPath), // Specify the path to GeckoDriver in order to use Firefox.
-		selenium.Output(output),               // Output debug information to stderr.
+		selenium.StartFrameBuffer(),             // Start an X frame buffer for the browser to run in.
+		selenium.GeckoDriver(geckoDriverPath),   // Specify the path to GeckoDriver in order to use Firefox.
+		selenium.ChromeDriver(chromeDriverPath), // Specify the path to ChromeDriver in order to use Chrome.
+		selenium.Output(output),                 // Output debug information to stderr.
 	}
 
 	selenium.SetDebug(*debug)
@@ -52,6 +55,20 @@ func (s *Selenium) InitializeSelenium() {
 // InitFirefoxWebDriver init and launch web driver with Firefox
 func (s *Selenium) InitFirefoxWebDriver() {
 	caps := selenium.Capabilities{"browserName": "firefox"}
+	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", port))
+	if err != nil {
+		log.Error(err)
+	}
+}
+
+// InitChromeWebDriver init and launch web driver with Chrome
+func (s *Selenium) InitChromeWebDriver() {
+	caps := selenium.Capabilities{"browserName": "chrome"}
+	chromeCaps := chrome.Capabilities{
+		Path: "./lib/chrome-linux/chrome",
+		Args: []string{"--remote-debugging-port=9222", "--headless"},
+	}
+	caps.AddChrome(chromeCaps)
 	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", port))
 	if err != nil {
 		log.Error(err)
