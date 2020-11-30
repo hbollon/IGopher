@@ -100,6 +100,7 @@ func (s *Selenium) GetElement(elementTag, locator string) (selenium.WebElement, 
 func (s *Selenium) WaitForElement(elementTag, locator string, delay int) (bool, error) {
 	locator = strings.ToUpper(locator)
 	s.WebDriver.SetImplicitWaitTimeout(0)
+	defer s.WebDriver.SetImplicitWaitTimeout(30)
 
 	timeout := time.After(time.Duration(delay) * time.Second)
 	tick := time.Tick(500 * time.Millisecond)
