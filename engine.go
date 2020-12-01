@@ -39,10 +39,12 @@ func (s *Selenium) InitializeSelenium() {
 	}
 
 	s.Opts = []selenium.ServiceOption{
-		selenium.StartFrameBuffer(),             // Start an X frame buffer for the browser to run in.
 		selenium.GeckoDriver(geckoDriverPath),   // Specify the path to GeckoDriver in order to use Firefox.
 		selenium.ChromeDriver(chromeDriverPath), // Specify the path to ChromeDriver in order to use Chrome.
 		selenium.Output(output),                 // Output debug information to stderr.
+	}
+	if *headless {
+		s.Opts = append(s.Opts, selenium.StartFrameBuffer())
 	}
 
 	selenium.SetDebug(*debug)
@@ -66,7 +68,15 @@ func (s *Selenium) InitChromeWebDriver() {
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	chromeCaps := chrome.Capabilities{
 		Path: "./lib/chrome-linux/chrome",
-		Args: []string{"--remote-debugging-port=9222", "--headless"},
+		Args: []string{
+			"--disable-extensions",
+			"--disable-infobars",
+			"--no-sandbox",
+			"--window-size=360,640",
+		},
+		MobileEmulation: &chrome.MobileEmulation{
+			DeviceName: "Nexus 5",
+		},
 	}
 	caps.AddChrome(chromeCaps)
 	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", port))

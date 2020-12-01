@@ -17,6 +17,7 @@ var loglevel = flag.String("loglevel", "info", "Log level threasold")
 var forceDl = flag.Bool("force-download", false, "Force redownload of all dependencies even if exists")
 var debug = flag.Bool("debug", false, "Display debug and selenium output")
 var ignoreDependencies = flag.Bool("ignore-dependencies", false, "Skip dependencies management")
+var headless = flag.Bool("headless", false, "Run WebDriver with frame buffer")
 
 func init() {
 	// Output to stderr
