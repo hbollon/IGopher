@@ -19,17 +19,20 @@ func init() {
 
 // Sleep random time between default sleepMin and sleepMax
 func randomSleep() {
-	time.Sleep(randomSecondsDuration(sleepMin, sleepMax))
+	time.Sleep(randomMillisecondDuration(sleepMin, sleepMax))
 }
 
 // Sleep random time between custom values
 func randomSleepCustom(min, max float64) {
-	time.Sleep(randomSecondsDuration(min, max))
+	time.Sleep(randomMillisecondDuration(min, max))
 }
 
 // Generate time duration between two limits
-func randomSecondsDuration(min, max float64) time.Duration {
-	return time.Duration(min+rand.Float64()*(max-min)) * time.Second
+func randomMillisecondDuration(min, max float64) time.Duration {
+	// Convert arguments (in seconds) to milliseconds
+	min *= 1000
+	max *= 1000
+	return time.Duration(min+rand.Float64()*(max-min)) * time.Millisecond
 }
 
 // Closes all selenium stuff and call logrus fatal with error printing
