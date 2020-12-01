@@ -75,8 +75,9 @@ func (s *Selenium) SendMessage(user, message string) (bool, error) {
 	randomSleepCustom(6, 10)
 
 	// Type and select user to dm
-	if find, err := s.WaitForElement("//*[@id=\"react-root\"]/section/div/div[1]/div/div[2]/div", "xpath", 10); err == nil && find {
-		elem, _ := s.GetElement("//*[@id=\"react-root\"]/section/div/div[1]/div/div[2]/div", "xpath")
+	if find, err := s.WaitForElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath", 10); err == nil && find {
+		elem, _ := s.GetElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath")
+		log.Debug("Finded an retrieved user searchbar")
 		if res := SimulateHandWriting(elem, user); res != true {
 			return false, errors.New("Error during user searching")
 		}
@@ -85,6 +86,7 @@ func (s *Selenium) SendMessage(user, message string) (bool, error) {
 			return false, errors.New("Error during user selection")
 		} else {
 			usernames[0].Click()
+			log.Debug("User to dm selected")
 		}
 	} else {
 		return false, errors.New("Error during user selection")
@@ -92,8 +94,9 @@ func (s *Selenium) SendMessage(user, message string) (bool, error) {
 
 	// Type and send message by simulating human writing
 	if err := s.typeMessage(message); err != nil {
-		return false, errors.New("Error during user searching")
+		return false, errors.New("Error during message typing")
 	}
+	log.Debug("Message sended!")
 
 	return true, nil
 }

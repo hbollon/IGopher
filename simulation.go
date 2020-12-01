@@ -11,6 +11,7 @@ func SimulateHandWriting(element selenium.WebElement, input string) bool {
 	if err := element.Click(); err == nil {
 		for _, c := range input {
 			if err = element.SendKeys(string(c)); err != nil {
+				logrus.Debug("Can't send key suring message typing")
 				logrus.Errorf("Error during message sending: %v", err)
 				return false
 			}
@@ -18,6 +19,7 @@ func SimulateHandWriting(element selenium.WebElement, input string) bool {
 		}
 		return true
 	}
+	logrus.Debug("Can't click on user searchbar")
 	logrus.Errorf("Error during message sending: %v", err)
 	return false
 }
