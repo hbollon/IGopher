@@ -2,7 +2,7 @@
 // between this WebDriver client and multiple versions of Selenium and
 // browsers.
 
-package main
+package instadm
 
 import (
 	"context"
@@ -187,7 +187,7 @@ func addFirefox(desiredVersion string) {
 
 // DownloadDependencies automate selenium dependencies downloading
 // (ChromeDriver binary, the Firefox binary, the Selenium WebDriver JARs, and the Sauce Connect proxy binary)
-func DownloadDependencies(downloadBrowsers, downloadLatest bool) {
+func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 	ctx := context.Background()
 	if downloadBrowsers {
 		chromeBuild := desiredChromeBuild
@@ -217,7 +217,7 @@ func DownloadDependencies(downloadBrowsers, downloadLatest bool) {
 		wg.Add(1)
 		file := file
 		go func() {
-			if err := handleFile(file, downloadBrowsers); err != nil {
+			if err := handleFile(file, downloadBrowsers, forceDl); err != nil {
 				log.Fatalf("Error handling %s: %s", file.name, err)
 			}
 			wg.Done()
@@ -226,7 +226,7 @@ func DownloadDependencies(downloadBrowsers, downloadLatest bool) {
 	wg.Wait()
 }
 
-func handleFile(file file, downloadBrowsers bool) error {
+func handleFile(file file, downloadBrowsers, forceDl bool) error {
 	if file.browser && !downloadBrowsers {
 		log.Infof("Skipping %q because --download_browser is not set.", file.name)
 		return nil

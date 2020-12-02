@@ -1,4 +1,4 @@
-package main
+package instadm
 
 import (
 	"github.com/sirupsen/logrus"

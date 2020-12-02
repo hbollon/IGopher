@@ -1,4 +1,4 @@
-package main
+package instadm
 
 import (
 	"errors"
@@ -16,7 +16,6 @@ const (
 	seleniumPath     = "./lib/selenium-server.jar"
 	geckoDriverPath  = "./lib/geckodriver"
 	chromeDriverPath = "./lib/chromedriver"
-	port             = 8080
 )
 
 var err error
@@ -24,15 +23,18 @@ var err error
 // Selenium instance and opts
 type Selenium struct {
 	Instance  *selenium.Service
+	Config    *ClientConfig
 	Opts      []selenium.ServiceOption
 	WebDriver selenium.WebDriver
 }
 
 // InitializeSelenium start a Selenium WebDriver server instance
 // (if one is not already running).
-func (s *Selenium) InitializeSelenium() {
+func (s *Selenium) InitializeSelenium(clientConfig *ClientConfig) {
+	s.Config = clientConfig
+
 	var output *os.File
-	if *debug {
+	if s.Config.Debug {
 		output = os.Stderr
 	} else {
 		output = nil
@@ -43,12 +45,12 @@ func (s *Selenium) InitializeSelenium() {
 		selenium.ChromeDriver(chromeDriverPath), // Specify the path to ChromeDriver in order to use Chrome.
 		selenium.Output(output),                 // Output debug information to stderr.
 	}
-	if *headless {
+	if s.Config.Headless {
 		s.Opts = append(s.Opts, selenium.StartFrameBuffer())
 	}
 
-	selenium.SetDebug(*debug)
-	s.Instance, err = selenium.NewSeleniumService(seleniumPath, port, s.Opts...)
+	selenium.SetDebug(s.Config.Debug)
+	s.Instance, err = selenium.NewSeleniumService(seleniumPath, int(s.Config.Port), s.Opts...)
 	if err != nil {
 		log.Fatal(err) // Fatal error, exit if webdriver can't be initialize.
 	}
@@ -57,7 +59,7 @@ func (s *Selenium) InitializeSelenium() {
 // InitFirefoxWebDriver init and launch web driver with Firefox
 func (s *Selenium) InitFirefoxWebDriver() {
 	caps := selenium.Capabilities{"browserName": "firefox"}
-	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", port))
+	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", s.Config.Port))
 	if err != nil {
 		log.Error(err)
 	}
@@ -79,7 +81,7 @@ func (s *Selenium) InitChromeWebDriver() {
 		},
 	}
 	caps.AddChrome(chromeCaps)
-	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", port))
+	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", s.Config.Port))
 	if err != nil {
 		log.Error(err)
 	}

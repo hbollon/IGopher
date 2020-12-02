@@ -1,4 +1,4 @@
-package main
+package instadm
 
 import (
 	"math/rand"
@@ -27,7 +27,7 @@ func randomSleepCustom(min, max float64) {
 	time.Sleep(randomMillisecondDuration(min, max))
 }
 
-// Generate time duration between two limits
+// Generate time duration (in milliseconds) between two limits (in seconds)
 func randomMillisecondDuration(min, max float64) time.Duration {
 	// Convert arguments (in seconds) to milliseconds
 	min *= 1000
