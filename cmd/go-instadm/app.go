@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"math"
 	"os"
 
 	"github.com/hbollon/go-instadm"
@@ -28,12 +29,16 @@ var flags = struct {
 
 	// HeadlessFlag execute Selenium webdriver in headless mode
 	HeadlessFlag *bool
+
+	// PortFlag specifie custom communication port for Selenium and web drivers
+	PortFlag *int
 }{
 	LogLevelFlag:           flag.String("loglevel", "info", "Log level threasold"),
 	ForceDlFlag:            flag.Bool("force-download", false, "Force redownload of all dependencies even if exists"),
 	DebugFlag:              flag.Bool("debug", false, "Display debug and selenium output"),
 	IgnoreDependenciesFlag: flag.Bool("ignore-dependencies", false, "Skip dependencies management"),
 	HeadlessFlag:           flag.Bool("headless", false, "Run WebDriver with frame buffer"),
+	PortFlag:               flag.Int("port", 8080, "Specify custom communication port"),
 }
 
 func init() {
@@ -57,6 +62,13 @@ func initClientConfig() *instadm.ClientConfig {
 	clientConfig.Debug = *flags.DebugFlag
 	clientConfig.IgnoreDependencies = *flags.IgnoreDependenciesFlag
 	clientConfig.Headless = *flags.HeadlessFlag
+
+	if *flags.PortFlag > math.MaxUint16 || *flags.PortFlag < 8080 {
+		log.Warnf("Invalid port argument '%d'. Use default 8080.", *flags.PortFlag)
+	} else {
+		clientConfig.Port = uint16(*flags.PortFlag)
+	}
+
 	return clientConfig
 }
 

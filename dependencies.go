@@ -231,7 +231,7 @@ func handleFile(file file, downloadBrowsers, forceDl bool) error {
 		log.Infof("Skipping %q because --download_browser is not set.", file.name)
 		return nil
 	}
-	if _, err := os.Stat(file.path); err == nil && !*forceDl {
+	if _, err := os.Stat(file.path); err == nil && !forceDl {
 		log.Infof("Skipping file %q which has already been downloaded.", file.name)
 	} else {
 		log.Infof("Downloading %q from %q", file.name, file.url)
