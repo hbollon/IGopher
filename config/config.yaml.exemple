@@ -1,0 +1,22 @@
+# Instagram credentials
+account:
+  username: "YOUR_IG_USERNAME"
+  password: "YOUR_IG_PASSWORD"
+
+# Bot configuration
+auto_dm:
+  dm_templates:
+    - "Hey ! What's up?"
+  greeting:
+    template: "Hello"
+    activated: false
+  activated: true
+quotas: 
+  dm_per_day: 50
+  dm_per_hour: 5
+  activated: true
+schedule: # 24h format
+  begin_at: 8
+  end_at: 18
+  activated: true
+blacklist_interacted_users: true

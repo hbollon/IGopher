@@ -9,5 +9,5 @@ require (
 	github.com/sirupsen/logrus v1.7.0
 	github.com/tebeka/selenium v0.9.9
 	google.golang.org/api v0.7.0
-	gopkg.in/yaml.v2 v2.3.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0
 )

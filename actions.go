@@ -36,14 +36,14 @@ func (s *Selenium) ConnectToInstagram() {
 	// Inject username and password to input fields and log in
 	if find, err := s.WaitForElement("username", "name", 10); err == nil && find {
 		elem, _ := s.GetElement("username", "name")
-		elem.SendKeys("")
+		elem.SendKeys(s.Config.BotConfig.UserAccount.Username)
 		log.Debug("Username injection done!")
 	} else {
 		s.fatal("Exception during username inject: ", err)
 	}
 	if find, err := s.WaitForElement("password", "name", 10); err == nil && find {
 		elem, _ := s.GetElement("password", "name")
-		elem.SendKeys("")
+		elem.SendKeys(s.Config.BotConfig.UserAccount.Password)
 		log.Debug("Password injection done!")
 	} else {
 		s.fatal("Exception during password inject: ", err)

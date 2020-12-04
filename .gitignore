@@ -15,3 +15,4 @@
 # vendor/
 
 app
+config/config.yaml
