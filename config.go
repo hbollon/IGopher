@@ -13,19 +13,14 @@ type ClientConfig struct {
 	// LogLevel set loglevel threshold
 	// If undefined or wrong set it to INFO level
 	LogLevel logrus.Level
-
 	// ForceDependenciesDl force re-download of all dependencies
 	ForceDependenciesDl bool
-
 	// Debug set selenium debug mode and display its logging to stderr
 	Debug bool
-
 	// IgnoreDependencies disable dependencies manager on startup
 	IgnoreDependencies bool
-
 	// Headless execute Selenium webdriver in headless mode
 	Headless bool
-
 	// Port : communication port
 	Port uint16
 
@@ -58,6 +53,8 @@ type BotConfig struct {
 	UserAccount Account `yaml:"account"`
 	// Automatic messages sending module
 	DmModule AutoDM `yaml:"auto_dm"`
+	// Quotas
+	Quotas QuotaManager `yaml:"quotas"`
 	// Interracted users blacklist
 	Blacklist bool `yaml:"blacklist_interacted_users"`
 }
@@ -88,6 +85,7 @@ func readBotConfigYaml() BotConfig {
 		logrus.Fatalf("Error during unmarshal config file: %s\n", err)
 	}
 
+	c.Quotas.InitializeQuotaManager()
 	logrus.Debugf("config.yaml: %+v\n\n", c)
 	return c
 }

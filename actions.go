@@ -9,6 +9,10 @@ import (
 
 // ConnectToInstagram get ig login webpage and connect user account
 func (s *Selenium) ConnectToInstagram() {
+	s.connectToInstagramWebDriver()
+}
+
+func (s *Selenium) connectToInstagramWebDriver() {
 	log.Info("Connecting to Instagram account...")
 	// Access Instagram url
 	if err := s.WebDriver.Get("https://instagram.com/?hl=en"); err != nil {
@@ -67,6 +71,10 @@ func (s *Selenium) ConnectToInstagram() {
 // SendMessage navigate to Instagram direct message interface and send one to specified user
 // by simulating human typing
 func (s *Selenium) SendMessage(user, message string) (bool, error) {
+	return s.sendMessageWebDriver(user, message)
+}
+
+func (s *Selenium) sendMessageWebDriver(user, message string) (bool, error) {
 	log.Infof("Send message to %s...", user)
 	// Navigate to Instagram new direct message page
 	if err := s.WebDriver.Get("https://www.instagram.com/direct/new/?hl=en"); err != nil {
