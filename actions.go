@@ -71,7 +71,14 @@ func (s *Selenium) connectToInstagramWebDriver() {
 // SendMessage navigate to Instagram direct message interface and send one to specified user
 // by simulating human typing
 func (s *Selenium) SendMessage(user, message string) (bool, error) {
-	return s.sendMessageWebDriver(user, message)
+	s.Config.BotConfig.Quotas.AddDm()
+	res, err := s.sendMessageWebDriver(user, message)
+	if res == true && err == nil {
+		s.Config.BotConfig.Quotas.AddDm()
+		log.Info("Message successfuly sent!")
+	}
+
+	return res, err
 }
 
 func (s *Selenium) sendMessageWebDriver(user, message string) (bool, error) {
