@@ -55,6 +55,8 @@ type BotConfig struct {
 	DmModule AutoDM `yaml:"auto_dm"`
 	// Quotas
 	Quotas QuotaManager `yaml:"quotas"`
+	// Scheduler
+	Scheduler SchedulerManager `yaml:"schedule"`
 	// Interracted users blacklist
 	Blacklist bool `yaml:"blacklist_interacted_users"`
 }

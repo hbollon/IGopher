@@ -1,6 +1,7 @@
 package instadm
 
 import (
+	"errors"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -68,11 +69,48 @@ func (qm *QuotaManager) CheckQuotas() {
 	if qm.DmSentDay >= qm.MaxDmDay {
 		if time.Since(qm.DayTimestamp).Seconds() < 86400 {
 			sleepDur := 86400 - time.Since(qm.DayTimestamp).Seconds()
-			logrus.Infof("Daily quota reached, sleeping %d seconds...", sleepDur)
+			logrus.Infof("Daily quota reached, sleeping %f seconds...", sleepDur)
 			time.Sleep(time.Duration(sleepDur) * time.Second)
 		} else {
 			qm.ResetDailyQuotas()
 			logrus.Info("Daily quotas resetted.")
 		}
 	}
+}
+
+/* Schedule manager */
+
+// SchedulerManager data
+type SchedulerManager struct {
+	// HourTimestamp: hourly timestamp used to handle hour limitations
+	BeginAt time.Time `yaml:"begin_at"`
+	// DayTimestamp: daily timestamp used to handle day limitations
+	EndAt time.Time `yaml:"end_at"`
+	// Activated: quota manager activation boolean
+	Activated bool `yaml:"activated"`
+}
+
+// CheckTime check scheduler and pause the bot if it's not working time
+func (s *SchedulerManager) CheckTime() error {
+	if res, err := s.isWorkingTime(); err == nil {
+		if res {
+			return nil
+		}
+		logrus.Info("Reached end of service. Sleeping...")
+		for res, err = s.isWorkingTime(); res != true; {
+			time.Sleep(3600)
+		}
+		logrus.Info("Back to work!")
+		return nil
+	}
+	logrus.Error(err)
+	return err
+}
+
+// Check if current time is between scheduler working interval
+func (s *SchedulerManager) isWorkingTime() (bool, error) {
+	if s.BeginAt.After(s.EndAt) || s.BeginAt.Equal(s.EndAt) {
+		return false, errors.New("Bad scheduler configuration")
+	}
+	return !s.BeginAt.After(time.Now()) || !s.EndAt.Before(time.Now()), nil
 }
