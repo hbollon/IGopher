@@ -16,7 +16,7 @@ func (s *Selenium) connectToInstagramWebDriver() {
 	log.Info("Connecting to Instagram account...")
 	// Access Instagram url
 	if err := s.WebDriver.Get("https://instagram.com/?hl=en"); err != nil {
-		s.fatal("Can't access to Instagram. ", err)
+		s.Fatal("Can't access to Instagram. ", err)
 	}
 	randomSleep()
 	// Accept cookies if requested
@@ -43,21 +43,21 @@ func (s *Selenium) connectToInstagramWebDriver() {
 		elem.SendKeys(s.Config.BotConfig.UserAccount.Username)
 		log.Debug("Username injection done!")
 	} else {
-		s.fatal("Exception during username inject: ", err)
+		s.Fatal("Exception during username inject: ", err)
 	}
 	if find, err := s.WaitForElement("password", "name", 10); err == nil && find {
 		elem, _ := s.GetElement("password", "name")
 		elem.SendKeys(s.Config.BotConfig.UserAccount.Password)
 		log.Debug("Password injection done!")
 	} else {
-		s.fatal("Exception during password inject: ", err)
+		s.Fatal("Exception during password inject: ", err)
 	}
 	if find, err := s.WaitForElement("//button/*[text()='Log In']", "xpath", 10); err == nil && find {
 		elem, _ := s.GetElement("//button/*[text()='Log In']", "xpath")
 		elem.Click()
 		log.Debug("Sent login request")
 	} else {
-		s.fatal("Log in button not found: ", err)
+		s.Fatal("Log in button not found: ", err)
 	}
 	randomSleepCustom(10, 15)
 	// Check if login was successful
@@ -87,7 +87,7 @@ func (s *Selenium) sendMessageWebDriver(user, message string) (bool, error) {
 	log.Infof("Send message to %s...", user)
 	// Navigate to Instagram new direct message page
 	if err := s.WebDriver.Get("https://www.instagram.com/direct/new/?hl=en"); err != nil {
-		s.fatal("Can't access to Instagram direct message redaction page! ", err)
+		s.Fatal("Can't access to Instagram direct message redaction page! ", err)
 	}
 	randomSleepCustom(6, 10)
 

@@ -86,9 +86,13 @@ func main() {
 	SeleniumStruct.InitChromeWebDriver()
 	defer SeleniumStruct.CloseSelenium()
 
-	SeleniumStruct.ConnectToInstagram()
-	res, err := SeleniumStruct.SendMessage("_motivation.business", "Test message ! :)")
-	if res != true || err != nil {
-		log.Errorf("Error during message sending: %v", err)
+	if err := SeleniumStruct.Config.BotConfig.Scheduler.CheckTime(); err == nil {
+		SeleniumStruct.ConnectToInstagram()
+		res, err := SeleniumStruct.SendMessage("_motivation.business", "Test message ! :)")
+		if res != true || err != nil {
+			log.Errorf("Error during message sending: %v", err)
+		}
+	} else {
+		SeleniumStruct.Fatal("Error on bot launch: ", err)
 	}
 }

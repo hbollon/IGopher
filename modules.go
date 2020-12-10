@@ -83,16 +83,17 @@ func (qm *QuotaManager) CheckQuotas() {
 // SchedulerManager data
 type SchedulerManager struct {
 	// HourTimestamp: hourly timestamp used to handle hour limitations
-	BeginAt time.Time `yaml:"begin_at"`
+	BeginAt CustomTime `yaml:"begin_at"`
 	// DayTimestamp: daily timestamp used to handle day limitations
-	EndAt time.Time `yaml:"end_at"`
+	EndAt CustomTime `yaml:"end_at"`
 	// Activated: quota manager activation boolean
 	Activated bool `yaml:"activated"`
 }
 
 // CheckTime check scheduler and pause the bot if it's not working time
 func (s *SchedulerManager) CheckTime() error {
-	if res, err := s.isWorkingTime(); err == nil {
+	res, err := s.isWorkingTime()
+	if err == nil {
 		if res {
 			return nil
 		}
@@ -109,8 +110,12 @@ func (s *SchedulerManager) CheckTime() error {
 
 // Check if current time is between scheduler working interval
 func (s *SchedulerManager) isWorkingTime() (bool, error) {
-	if s.BeginAt.After(s.EndAt) || s.BeginAt.Equal(s.EndAt) {
+	if s.BeginAt.Equal(s.EndAt.Time) {
 		return false, errors.New("Bad scheduler configuration")
 	}
-	return !s.BeginAt.After(time.Now()) || !s.EndAt.Before(time.Now()), nil
+	currentTime := time.Date(0, time.January, 1, time.Now().Hour(), time.Now().Minute(), 0, 0, time.Local)
+	if s.BeginAt.Before(s.EndAt.Time) {
+		return !currentTime.Before(s.BeginAt.Time) && !currentTime.After(s.EndAt.Time), nil
+	}
+	return !s.BeginAt.After(currentTime) || !s.EndAt.Before(currentTime), nil
 }

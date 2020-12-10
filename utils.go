@@ -35,8 +35,8 @@ func randomMillisecondDuration(min, max float64) time.Duration {
 	return time.Duration(min+rand.Float64()*(max-min)) * time.Millisecond
 }
 
-// Closes all selenium stuff and call logrus fatal with error printing
-func (s *Selenium) fatal(msg string, err error) {
+// Fatal closes all selenium stuff and call logrus fatal with error printing
+func (s *Selenium) Fatal(msg string, err error) {
 	s.CloseSelenium()
 	logrus.Fatal(msg, err)
 }

@@ -2,6 +2,8 @@ package instadm
 
 import (
 	"io/ioutil"
+	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -59,6 +61,28 @@ type BotConfig struct {
 	Scheduler SchedulerManager `yaml:"schedule"`
 	// Interracted users blacklist
 	Blacklist bool `yaml:"blacklist_interacted_users"`
+}
+
+/* Yaml custom parser */
+
+// CustomTime is a custom time.Time used to set a custom yaml unmarshal rule
+type CustomTime struct {
+	time.Time
+}
+
+func (t *CustomTime) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var buf string
+	err := unmarshal(&buf)
+	if err != nil {
+		return nil
+	}
+
+	tt, err := time.Parse("15:04", strings.TrimSpace(buf))
+	if err != nil {
+		return err
+	}
+	t.Time = tt
+	return nil
 }
 
 // CreateClientConfig create default ClientConfig instance and return a pointer on it
