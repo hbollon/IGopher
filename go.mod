@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	cloud.google.com/go v0.41.0
+	github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/go-github/v27 v27.0.4
 	github.com/sirupsen/logrus v1.7.0

@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 
+	runtime "github.com/banzaicloud/logrus-runtime-formatter"
 	"github.com/hbollon/go-instadm"
 	log "github.com/sirupsen/logrus"
 )
@@ -42,6 +43,13 @@ var flags = struct {
 }
 
 func init() {
+	// Add formatter to logrus in order to display line and function with messages
+	formatter := runtime.Formatter{ChildFormatter: &log.TextFormatter{
+		FullTimestamp: true,
+	}}
+	formatter.Line = true
+	log.SetFormatter(&formatter)
+
 	// Output to stderr
 	log.SetOutput(os.Stderr)
 
