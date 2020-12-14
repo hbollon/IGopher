@@ -3,10 +3,15 @@ package instadm
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	fileBlacklistPath = "data/blacklist.csv"
 )
 
 /* Quota manager */
@@ -137,9 +142,8 @@ type BlacklistManager struct {
 
 // InitializeBlacklist check existence of the blacklist csv file and initialize it if it doesn't exist.
 func (bm *BlacklistManager) InitializeBlacklist() error {
-	filePath := "data/blacklist.csv"
 	// Check if blacklist csv exist
-	_, err := os.Stat(filePath)
+	_, err := os.Stat(fileBlacklistPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			// Create data folder if not exist
@@ -147,7 +151,7 @@ func (bm *BlacklistManager) InitializeBlacklist() error {
 				os.Mkdir("data/", os.ModePerm)
 			}
 			// Create and open csv blacklist
-			f, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0755)
+			f, err := os.OpenFile(fileBlacklistPath, os.O_RDWR|os.O_CREATE, 0755)
 			defer f.Close()
 			if err != nil {
 				return err
@@ -164,7 +168,7 @@ func (bm *BlacklistManager) InitializeBlacklist() error {
 		}
 	} else {
 		// Open existing blacklist and recover blacklisted usernames
-		f, err := os.OpenFile(filePath, os.O_RDONLY, 0755)
+		f, err := os.OpenFile(fileBlacklistPath, os.O_RDONLY, 0644)
 		defer f.Close()
 		if err != nil {
 			return err
@@ -177,4 +181,33 @@ func (bm *BlacklistManager) InitializeBlacklist() error {
 	}
 
 	return nil
+}
+
+// AddUser add argument username to the blacklist
+func (bm *BlacklistManager) AddUser(user string) {
+	bm.BlacklistedUsers = append(bm.BlacklistedUsers, []string{user})
+	f, err := os.OpenFile(fileBlacklistPath, os.O_WRONLY|os.O_APPEND, 0644)
+	defer f.Close()
+	if err != nil {
+		logrus.Errorf("Failed to blacklist current user: %v", err)
+	}
+
+	writer := csv.NewWriter(f)
+	err = writer.Write([]string{user})
+	defer writer.Flush()
+	if err != nil {
+		logrus.Errorf("Failed to blacklist current user: %v", err)
+	}
+}
+
+// IsBlacklisted check if the given user is already blacklisted
+func (bm *BlacklistManager) IsBlacklisted(user string) bool {
+	for _, username := range bm.BlacklistedUsers {
+		if username[0] == user {
+			fmt.Println("true")
+			return true
+		}
+	}
+	fmt.Println("false")
+	return false
 }
