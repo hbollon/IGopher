@@ -1,0 +1,3 @@
+# Ignore all data files
+*.csv
+*.json

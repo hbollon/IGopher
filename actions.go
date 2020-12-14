@@ -74,7 +74,9 @@ func (s *Selenium) SendMessage(user, message string) (bool, error) {
 	if s.Config.BotConfig.Scheduler.CheckTime() == nil {
 		res, err := s.sendMessageWebDriver(user, message)
 		if res == true && err == nil {
-			s.Config.BotConfig.Quotas.AddDm()
+			if s.Config.BotConfig.Quotas.Activated {
+				s.Config.BotConfig.Quotas.AddDm()
+			}
 			log.Info("Message successfuly sent!")
 		}
 
