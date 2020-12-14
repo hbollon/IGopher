@@ -19,4 +19,5 @@ schedule: # 24h format
   begin_at: 8
   end_at: 18
   activated: true
-blacklist_interacted_users: true
+blacklist: 
+  activated: true

@@ -60,7 +60,7 @@ type BotConfig struct {
 	// Scheduler
 	Scheduler SchedulerManager `yaml:"schedule"`
 	// Interracted users blacklist
-	Blacklist BlacklistManager
+	Blacklist BlacklistManager `yaml:"blacklist"`
 }
 
 /* Yaml custom parser */

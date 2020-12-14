@@ -137,7 +137,7 @@ type BlacklistManager struct {
 	// BlacklistedUsers: list of all blacklisted usernames
 	BlacklistedUsers [][]string
 	// Activated: quota manager activation boolean
-	Activated bool `yaml:"blacklist_interacted_users"`
+	Activated bool `yaml:"activated"`
 }
 
 // InitializeBlacklist check existence of the blacklist csv file and initialize it if it doesn't exist.

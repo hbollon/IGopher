@@ -71,11 +71,14 @@ func (s *Selenium) connectToInstagramWebDriver() {
 // SendMessage navigate to Instagram direct message interface and send one to specified user
 // by simulating human typing
 func (s *Selenium) SendMessage(user, message string) (bool, error) {
-	if s.Config.BotConfig.Scheduler.CheckTime() == nil {
+	if s.Config.BotConfig.Scheduler.CheckTime() == nil && (!s.Config.BotConfig.Blacklist.Activated || !s.Config.BotConfig.Blacklist.IsBlacklisted(user)) {
 		res, err := s.sendMessageWebDriver(user, message)
 		if res == true && err == nil {
 			if s.Config.BotConfig.Quotas.Activated {
 				s.Config.BotConfig.Quotas.AddDm()
+			}
+			if s.Config.BotConfig.Blacklist.Activated {
+				s.Config.BotConfig.Blacklist.AddUser(user)
 			}
 			log.Info("Message successfuly sent!")
 		}
