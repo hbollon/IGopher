@@ -60,7 +60,7 @@ type BotConfig struct {
 	// Scheduler
 	Scheduler SchedulerManager `yaml:"schedule"`
 	// Interracted users blacklist
-	Blacklist bool `yaml:"blacklist_interacted_users"`
+	Blacklist BlacklistManager
 }
 
 /* Yaml custom parser */
@@ -112,6 +112,10 @@ func readBotConfigYaml() BotConfig {
 	}
 
 	c.Quotas.InitializeQuotaManager()
+	err = c.Blacklist.InitializeBlacklist()
+	if err != nil {
+		logrus.Errorf("Failed to initialize blacklist: %v", err)
+	}
 	logrus.Debugf("config.yaml: %+v\n\n", c)
 	return c
 }

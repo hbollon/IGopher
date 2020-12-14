@@ -1,7 +1,9 @@
 package instadm
 
 import (
+	"encoding/csv"
 	"errors"
+	"os"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -55,7 +57,7 @@ func (qm *QuotaManager) AddDm() {
 // CheckQuotas check if quotas have not been exceeded and pauses the program otherwise.
 func (qm *QuotaManager) CheckQuotas() {
 	// Hourly quota checking
-	if qm.DmSent >= qm.MaxDmHour {
+	if qm.DmSent >= qm.MaxDmHour && qm.Activated {
 		if time.Since(qm.HourTimestamp).Seconds() < 3600 {
 			sleepDur := 3600 - time.Since(qm.HourTimestamp).Seconds()
 			logrus.Infof("Hourly quota reached, sleeping %f seconds...", sleepDur)
@@ -66,7 +68,7 @@ func (qm *QuotaManager) CheckQuotas() {
 		}
 	}
 	// Daily quota checking
-	if qm.DmSentDay >= qm.MaxDmDay {
+	if qm.DmSentDay >= qm.MaxDmDay && qm.Activated {
 		if time.Since(qm.DayTimestamp).Seconds() < 86400 {
 			sleepDur := 86400 - time.Since(qm.DayTimestamp).Seconds()
 			logrus.Infof("Daily quota reached, sleeping %f seconds...", sleepDur)
@@ -92,6 +94,9 @@ type SchedulerManager struct {
 
 // CheckTime check scheduler and pause the bot if it's not working time
 func (s *SchedulerManager) CheckTime() error {
+	if !s.Activated {
+		return nil
+	}
 	res, err := s.isWorkingTime()
 	if err == nil {
 		if res {
@@ -118,4 +123,58 @@ func (s *SchedulerManager) isWorkingTime() (bool, error) {
 		return !currentTime.Before(s.BeginAt.Time) && !currentTime.After(s.EndAt.Time), nil
 	}
 	return !s.BeginAt.After(currentTime) || !s.EndAt.Before(currentTime), nil
+}
+
+/* Blacklist manager */
+
+// BlacklistManager data
+type BlacklistManager struct {
+	// BlacklistedUsers: list of all blacklisted usernames
+	BlacklistedUsers [][]string
+	// Activated: quota manager activation boolean
+	Activated bool `yaml:"blacklist_interacted_users"`
+}
+
+// InitializeBlacklist check existence of the blacklist csv file and initialize it if it doesn't exist.
+func (bm *BlacklistManager) InitializeBlacklist() error {
+	filePath := "data/blacklist.csv"
+	// Check if blacklist csv exist
+	_, err := os.Stat(filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// Create data folder if not exist
+			if _, err := os.Stat("data/"); os.IsNotExist(err) {
+				os.Mkdir("data/", os.ModePerm)
+			}
+			// Create and open csv blacklist
+			f, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0755)
+			defer f.Close()
+			if err != nil {
+				return err
+			}
+			// Write csv header
+			writer := csv.NewWriter(f)
+			err = writer.Write([]string{"Username"})
+			defer writer.Flush()
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	} else {
+		// Open existing blacklist and recover blacklisted usernames
+		f, err := os.OpenFile(filePath, os.O_RDONLY, 0755)
+		defer f.Close()
+		if err != nil {
+			return err
+		}
+		reader := csv.NewReader(f)
+		bm.BlacklistedUsers, err = reader.ReadAll()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
