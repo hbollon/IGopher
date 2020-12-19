@@ -1,4 +1,4 @@
-module github.com/hbollon/go-instadm
+module github.com/hbollon/igopher
 
 go 1.15
 

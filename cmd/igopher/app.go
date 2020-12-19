@@ -6,12 +6,12 @@ import (
 	"os"
 
 	runtime "github.com/banzaicloud/logrus-runtime-formatter"
-	"github.com/hbollon/go-instadm"
+	"github.com/hbollon/igopher"
 	log "github.com/sirupsen/logrus"
 )
 
 // SeleniumStruct is the main Selenium instance used by this bot
-var SeleniumStruct instadm.Selenium
+var SeleniumStruct igopher.Selenium
 
 /// Flags
 var flags = struct {
@@ -63,8 +63,8 @@ func init() {
 	}
 }
 
-func initClientConfig() *instadm.ClientConfig {
-	clientConfig := instadm.CreateClientConfig()
+func initClientConfig() *igopher.ClientConfig {
+	clientConfig := igopher.CreateClientConfig()
 	clientConfig.LogLevel, _ = log.ParseLevel(*flags.LogLevelFlag)
 	clientConfig.ForceDependenciesDl = *flags.ForceDlFlag
 	clientConfig.Debug = *flags.DebugFlag
@@ -86,7 +86,7 @@ func main() {
 
 	// Download dependencies
 	if !clientConfig.IgnoreDependencies {
-		instadm.DownloadDependencies(true, true, clientConfig.ForceDependenciesDl)
+		igopher.DownloadDependencies(true, true, clientConfig.ForceDependenciesDl)
 	}
 
 	// Initialize Selenium and WebDriver and defer their closing

@@ -2,7 +2,7 @@
 // between this WebDriver client and multiple versions of Selenium and
 // browsers.
 
-package instadm
+package igopher
 
 import (
 	"context"

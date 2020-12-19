@@ -1,4 +1,4 @@
-package instadm
+package igopher
 
 import (
 	"github.com/sirupsen/logrus"

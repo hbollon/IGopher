@@ -14,5 +14,8 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-app
+# Config and generated files
 config/config.yaml
+
+# Editor/IDE files
+.vscode/
