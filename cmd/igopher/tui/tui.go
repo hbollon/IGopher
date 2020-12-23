@@ -5,8 +5,10 @@ import (
 	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/hbollon/igopher"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -24,6 +26,8 @@ var (
 	dot           = colorFg(" • ", "236")
 
 	ramp = makeRamp("#B14FFF", "#00FFA3", progressBarWidth)
+
+	execBot = false
 )
 
 type menu struct {
@@ -69,8 +73,8 @@ func (m menu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ":
 			switch m.cursor {
 			case 0:
-				fmt.Println("0")
-				break
+				execBot = true
+				return m, tea.Quit
 			case 1:
 				fmt.Println("1")
 				break
@@ -78,10 +82,9 @@ func (m menu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				fmt.Println("2")
 				break
 			case 3:
-				fmt.Println("3")
-				break
+				return m, tea.Quit
 			default:
-				fmt.Println("Error")
+				log.Warn("Invalid input!")
 				break
 			}
 		}
@@ -101,8 +104,36 @@ func (m menu) View() string {
 		s += fmt.Sprintf("%s %s\n", cursor, choice)
 	}
 
-	s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("q: quit")
+	s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("q: quit") // Send the UI for rendering
+
 	return s
+}
+
+// Actions
+
+func launchBot() {
+	// Initialize client configuration
+	clientConfig := initClientConfig()
+
+	// Download dependencies
+	if !clientConfig.IgnoreDependencies {
+		igopher.DownloadDependencies(true, true, clientConfig.ForceDependenciesDl)
+	}
+
+	// Initialize Selenium and WebDriver and defer their closing
+	SeleniumStruct.InitializeSelenium(clientConfig)
+	SeleniumStruct.InitChromeWebDriver()
+	defer SeleniumStruct.CloseSelenium()
+
+	if err := SeleniumStruct.Config.BotConfig.Scheduler.CheckTime(); err == nil {
+		SeleniumStruct.ConnectToInstagram()
+		res, err := SeleniumStruct.SendMessage("_motivation.business", "Test message ! :)")
+		if res != true || err != nil {
+			log.Errorf("Error during message sending: %v", err)
+		}
+	} else {
+		SeleniumStruct.Fatal("Error on bot launch: ", err)
+	}
 }
 
 // Utils
