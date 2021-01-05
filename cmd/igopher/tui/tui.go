@@ -34,7 +34,7 @@ var (
 	focusedPrompt       = termenv.String("> ").Foreground(color("205")).String()
 	blurredPrompt       = "> "
 	focusedSubmitButton = "[ " + termenv.String("Submit").Foreground(color("205")).String() + " ]"
-	blurredSubmitButton = "[ " + termenv.String("Submit").Foreground(color("240")).String() + " ]"
+	blurredSubmitButton = "[ Submit ]"
 
 	ramp = makeRamp("#B14FFF", "#00FFA3", progressBarWidth)
 
@@ -75,12 +75,24 @@ var initialModel = model{
 }
 
 func getAccountSettings() inputs {
-	return inputs{
+	inp := inputs{
 		title: fmt.Sprintf("\nPlease enter your %s credentials:\n\n", keyword("account")),
 		input: []textinput.Model{
-			textinput.Model{Placeholder: "Username", Prompt: focusedPrompt, TextColor: focusedTextColor},
-			textinput.Model{Placeholder: "Password", Prompt: blurredPrompt, EchoMode: textinput.EchoPassword, EchoCharacter: '*'},
+			textinput.NewModel(),
+			textinput.NewModel(),
 		}, submitButton: blurredSubmitButton}
+
+	inp.input[0].Placeholder = "Username"
+	inp.input[0].Focus()
+	inp.input[0].Prompt = focusedPrompt
+	inp.input[0].TextColor = focusedTextColor
+
+	inp.input[1].Placeholder = "Password"
+	inp.input[1].Prompt = blurredPrompt
+	inp.input[1].EchoMode = textinput.EchoPassword
+	inp.input[1].EchoCharacter = '•'
+
+	return inp
 }
 
 func (m model) Init() tea.Cmd {
@@ -88,6 +100,7 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
 	switch m.screen {
 	case 0:
 		switch msg := msg.(type) {
@@ -202,7 +215,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.settingsInputsScreen.index = len(m.settingsInputsScreen.input)
 				}
 
-				for i := 0; i <= len(m.settingsInputsScreen.input)-1; i++ {
+				for i := 0; i < len(m.settingsInputsScreen.input); i++ {
 					if i == m.settingsInputsScreen.index {
 						// Set focused state
 						m.settingsInputsScreen.input[i].Focus()
@@ -221,9 +234,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				} else {
 					m.settingsInputsScreen.submitButton = blurredSubmitButton
 				}
+
+				return m, nil
 			}
 		}
-		break
+		// Handle character input and blinks
+		m, cmd = updateInputs(msg, m)
+		return m, cmd
 	}
 
 	return m, nil
@@ -285,8 +302,8 @@ func updateInputs(msg tea.Msg, m model) (model, tea.Cmd) {
 		cmds []tea.Cmd
 	)
 
-	for _, i := range m.settingsInputsScreen.input {
-		i, cmd = i.Update(msg)
+	for i := 0; i < len(m.settingsInputsScreen.input); i++ {
+		m.settingsInputsScreen.input[i], cmd = m.settingsInputsScreen.input[i].Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
