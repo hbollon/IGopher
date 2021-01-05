@@ -83,7 +83,7 @@ func initClientConfig() *igopher.ClientConfig {
 
 func main() {
 	// Launch TUI
-	p := tea.NewProgram(homeScreen)
+	p := tea.NewProgram(initialModel)
 	if err := p.Start(); err != nil {
 		log.Fatal(err)
 	}
