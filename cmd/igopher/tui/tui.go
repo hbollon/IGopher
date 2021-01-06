@@ -71,7 +71,7 @@ type inputs struct {
 var initialModel = model{
 	screen:       0,
 	homeScreen:   menu{choices: []string{"🚀 - Launch!", "⚙️  - Configure", "🗒  - Reset settings", "🚪 - Exit"}},
-	configScreen: menu{choices: []string{"Account", "Users scrapping", "AutoDM", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
+	configScreen: menu{choices: []string{"Account", "Users scraping", "AutoDM", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
 }
 
 func getAccountSettings() inputs {
@@ -91,6 +91,21 @@ func getAccountSettings() inputs {
 	inp.input[1].Prompt = blurredPrompt
 	inp.input[1].EchoMode = textinput.EchoPassword
 	inp.input[1].EchoCharacter = '•'
+
+	return inp
+}
+
+func getUsersScrappingSettings() inputs {
+	inp := inputs{
+		title: fmt.Sprintf("\nPlease enter the list of %s you would like to use for %s (separated by a comma) :\n\n", keyword("accounts"), keyword("users scraping")),
+		input: []textinput.Model{
+			textinput.NewModel(),
+		}, submitButton: blurredSubmitButton}
+
+	inp.input[0].Placeholder = "Usernames"
+	inp.input[0].Focus()
+	inp.input[0].Prompt = focusedPrompt
+	inp.input[0].TextColor = focusedTextColor
 
 	return inp
 }
@@ -163,6 +178,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.screen = 2
 					break
 				case 1:
+					m.settingsInputsScreen = getUsersScrappingSettings()
+					m.screen = 2
 					break
 				case 2:
 					break
