@@ -38,16 +38,16 @@ var (
 
 	ramp = makeRamp("#B14FFF", "#00FFA3", progressBarWidth)
 
-	execBot = false
+	execBot        = false
+	settingsChoice = 0
 )
 
-type statusMsg int
-
 type model struct {
-	screen               int
-	homeScreen           menu
-	configScreen         menu
-	settingsInputsScreen inputs
+	screen                  int
+	homeScreen              menu
+	configScreen            menu
+	settingsInputsScreen    inputs
+	settingsTrueFalseScreen menu
 }
 
 type menu struct {
@@ -69,9 +69,10 @@ type inputs struct {
 }
 
 var initialModel = model{
-	screen:       0,
-	homeScreen:   menu{choices: []string{"🚀 - Launch!", "⚙️  - Configure", "🗒  - Reset settings", "🚪 - Exit"}},
-	configScreen: menu{choices: []string{"Account", "Users scraping", "AutoDM", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
+	screen:                  0,
+	homeScreen:              menu{choices: []string{"🚀 - Launch!", "⚙️  - Configure", "🗒  - Reset settings", "🚪 - Exit"}},
+	configScreen:            menu{choices: []string{"Account", "Users scraping", "AutoDM", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
+	settingsTrueFalseScreen: menu{choices: []string{"True", "False"}},
 }
 
 func getAccountSettings() inputs {
@@ -161,6 +162,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+c", "q":
 				return m, tea.Quit
 
+			case "backspace":
+				m.screen = 0
+				break
+
 			case "up", "k":
 				if m.configScreen.cursor > 0 {
 					m.configScreen.cursor--
@@ -176,12 +181,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case 0:
 					m.settingsInputsScreen = getAccountSettings()
 					m.screen = 2
+					settingsChoice = 1
 					break
 				case 1:
 					m.settingsInputsScreen = getUsersScrappingSettings()
 					m.screen = 2
+					settingsChoice = 2
 					break
 				case 2:
+					m.screen = 3
+					settingsChoice = 3
 					break
 				case 3:
 					break
@@ -207,7 +216,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 
 			case "backspace":
-				m.screen--
+				m.screen = 1
 				break
 
 			// Cycle between inputs
@@ -258,6 +267,41 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Handle character input and blinks
 		m, cmd = updateInputs(msg, m)
 		return m, cmd
+
+	case 3:
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "ctrl+c", "q":
+				return m, tea.Quit
+
+			case "backspace":
+				m.screen = 1
+				break
+
+			case "up", "k":
+				if m.settingsTrueFalseScreen.cursor > 0 {
+					m.settingsTrueFalseScreen.cursor--
+				}
+
+			case "down", "j":
+				if m.settingsTrueFalseScreen.cursor < len(m.settingsTrueFalseScreen.choices)-1 {
+					m.settingsTrueFalseScreen.cursor++
+				}
+
+			case "enter", " ":
+				switch m.settingsTrueFalseScreen.cursor {
+				case 0:
+					break
+				case 1:
+					break
+				default:
+					log.Warn("Invalid input!")
+					break
+				}
+			}
+		}
+		break
 	}
 
 	return m, nil
@@ -291,7 +335,7 @@ func (m model) View() string {
 			s += fmt.Sprintf("%s %s\n", cursor, choice)
 		}
 
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("q: quit")
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: save & back") + dot + subtle("q: quit")
 		break
 
 	case 2:
@@ -303,7 +347,29 @@ func (m model) View() string {
 			}
 		}
 		s += "\n\n" + m.settingsInputsScreen.submitButton + "\n"
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("q: quit")
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: back") + dot + subtle("q: quit")
+		break
+
+	case 3:
+		switch settingsChoice {
+		case 3:
+			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("AutoDM"), keyword("true"))
+			break
+
+		default:
+			log.Error("Unexpected settings screen value!")
+			s = ""
+			break
+		}
+
+		for i, choice := range m.settingsTrueFalseScreen.choices {
+			cursor := " "
+			if m.settingsTrueFalseScreen.cursor == i {
+				cursor = cursorColor(">")
+			}
+			s += fmt.Sprintf("%s %s\n", cursor, choice)
+		}
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: back") + dot + subtle("q: quit")
 		break
 	}
 
