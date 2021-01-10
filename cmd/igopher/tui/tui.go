@@ -15,10 +15,33 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type screen uint16
+type settingsScreen uint16
+
 const (
 	progressBarWidth  = 71
 	progressFullChar  = "█"
 	progressEmptyChar = "░"
+)
+
+const (
+	mainMenu screen = iota
+	settingsMenu
+	settingsInputsScreen
+	settingsBoolScreen
+)
+
+const (
+	accountSettings settingsScreen = iota
+	scrappingSettings
+	autodmEnablingSettings
+	quotasSettingsMenu
+	quotasEnablingSettings
+	quotasSettings
+	scheduleSettingsMenu
+	scheduleEnablingSettings
+	scheduleSettings
+	blacklistEnablingSettings
 )
 
 var (
@@ -38,12 +61,12 @@ var (
 
 	ramp = makeRamp("#B14FFF", "#00FFA3", progressBarWidth)
 
-	execBot        = false
-	settingsChoice = 0
+	execBot                       = false
+	settingsChoice settingsScreen = 0
 )
 
 type model struct {
-	screen                  int
+	screen                  screen
 	homeScreen              menu
 	configScreen            menu
 	settingsInputsScreen    inputs
@@ -118,7 +141,7 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch m.screen {
-	case 0:
+	case mainMenu:
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
@@ -141,7 +164,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					execBot = true
 					return m, tea.Quit
 				case 1:
-					m.screen = 1
+					m.screen = settingsMenu
 					break
 				case 2:
 					fmt.Println("2")
@@ -155,7 +178,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		break
-	case 1:
+	case settingsMenu:
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
@@ -163,7 +186,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 
 			case "backspace":
-				m.screen = 0
+				m.screen = mainMenu
 				break
 
 			case "up", "k":
@@ -180,17 +203,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				switch m.configScreen.cursor {
 				case 0:
 					m.settingsInputsScreen = getAccountSettings()
-					m.screen = 2
-					settingsChoice = 1
+					m.screen = settingsInputsScreen
+					settingsChoice = accountSettings
 					break
 				case 1:
 					m.settingsInputsScreen = getUsersScrappingSettings()
-					m.screen = 2
-					settingsChoice = 2
+					m.screen = settingsInputsScreen
+					settingsChoice = scrappingSettings
 					break
 				case 2:
-					m.screen = 3
-					settingsChoice = 3
+					m.screen = settingsBoolScreen
+					settingsChoice = autodmEnablingSettings
 					break
 				case 3:
 					break
@@ -199,7 +222,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case 5:
 					break
 				case 6:
-					m.screen = 0
+					m.screen = mainMenu
 					break
 				default:
 					log.Warn("Invalid input!")
@@ -208,7 +231,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		break
-	case 2:
+	case settingsInputsScreen:
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
@@ -216,7 +239,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 
 			case "backspace":
-				m.screen = 1
+				m.screen = settingsMenu
 				break
 
 			// Cycle between inputs
@@ -268,7 +291,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m, cmd = updateInputs(msg, m)
 		return m, cmd
 
-	case 3:
+	case settingsBoolScreen:
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
@@ -276,7 +299,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 
 			case "backspace":
-				m.screen = 1
+				m.screen = settingsMenu
 				break
 
 			case "up", "k":
@@ -310,7 +333,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	var s string
 	switch m.screen {
-	case 0:
+	case mainMenu:
 		s = fmt.Sprintf("\n🦄 Welcome to %s, the (soon) most powerful and versatile %s bot!\n\n", keyword("IGopher"), keyword("Instagram"))
 
 		for i, choice := range m.homeScreen.choices {
@@ -324,7 +347,7 @@ func (m model) View() string {
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("q: quit")
 		break
 
-	case 1:
+	case settingsMenu:
 		s = fmt.Sprintf("\nWhat would you like to %s?\n\n", keyword("tweak"))
 
 		for i, choice := range m.configScreen.choices {
@@ -338,7 +361,7 @@ func (m model) View() string {
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: save & back") + dot + subtle("q: quit")
 		break
 
-	case 2:
+	case settingsInputsScreen:
 		s = m.settingsInputsScreen.title
 		for i := 0; i < len(m.settingsInputsScreen.input); i++ {
 			s += m.settingsInputsScreen.input[i].View()
@@ -350,9 +373,9 @@ func (m model) View() string {
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: back") + dot + subtle("q: quit")
 		break
 
-	case 3:
+	case settingsBoolScreen:
 		switch settingsChoice {
-		case 3:
+		case autodmEnablingSettings:
 			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("AutoDM"), keyword("true"))
 			break
 
