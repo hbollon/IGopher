@@ -3,7 +3,6 @@ package igopher
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -204,10 +203,8 @@ func (bm *BlacklistManager) AddUser(user string) {
 func (bm *BlacklistManager) IsBlacklisted(user string) bool {
 	for _, username := range bm.BlacklistedUsers {
 		if username[0] == user {
-			fmt.Println("true")
 			return true
 		}
 	}
-	fmt.Println("false")
 	return false
 }

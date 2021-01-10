@@ -188,6 +188,7 @@ func addFirefox(desiredVersion string) {
 // DownloadDependencies automate selenium dependencies downloading
 // (ChromeDriver binary, the Firefox binary, the Selenium WebDriver JARs, and the Sauce Connect proxy binary)
 func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
+	log.Info("Downloading and installing dependencies...")
 	ctx := context.Background()
 	if downloadBrowsers {
 		chromeBuild := desiredChromeBuild
@@ -232,9 +233,9 @@ func handleFile(file file, downloadBrowsers, forceDl bool) error {
 		return nil
 	}
 	if _, err := os.Stat(file.path); err == nil && !forceDl {
-		log.Infof("Skipping file %q which has already been downloaded.", file.name)
+		log.Debugf("Skipping file %q which has already been downloaded.", file.name)
 	} else {
-		log.Infof("Downloading %q from %q", file.name, file.url)
+		log.Debugf("Downloading %q from %q", file.name, file.url)
 		if err := downloadFile(file); err != nil {
 			return err
 		}
@@ -242,26 +243,26 @@ func handleFile(file file, downloadBrowsers, forceDl bool) error {
 
 	switch path.Ext(file.name) {
 	case ".zip":
-		log.Infof("Unzipping %q", file.path)
+		log.Debugf("Unzipping %q", file.path)
 		if err := exec.Command("unzip", "-o", file.path, "-d", downloadDirectory).Run(); err != nil {
 			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
 		}
 	case ".gz":
-		log.Infof("Unzipping %q", file.path)
+		log.Debugf("Unzipping %q", file.path)
 		if err := exec.Command("tar", "-xzf", file.path, "-C", downloadDirectory).Run(); err != nil {
 			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
 		}
 	case ".bz2":
-		log.Infof("Unzipping %q", file.path)
+		log.Debugf("Unzipping %q", file.path)
 		if err := exec.Command("tar", "-xjf", file.path, "-C", downloadDirectory).Run(); err != nil {
 			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
 		}
 	}
 	if rename := file.rename; len(rename) == 2 {
-		log.Infof("Renaming %q to %q", rename[0], rename[1])
+		log.Debugf("Renaming %q to %q", rename[0], rename[1])
 		os.RemoveAll(rename[1]) // Ignore error.
 		if err := os.Rename(rename[0], rename[1]); err != nil {
-			log.Warningf("Error renaming %q to %q: %v", rename[0], rename[1], err)
+			log.Warnf("Error renaming %q to %q: %v", rename[0], rename[1], err)
 		}
 	}
 	return nil
