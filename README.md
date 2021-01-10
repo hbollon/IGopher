@@ -34,9 +34,6 @@
 - [Contributing](#-contributing)
 - [License](#-license)
 
-
----
-
 ## Requirements
 - [Go](https://golang.org/doc/install) (v1.13+)
 

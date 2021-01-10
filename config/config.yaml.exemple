@@ -3,6 +3,12 @@ account:
   username: "YOUR_IG_USERNAME"
   password: "YOUR_IG_PASSWORD"
 
+# User acquisition settings
+users_src:
+  src_accounts: # List of account where you want to fetch followers 
+    - ""
+  fetch_quantity: 500
+
 # Bot configuration
 auto_dm:
   dm_templates:
@@ -16,8 +22,8 @@ quotas:
   dm_per_hour: 5
   activated: true
 schedule: # 24h format
-  begin_at: 8
-  end_at: 18
+  begin_at: "8:00"
+  end_at: "18:00"
   activated: true
 blacklist: 
   activated: true

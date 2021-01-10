@@ -15,7 +15,7 @@
 # vendor/
 
 # Config and generated files
-config/config.yaml
+config/*.yaml
 
 # Editor/IDE files
 .vscode/

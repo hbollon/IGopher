@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -12,7 +10,6 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 )
 
 type screen uint16
@@ -27,6 +24,7 @@ const (
 const (
 	mainMenu screen = iota
 	settingsMenu
+	settingsResetMenu
 	genericMenu
 	settingsInputsScreen
 	settingsBoolScreen
@@ -70,6 +68,7 @@ type model struct {
 	screen                  screen
 	homeScreen              menu
 	configScreen            menu
+	configResetScreen       menu
 	genericMenuScreen       menu
 	settingsInputsScreen    inputs
 	settingsTrueFalseScreen menu
@@ -97,6 +96,7 @@ var initialModel = model{
 	screen:                  0,
 	homeScreen:              menu{choices: []string{"🚀 - Launch!", "⚙️  - Configure", "🗒  - Reset settings", "🚪 - Exit"}},
 	configScreen:            menu{choices: []string{"Account", "Users scraping", "AutoDM", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
+	configResetScreen:       menu{choices: []string{"Yes", "No"}},
 	settingsTrueFalseScreen: menu{choices: []string{"True", "False"}},
 }
 
@@ -200,7 +200,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.homeScreen.cursor++
 				}
 
-			case "enter", " ":
+			case "enter":
 				switch m.homeScreen.cursor {
 				case 0:
 					execBot = true
@@ -209,7 +209,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.screen = settingsMenu
 					break
 				case 2:
-					fmt.Println("2")
+					m.screen = settingsResetMenu
 					break
 				case 3:
 					return m, tea.Quit
@@ -242,7 +242,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.configScreen.cursor++
 				}
 
-			case "enter", " ":
+			case "enter":
 				switch m.configScreen.cursor {
 				case 0:
 					m.settingsInputsScreen = getAccountSettings()
@@ -283,6 +283,45 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		break
 
+	case settingsResetMenu:
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "ctrl+c":
+				return m, tea.Quit
+
+			case "ctrl+b":
+				m.screen = mainMenu
+				break
+
+			case "up", "k":
+				if m.configResetScreen.cursor > 0 {
+					m.configResetScreen.cursor--
+				}
+
+			case "down", "j":
+				if m.configResetScreen.cursor < len(m.configResetScreen.choices)-1 {
+					m.configResetScreen.cursor++
+				}
+
+			case "enter":
+				switch m.configResetScreen.cursor {
+				case 0:
+					config := igopher.ResetBotConfig()
+					igopher.ExportConfig(config)
+					m.screen = mainMenu
+					break
+				case 1:
+					m.screen = mainMenu
+					break
+				default:
+					log.Warn("Invalid input!")
+					break
+				}
+			}
+		}
+		break
+
 	case genericMenu:
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
@@ -304,7 +343,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.genericMenuScreen.cursor++
 				}
 
-			case "enter", " ":
+			case "enter":
 				switch m.genericMenuScreen.cursor {
 				case 0:
 					switch settingsChoice {
@@ -425,7 +464,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.settingsTrueFalseScreen.cursor++
 				}
 
-			case "enter", " ":
+			case "enter":
 				switch m.settingsTrueFalseScreen.cursor {
 				case 0:
 					m.screen = settingsMenu
@@ -474,6 +513,20 @@ func (m model) View() string {
 		}
 
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: save & back") + dot + subtle("ctrl+c: quit")
+		break
+
+	case settingsResetMenu:
+		s = fmt.Sprintf("\nAre you sure you want to %s the default %s? This operation cannot be undone!\n\n", keyword("reset"), keyword("settings"))
+
+		for i, choice := range m.configResetScreen.choices {
+			cursor := " "
+			if m.configResetScreen.cursor == i {
+				cursor = cursorColor(">")
+			}
+			s += fmt.Sprintf("%s %s\n", cursor, choice)
+		}
+
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
 		break
 
 	case genericMenu:
@@ -581,65 +634,6 @@ func launchBot() {
 		}
 	} else {
 		SeleniumStruct.Fatal("Error on bot launch: ", err)
-	}
-}
-
-type configYaml struct {
-	account struct {
-		username string `yaml:"username"`
-		password string `yaml:"password"`
-	} `yaml:"account"`
-	srcUsers struct {
-		accounts []string `yaml:"src_accounts"`
-		quantity int      `yaml:"fetch_quantity"`
-	} `yaml:"users_src"`
-	autoDm struct {
-		dmTemplates []string `yaml:"dm_templates"`
-		greeting    struct {
-			template  string `yaml:"template"`
-			activated bool   `yaml:"activated"`
-		} `yaml:"greeting"`
-		activated bool `yaml:"activated"`
-	} `yaml:"auto_dm"`
-	quotas struct {
-		dmDay     int  `yaml:"dm_per_day"`
-		dmHour    int  `yaml:"dm_per_hour"`
-		activated bool `yaml:"activated"`
-	} `yaml:"quotas"`
-	schedule struct {
-		dmDay     int  `yaml:"begin_at"`
-		dmHour    int  `yaml:"end_at"`
-		activated bool `yaml:"activated"`
-	} `yaml:"schedule"`
-	blacklist struct {
-		activated bool `yaml:"activated"`
-	} `yaml:"blacklist"`
-}
-
-func importConfig() configYaml {
-	var c configYaml
-	file, err := ioutil.ReadFile("./config/config.yaml")
-	if err != nil {
-		log.Fatalf("Error opening config file: %s", err)
-	}
-
-	err = yaml.Unmarshal(file, &c)
-	if err != nil {
-		log.Fatalf("Error during unmarshal config file: %s\n", err)
-	}
-
-	return c
-}
-
-func exportConfig(c configYaml) {
-	out, err := yaml.Marshal(&c)
-	if err != nil {
-		log.Fatalf("Error during marshal config file: %s\n", err)
-	}
-
-	err = ioutil.WriteFile("./config/config.yaml", out, os.ModePerm)
-	if err != nil {
-		log.Fatalf("Error during config file writing: %s\n", err)
 	}
 }
 
