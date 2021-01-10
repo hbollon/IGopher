@@ -136,7 +136,7 @@ func CreateClientConfig() *ClientConfig {
 	}
 }
 
-// Read config yml file
+// Read config yml file and initialize it for use with bot
 func readBotConfigYaml() BotConfig {
 	var c BotConfig
 	file, err := ioutil.ReadFile("./config/config.yaml")
@@ -158,7 +158,7 @@ func readBotConfigYaml() BotConfig {
 	return c
 }
 
-// ImportConfig read config.yaml and parse it in BotConfigYaml instance
+// ImportConfig read config.yaml, parse it in BotConfigYaml instance and finally return it
 func ImportConfig() BotConfigYaml {
 	var c BotConfigYaml
 	file, err := ioutil.ReadFile("./config/config.yaml")

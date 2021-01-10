@@ -62,6 +62,7 @@ var (
 
 	execBot                       = false
 	settingsChoice settingsScreen = 0
+	config         igopher.BotConfigYaml
 )
 
 type model struct {
@@ -206,6 +207,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					execBot = true
 					return m, tea.Quit
 				case 1:
+					config = igopher.ImportConfig()
 					m.screen = settingsMenu
 					break
 				case 2:
@@ -273,6 +275,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					settingsChoice = blacklistEnablingSettings
 					break
 				case 6:
+					igopher.ExportConfig(config)
 					m.screen = mainMenu
 					break
 				default:
@@ -307,7 +310,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				switch m.configResetScreen.cursor {
 				case 0:
-					config := igopher.ResetBotConfig()
+					config = igopher.ResetBotConfig()
 					igopher.ExportConfig(config)
 					m.screen = mainMenu
 					break
