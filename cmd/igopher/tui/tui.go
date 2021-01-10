@@ -27,6 +27,7 @@ const (
 const (
 	mainMenu screen = iota
 	settingsMenu
+	genericMenu
 	settingsInputsScreen
 	settingsBoolScreen
 )
@@ -69,6 +70,7 @@ type model struct {
 	screen                  screen
 	homeScreen              menu
 	configScreen            menu
+	genericMenuScreen       menu
 	settingsInputsScreen    inputs
 	settingsTrueFalseScreen menu
 }
@@ -134,6 +136,46 @@ func getUsersScrappingSettings() inputs {
 	return inp
 }
 
+func getQuotasSettings() inputs {
+	inp := inputs{
+		title: fmt.Sprintf("\nPlease fill following %s with desired values for %s module configuration.\n\n", keyword("inputs"), keyword("Quotas")),
+		input: []textinput.Model{
+			textinput.NewModel(),
+			textinput.NewModel(),
+		}, submitButton: blurredSubmitButton}
+
+	inp.input[0].Placeholder = "Maximum dm quantity per day (default: 50)"
+	inp.input[0].Focus()
+	inp.input[0].Prompt = focusedPrompt
+	inp.input[0].TextColor = focusedTextColor
+
+	inp.input[1].Placeholder = "Maximum dm quantity per hour (default: 5)"
+	inp.input[1].Prompt = focusedPrompt
+	inp.input[1].TextColor = focusedTextColor
+
+	return inp
+}
+
+func getSchedulerSettings() inputs {
+	inp := inputs{
+		title: fmt.Sprintf("\nPlease fill following %s with desired values for %s module configuration.\n\n", keyword("inputs"), keyword("Scheduler")),
+		input: []textinput.Model{
+			textinput.NewModel(),
+			textinput.NewModel(),
+		}, submitButton: blurredSubmitButton}
+
+	inp.input[0].Placeholder = "Starting time (default: 08:00)"
+	inp.input[0].Focus()
+	inp.input[0].Prompt = focusedPrompt
+	inp.input[0].TextColor = focusedTextColor
+
+	inp.input[1].Placeholder = "Ending time (default: 18:00)"
+	inp.input[1].Prompt = focusedPrompt
+	inp.input[1].TextColor = focusedTextColor
+
+	return inp
+}
+
 func (m model) Init() tea.Cmd {
 	return textinput.Blink
 }
@@ -178,6 +220,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		break
+
 	case settingsMenu:
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
@@ -216,10 +259,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					settingsChoice = autodmEnablingSettings
 					break
 				case 3:
+					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
+					m.screen = genericMenu
+					settingsChoice = quotasSettingsMenu
 					break
 				case 4:
+					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
+					m.screen = genericMenu
+					settingsChoice = scheduleSettingsMenu
 					break
 				case 5:
+					m.screen = settingsBoolScreen
+					settingsChoice = blacklistEnablingSettings
 					break
 				case 6:
 					m.screen = mainMenu
@@ -231,6 +282,68 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		break
+
+	case genericMenu:
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "ctrl+c", "q":
+				return m, tea.Quit
+
+			case "backspace":
+				m.screen = settingsMenu
+				break
+
+			case "up", "k":
+				if m.genericMenuScreen.cursor > 0 {
+					m.genericMenuScreen.cursor--
+				}
+
+			case "down", "j":
+				if m.genericMenuScreen.cursor < len(m.genericMenuScreen.choices)-1 {
+					m.genericMenuScreen.cursor++
+				}
+
+			case "enter", " ":
+				switch m.genericMenuScreen.cursor {
+				case 0:
+					switch settingsChoice {
+					case quotasSettingsMenu:
+						settingsChoice = quotasEnablingSettings
+						break
+					case scheduleSettingsMenu:
+						settingsChoice = scheduleEnablingSettings
+						break
+					default:
+						log.Warn("Invalid input!")
+						break
+					}
+					m.screen = settingsBoolScreen
+					break
+				case 1:
+					switch settingsChoice {
+					case quotasSettingsMenu:
+						m.settingsInputsScreen = getQuotasSettings()
+						settingsChoice = quotasSettings
+						break
+					case scheduleSettingsMenu:
+						m.settingsInputsScreen = getSchedulerSettings()
+						settingsChoice = scheduleEnablingSettings
+						break
+					default:
+						log.Warn("Invalid input!")
+						break
+					}
+					m.screen = settingsInputsScreen
+					break
+				default:
+					log.Warn("Invalid input!")
+					break
+				}
+			}
+		}
+		break
+
 	case settingsInputsScreen:
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
@@ -315,8 +428,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter", " ":
 				switch m.settingsTrueFalseScreen.cursor {
 				case 0:
+					m.screen = settingsMenu
 					break
 				case 1:
+					m.screen = settingsMenu
 					break
 				default:
 					log.Warn("Invalid input!")
@@ -361,6 +476,20 @@ func (m model) View() string {
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: save & back") + dot + subtle("q: quit")
 		break
 
+	case genericMenu:
+		s += "\n\n"
+
+		for i, choice := range m.genericMenuScreen.choices {
+			cursor := " "
+			if m.genericMenuScreen.cursor == i {
+				cursor = cursorColor(">")
+			}
+			s += fmt.Sprintf("%s %s\n", cursor, choice)
+		}
+
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: back") + dot + subtle("q: quit")
+		break
+
 	case settingsInputsScreen:
 		s = m.settingsInputsScreen.title
 		for i := 0; i < len(m.settingsInputsScreen.input); i++ {
@@ -377,6 +506,18 @@ func (m model) View() string {
 		switch settingsChoice {
 		case autodmEnablingSettings:
 			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("AutoDM"), keyword("true"))
+			break
+
+		case quotasEnablingSettings:
+			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("Quotas"), keyword("true"))
+			break
+
+		case scheduleEnablingSettings:
+			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("Scheduler"), keyword("true"))
+			break
+
+		case blacklistEnablingSettings:
+			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("User Blacklist"), keyword("true"))
 			break
 
 		default:
