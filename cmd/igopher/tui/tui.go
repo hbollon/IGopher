@@ -150,7 +150,7 @@ func getQuotasSettings() inputs {
 	inp.input[0].TextColor = focusedTextColor
 
 	inp.input[1].Placeholder = "Maximum dm quantity per hour (default: 5)"
-	inp.input[1].Prompt = focusedPrompt
+	inp.input[1].Prompt = blurredPrompt
 	inp.input[1].TextColor = focusedTextColor
 
 	return inp
@@ -170,7 +170,7 @@ func getSchedulerSettings() inputs {
 	inp.input[0].TextColor = focusedTextColor
 
 	inp.input[1].Placeholder = "Ending time (default: 18:00)"
-	inp.input[1].Prompt = focusedPrompt
+	inp.input[1].Prompt = blurredPrompt
 	inp.input[1].TextColor = focusedTextColor
 
 	return inp
@@ -187,7 +187,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case "ctrl+c", "q":
+			case "ctrl+c":
 				return m, tea.Quit
 
 			case "up", "k":
@@ -225,10 +225,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case "ctrl+c", "q":
+			case "ctrl+c":
 				return m, tea.Quit
 
-			case "backspace":
+			case "ctrl+b":
 				m.screen = mainMenu
 				break
 
@@ -287,10 +287,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case "ctrl+c", "q":
+			case "ctrl+c":
 				return m, tea.Quit
 
-			case "backspace":
+			case "ctrl+b":
 				m.screen = settingsMenu
 				break
 
@@ -348,10 +348,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case "ctrl+c", "q":
+			case "ctrl+c":
 				return m, tea.Quit
 
-			case "backspace":
+			case "ctrl+b":
 				m.screen = settingsMenu
 				break
 
@@ -408,10 +408,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case "ctrl+c", "q":
+			case "ctrl+c":
 				return m, tea.Quit
 
-			case "backspace":
+			case "ctrl+b":
 				m.screen = settingsMenu
 				break
 
@@ -459,7 +459,7 @@ func (m model) View() string {
 			s += fmt.Sprintf("%s %s\n", cursor, choice)
 		}
 
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("q: quit")
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+c: quit")
 		break
 
 	case settingsMenu:
@@ -473,7 +473,7 @@ func (m model) View() string {
 			s += fmt.Sprintf("%s %s\n", cursor, choice)
 		}
 
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: save & back") + dot + subtle("q: quit")
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: save & back") + dot + subtle("ctrl+c: quit")
 		break
 
 	case genericMenu:
@@ -487,7 +487,7 @@ func (m model) View() string {
 			s += fmt.Sprintf("%s %s\n", cursor, choice)
 		}
 
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: back") + dot + subtle("q: quit")
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
 		break
 
 	case settingsInputsScreen:
@@ -499,7 +499,7 @@ func (m model) View() string {
 			}
 		}
 		s += "\n\n" + m.settingsInputsScreen.submitButton + "\n"
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: back") + dot + subtle("q: quit")
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
 		break
 
 	case settingsBoolScreen:
@@ -533,7 +533,7 @@ func (m model) View() string {
 			}
 			s += fmt.Sprintf("%s %s\n", cursor, choice)
 		}
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("backspace: back") + dot + subtle("q: quit")
+		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
 		break
 	}
 
