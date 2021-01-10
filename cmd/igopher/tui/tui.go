@@ -34,6 +34,9 @@ const (
 	accountSettings settingsScreen = iota
 	scrappingSettings
 	autodmEnablingSettings
+	autodmGreetingMenu
+	autodmGreetingEnablingSettings
+	autodmGreetingSettings
 	quotasSettingsMenu
 	quotasEnablingSettings
 	quotasSettings
@@ -96,7 +99,7 @@ type inputs struct {
 var initialModel = model{
 	screen:                  0,
 	homeScreen:              menu{choices: []string{"🚀 - Launch!", "⚙️  - Configure", "🗒  - Reset settings", "🚪 - Exit"}},
-	configScreen:            menu{choices: []string{"Account", "Users scraping", "AutoDM", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
+	configScreen:            menu{choices: []string{"Account", "Users scraping", "AutoDM", "Greeting", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
 	configResetScreen:       menu{choices: []string{"Yes", "No"}},
 	settingsTrueFalseScreen: menu{choices: []string{"True", "False"}},
 }
@@ -127,12 +130,17 @@ func getUsersScrappingSettings() inputs {
 		title: fmt.Sprintf("\nPlease enter the list of %s you would like to use for %s (separated by a comma) :\n\n", keyword("accounts"), keyword("users scraping")),
 		input: []textinput.Model{
 			textinput.NewModel(),
+			textinput.NewModel(),
 		}, submitButton: blurredSubmitButton}
 
-	inp.input[0].Placeholder = "Usernames"
+	inp.input[0].Placeholder = "Usernames (comma separated)"
 	inp.input[0].Focus()
 	inp.input[0].Prompt = focusedPrompt
 	inp.input[0].TextColor = focusedTextColor
+
+	inp.input[1].Placeholder = "Fetch quantity (default: 500)"
+	inp.input[1].Prompt = blurredPrompt
+	inp.input[1].TextColor = focusedTextColor
 
 	return inp
 }
@@ -173,6 +181,21 @@ func getSchedulerSettings() inputs {
 	inp.input[1].Placeholder = "Ending time (default: 18:00)"
 	inp.input[1].Prompt = blurredPrompt
 	inp.input[1].TextColor = focusedTextColor
+
+	return inp
+}
+
+func getAutoDmGreetingSettings() inputs {
+	inp := inputs{
+		title: fmt.Sprintf("\nPlease fill following %s with desired greeting message template for %s sub-module configuration.\n\n", keyword("field"), keyword("Greeting")),
+		input: []textinput.Model{
+			textinput.NewModel(),
+		}, submitButton: blurredSubmitButton}
+
+	inp.input[0].Placeholder = "Greeting message (default: \"Hello\", will produce -> \"Hello <username>,\")"
+	inp.input[0].Focus()
+	inp.input[0].Prompt = focusedPrompt
+	inp.input[0].TextColor = focusedTextColor
 
 	return inp
 }
@@ -263,18 +286,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case 3:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
-					settingsChoice = quotasSettingsMenu
+					settingsChoice = autodmGreetingMenu
 					break
 				case 4:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
-					settingsChoice = scheduleSettingsMenu
+					settingsChoice = quotasSettingsMenu
 					break
 				case 5:
+					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
+					m.screen = genericMenu
+					settingsChoice = scheduleSettingsMenu
+					break
+				case 6:
 					m.screen = settingsBoolScreen
 					settingsChoice = blacklistEnablingSettings
 					break
-				case 6:
+				case 7:
 					igopher.ExportConfig(config)
 					m.screen = mainMenu
 					break
@@ -350,6 +378,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				switch m.genericMenuScreen.cursor {
 				case 0:
 					switch settingsChoice {
+					case autodmGreetingMenu:
+						settingsChoice = autodmGreetingEnablingSettings
+						break
 					case quotasSettingsMenu:
 						settingsChoice = quotasEnablingSettings
 						break
@@ -364,6 +395,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					break
 				case 1:
 					switch settingsChoice {
+					case autodmGreetingMenu:
+						m.settingsInputsScreen = getAutoDmGreetingSettings()
+						settingsChoice = autodmGreetingSettings
+						break
 					case quotasSettingsMenu:
 						m.settingsInputsScreen = getQuotasSettings()
 						settingsChoice = quotasSettings
@@ -562,6 +597,10 @@ func (m model) View() string {
 		switch settingsChoice {
 		case autodmEnablingSettings:
 			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("AutoDM"), keyword("true"))
+			break
+
+		case autodmGreetingEnablingSettings:
+			s = fmt.Sprintf("\nDo you want to enable %s sub-module with %s? (Default: %s)\n\n", keyword("Greeting"), keyword("AutoDm"), keyword("true"))
 			break
 
 		case quotasEnablingSettings:
