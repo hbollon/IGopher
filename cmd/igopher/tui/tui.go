@@ -505,13 +505,64 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				switch m.settingsTrueFalseScreen.cursor {
 				case 0:
+					switch settingsChoice {
+					case autodmEnablingSettings:
+						config.AutoDm.Activated = true
+						break
+
+					case autodmGreetingEnablingSettings:
+						config.AutoDm.Greeting.Activated = true
+						break
+
+					case quotasEnablingSettings:
+						config.Quotas.Activated = true
+						break
+
+					case scheduleEnablingSettings:
+						config.Schedule.Activated = true
+						break
+
+					case blacklistEnablingSettings:
+						config.Blacklist.Activated = true
+						break
+
+					default:
+						log.Error("Unexpected settings screen value!")
+						break
+					}
 					m.screen = settingsMenu
 					break
 				case 1:
+					switch settingsChoice {
+					case autodmEnablingSettings:
+						config.AutoDm.Activated = false
+						break
+
+					case autodmGreetingEnablingSettings:
+						config.AutoDm.Greeting.Activated = false
+						break
+
+					case quotasEnablingSettings:
+						config.Quotas.Activated = false
+						break
+
+					case scheduleEnablingSettings:
+						config.Schedule.Activated = false
+						break
+
+					case blacklistEnablingSettings:
+						config.Blacklist.Activated = false
+						break
+
+					default:
+						log.Error("Unexpected settings screen value!")
+						break
+					}
 					m.screen = settingsMenu
 					break
 				default:
 					log.Warn("Invalid input!")
+					m.screen = settingsMenu
 					break
 				}
 			}
