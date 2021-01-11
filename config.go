@@ -27,7 +27,7 @@ type BotConfigYaml struct {
 // AccountYaml is the yaml account configuration representation
 type AccountYaml struct {
 	Username string `yaml:"username" validate:"required,min=1,max=30"`
-	Password string `yaml:"password" validate:"required,min=1"`
+	Password string `yaml:"password" validate:"required"`
 }
 
 // SrcUsersYaml is the yaml user scrapping configuration representation

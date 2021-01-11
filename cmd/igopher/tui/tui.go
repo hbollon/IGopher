@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/go-playground/validator/v10"
 	"github.com/hbollon/igopher"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
@@ -68,6 +70,8 @@ var (
 	errorMessage   string
 	settingsChoice settingsScreen = 0
 	config         igopher.BotConfigYaml
+
+	validate = validator.New()
 )
 
 type model struct {
@@ -434,14 +438,106 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.screen = settingsMenu
 				break
 
-			// Cycle between inputs
-			case "tab", "shift+tab", "enter", "up", "down":
-				s := msg.String()
-
-				if s == "enter" && m.settingsInputsScreen.index == len(m.settingsInputsScreen.input) {
-					m.screen--
+			case "enter":
+				if m.settingsInputsScreen.index == len(m.settingsInputsScreen.input) {
+					switch settingsChoice {
+					case accountSettings:
+						acc := igopher.AccountYaml{
+							Username: m.settingsInputsScreen.input[0].Value(),
+							Password: m.settingsInputsScreen.input[1].Value(),
+						}
+						err := validate.Struct(acc)
+						if err != nil {
+							errorMessage = "Invalid input, please check all fields.\n\n"
+							break
+						} else {
+							config.Account = acc
+							errorMessage = ""
+							m.screen = settingsMenu
+						}
+						break
+					case scrappingSettings:
+						val, err := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
+						if err == nil {
+							scr := igopher.SrcUsersYaml{
+								Accounts: strings.Split(m.settingsInputsScreen.input[0].Value(), ","),
+								Quantity: val,
+							}
+							err := validate.Struct(scr)
+							if err != nil {
+								errorMessage = "Invalid input, please check all fields.\n\n"
+								break
+							} else {
+								config.SrcUsers = scr
+								errorMessage = ""
+								m.screen = settingsMenu
+							}
+						} else {
+							errorMessage = "Invalid quantity field, value must be numeric.\n\n"
+						}
+						break
+					case autodmGreetingSettings:
+						gre := igopher.GreetingYaml{
+							Template: m.settingsInputsScreen.input[0].Value(),
+						}
+						err := validate.Struct(gre)
+						if err != nil {
+							errorMessage = "Invalid input, please check all fields.\n\n"
+							break
+						} else {
+							config.AutoDm.Greeting.Template = gre.Template
+							errorMessage = ""
+							m.screen = settingsMenu
+						}
+						break
+					case quotasSettings:
+						dmDay, err := strconv.Atoi(m.settingsInputsScreen.input[0].Value())
+						dmHour, err2 := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
+						if err == nil && err2 == nil {
+							quo := igopher.QuotasYaml{
+								DmDay:  dmDay,
+								DmHour: dmHour,
+							}
+							err := validate.Struct(quo)
+							if err != nil {
+								errorMessage = "Invalid input, please check all fields.\n\n"
+								break
+							} else {
+								config.Quotas.DmDay = quo.DmDay
+								config.Quotas.DmHour = quo.DmHour
+								errorMessage = ""
+								m.screen = settingsMenu
+							}
+						} else {
+							errorMessage = "Invalid input, please check all fields.\n\n"
+						}
+						break
+					case scheduleSettings:
+						sche := igopher.ScheduleYaml{
+							BeginAt: m.settingsInputsScreen.input[0].Value(),
+							EndAt:   m.settingsInputsScreen.input[1].Value(),
+						}
+						err := validate.Struct(sche)
+						if err != nil {
+							errorMessage = "Invalid input, please check all fields.\n\n"
+							break
+						} else {
+							config.Schedule.BeginAt = sche.BeginAt
+							config.Schedule.EndAt = sche.EndAt
+							errorMessage = ""
+							m.screen = settingsMenu
+						}
+						break
+					default:
+						log.Error("Unexpected settings screen value!\n\n")
+						break
+					}
 					break
 				}
+
+			// Cycle between inputs
+			case "tab", "shift+tab", "up", "down":
+				s := msg.String()
 
 				// Cycle indexes
 				if s == "up" || s == "shift+tab" {
