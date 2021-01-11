@@ -58,8 +58,8 @@ type QuotasYaml struct {
 
 // ScheduleYaml is the yaml scheduler module configuration representation
 type ScheduleYaml struct {
-	BeginAt   string `yaml:"begin_at"`
-	EndAt     string `yaml:"end_at"`
+	BeginAt   string `yaml:"begin_at" validate:"contains=:"`
+	EndAt     string `yaml:"end_at" validate:"contains=:"`
 	Activated bool   `yaml:"activated"`
 }
 

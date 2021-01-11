@@ -53,7 +53,7 @@ var (
 	keyword       = makeFgStyle("211")
 	cursorColor   = makeFgStyle("14")
 	subtle        = makeFgStyle("241")
-	errorColor    = makeFgStyle("31")
+	errorColor    = makeFgStyle("1")
 	progressEmpty = subtle(progressEmptyChar)
 	dot           = colorFg(" • ", "236")
 
@@ -411,7 +411,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						break
 					case scheduleSettingsMenu:
 						m.settingsInputsScreen = getSchedulerSettings()
-						settingsChoice = scheduleEnablingSettings
+						settingsChoice = scheduleSettings
 						break
 					default:
 						log.Warn("Invalid input!")
