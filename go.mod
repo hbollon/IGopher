@@ -7,6 +7,7 @@ require (
 	github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e
 	github.com/charmbracelet/bubbles v0.7.5
 	github.com/charmbracelet/bubbletea v0.12.2
+	github.com/go-playground/validator/v10 v10.4.1
 	github.com/google/go-github/v27 v27.0.4
 	github.com/lucasb-eyer/go-colorful v1.0.3
 	github.com/muesli/termenv v0.7.4

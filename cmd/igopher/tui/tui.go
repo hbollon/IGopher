@@ -51,6 +51,7 @@ var (
 	keyword       = makeFgStyle("211")
 	cursorColor   = makeFgStyle("14")
 	subtle        = makeFgStyle("241")
+	errorColor    = makeFgStyle("31")
 	progressEmpty = subtle(progressEmptyChar)
 	dot           = colorFg(" • ", "236")
 
@@ -63,7 +64,8 @@ var (
 
 	ramp = makeRamp("#B14FFF", "#00FFA3", progressBarWidth)
 
-	execBot                       = false
+	execBot        = false
+	errorMessage   string
 	settingsChoice settingsScreen = 0
 	config         igopher.BotConfigYaml
 )
@@ -634,6 +636,7 @@ func (m model) View() string {
 
 	case settingsInputsScreen:
 		s = m.settingsInputsScreen.title
+		s += errorColor(errorMessage)
 		for i := 0; i < len(m.settingsInputsScreen.input); i++ {
 			s += m.settingsInputsScreen.input[i].View()
 			if i < len(m.settingsInputsScreen.input)-1 {

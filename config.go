@@ -6,6 +6,9 @@ import (
 	"strings"
 	"time"
 
+	// Blank import to avoid deletion by linter
+	// Used for struct fieldl validate metadata
+	_ "github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -13,35 +16,56 @@ import (
 
 // BotConfigYaml is the raw representation of the yaml bot config file
 type BotConfigYaml struct {
-	Account struct {
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-	} `yaml:"account"`
-	SrcUsers struct {
-		Accounts []string `yaml:"src_accounts"`
-		Quantity int      `yaml:"fetch_quantity"`
-	} `yaml:"users_src"`
-	AutoDm struct {
-		DmTemplates []string `yaml:"dm_templates"`
-		Greeting    struct {
-			Template  string `yaml:"template"`
-			Activated bool   `yaml:"activated"`
-		} `yaml:"greeting"`
-		Activated bool `yaml:"activated"`
-	} `yaml:"auto_dm"`
-	Quotas struct {
-		DmDay     int  `yaml:"dm_per_day"`
-		DmHour    int  `yaml:"dm_per_hour"`
-		Activated bool `yaml:"activated"`
-	} `yaml:"quotas"`
-	Schedule struct {
-		BeginAt   string `yaml:"begin_at"`
-		EndAt     string `yaml:"end_at"`
-		Activated bool   `yaml:"activated"`
-	} `yaml:"schedule"`
-	Blacklist struct {
-		Activated bool `yaml:"activated"`
-	} `yaml:"blacklist"`
+	Account   AccountYaml   `yaml:"account"`
+	SrcUsers  SrcUsersYaml  `yaml:"users_src"`
+	AutoDm    AutoDmYaml    `yaml:"auto_dm"`
+	Quotas    QuotasYaml    `yaml:"quotas"`
+	Schedule  ScheduleYaml  `yaml:"schedule"`
+	Blacklist BlacklistYaml `yaml:"blacklist"`
+}
+
+// AccountYaml is the yaml account configuration representation
+type AccountYaml struct {
+	Username string `yaml:"username" validate:"required,min=1,max=30"`
+	Password string `yaml:"password" validate:"required,min=1"`
+}
+
+// SrcUsersYaml is the yaml user scrapping configuration representation
+type SrcUsersYaml struct {
+	Accounts []string `yaml:"src_accounts"`
+	Quantity int      `yaml:"fetch_quantity" validate:"numeric"`
+}
+
+// AutoDmYaml is the yaml autodm module configuration representation
+type AutoDmYaml struct {
+	DmTemplates []string     `yaml:"dm_templates"`
+	Greeting    GreetingYaml `yaml:"greeting"`
+	Activated   bool         `yaml:"activated"`
+}
+
+// GreetingYaml is the yaml dm greeting configuration representation
+type GreetingYaml struct {
+	Template  string `yaml:"template"`
+	Activated bool   `yaml:"activated"`
+}
+
+// QuotasYaml is the yaml quotas module configuration representation
+type QuotasYaml struct {
+	DmDay     int  `yaml:"dm_per_day" validate:"numeric"`
+	DmHour    int  `yaml:"dm_per_hour" validate:"numeric"`
+	Activated bool `yaml:"activated"`
+}
+
+// ScheduleYaml is the yaml scheduler module configuration representation
+type ScheduleYaml struct {
+	BeginAt   string `yaml:"begin_at"`
+	EndAt     string `yaml:"end_at"`
+	Activated bool   `yaml:"activated"`
+}
+
+// BlacklistYaml is the yaml blacklist module configuration representation
+type BlacklistYaml struct {
+	Activated bool `yaml:"activated"`
 }
 
 // ClientConfig struct centralize all client configuration and flags.
@@ -158,7 +182,7 @@ func readBotConfigYaml() BotConfig {
 	return c
 }
 
-// ImportConfig read config.yaml, parse it in BotConfigYaml instance and finally return it
+// ImportConfig read config.yaml, parse it in BotCvalidate:"numeric"onfigYaml instance and finally return it
 func ImportConfig() BotConfigYaml {
 	var c BotConfigYaml
 	file, err := ioutil.ReadFile("./config/config.yaml")
@@ -190,59 +214,33 @@ func ExportConfig(c BotConfigYaml) {
 // ResetBotConfig return default bot configuration instance
 func ResetBotConfig() BotConfigYaml {
 	return BotConfigYaml{
-		Account: struct {
-			Username string `yaml:"username"`
-			Password string `yaml:"password"`
-		}{
+		Account: AccountYaml{
 			Username: "",
 			Password: "",
 		},
-		SrcUsers: struct {
-			Accounts []string `yaml:"src_accounts"`
-			Quantity int      `yaml:"fetch_quantity"`
-		}{
+		SrcUsers: SrcUsersYaml{
 			Accounts: []string{""},
 			Quantity: 500,
 		},
-		AutoDm: struct {
-			DmTemplates []string `yaml:"dm_templates"`
-			Greeting    struct {
-				Template  string `yaml:"template"`
-				Activated bool   `yaml:"activated"`
-			} `yaml:"greeting"`
-			Activated bool `yaml:"activated"`
-		}{
+		AutoDm: AutoDmYaml{
 			DmTemplates: []string{"Hey ! What's up?"},
-			Greeting: struct {
-				Template  string `yaml:"template"`
-				Activated bool   `yaml:"activated"`
-			}{
+			Greeting: GreetingYaml{
 				Template:  "Hello",
 				Activated: false,
 			},
 			Activated: true,
 		},
-		Quotas: struct {
-			DmDay     int  `yaml:"dm_per_day"`
-			DmHour    int  `yaml:"dm_per_hour"`
-			Activated bool `yaml:"activated"`
-		}{
+		Quotas: QuotasYaml{
 			DmDay:     50,
 			DmHour:    5,
 			Activated: true,
 		},
-		Schedule: struct {
-			BeginAt   string `yaml:"begin_at"`
-			EndAt     string `yaml:"end_at"`
-			Activated bool   `yaml:"activated"`
-		}{
+		Schedule: ScheduleYaml{
 			BeginAt:   "8:00",
 			EndAt:     "18:00",
 			Activated: true,
 		},
-		Blacklist: struct {
-			Activated bool `yaml:"activated"`
-		}{
+		Blacklist: BlacklistYaml{
 			Activated: true,
 		},
 	}
