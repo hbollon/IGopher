@@ -460,6 +460,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 
 			case "ctrl+b":
+				errorMessage = ""
 				m.screen = settingsMenu
 				break
 

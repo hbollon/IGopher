@@ -82,6 +82,9 @@ func initClientConfig() *igopher.ClientConfig {
 }
 
 func main() {
+	// Clear terminal session
+	igopher.ClearTerminal()
+
 	// Launch TUI
 	p := tea.NewProgram(initialModel)
 	if err := p.Start(); err != nil {

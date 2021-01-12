@@ -2,6 +2,9 @@ package igopher
 
 import (
 	"math/rand"
+	"os"
+	"os/exec"
+	"runtime"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -11,6 +14,22 @@ const (
 	sleepMin = 3.0
 	sleepMax = 5.0
 )
+
+var clear map[string]func() // Map storing clear funcs for different os
+
+func init() {
+	clear = make(map[string]func())
+	clear["linux"] = func() {
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
+	clear["windows"] = func() {
+		cmd := exec.Command("cmd", "/c", "cls")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
+}
 
 // Initialize random engine
 func init() {
@@ -39,4 +58,14 @@ func randomMillisecondDuration(min, max float64) time.Duration {
 func (s *Selenium) Fatal(msg string, err error) {
 	s.CloseSelenium()
 	logrus.Fatal(msg, err)
+}
+
+// ClearTerminal clear current terminal session according to user OS
+func ClearTerminal() {
+	value, ok := clear[runtime.GOOS] // runtime.GOOS -> linux, windows, darwin etc.
+	if ok {
+		value()
+	} else {
+		logrus.Errorf("Can't clear terminal, os unsupported !")
+	}
 }
