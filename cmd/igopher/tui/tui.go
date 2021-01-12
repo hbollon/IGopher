@@ -10,6 +10,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/hbollon/igopher"
 	"github.com/lucasb-eyer/go-colorful"
+	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/termenv"
 	log "github.com/sirupsen/logrus"
 )
@@ -21,6 +22,7 @@ const (
 	progressBarWidth  = 71
 	progressFullChar  = "█"
 	progressEmptyChar = "░"
+	maxLineWidth      = 80
 )
 
 const (
@@ -84,6 +86,9 @@ type model struct {
 	genericMenuScreen       menu
 	settingsInputsScreen    inputs
 	settingsTrueFalseScreen menu
+
+	termWidth  int
+	termHeight int
 }
 
 type menu struct {
@@ -229,6 +234,13 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	switch msg := msg.(type) {
+	// Get terminal windows dimensions from msg and update model
+	case tea.WindowSizeMsg:
+		m.termWidth = msg.Width
+		m.termHeight = msg.Height
+	}
+
 	switch m.screen {
 	case mainMenu:
 		switch msg := msg.(type) {
@@ -822,7 +834,7 @@ func (m model) View() string {
 		break
 	}
 
-	return s
+	return wordwrap.String(s, min(m.termWidth, maxLineWidth))
 }
 
 // Pass messages and models through to text input components. Only text inputs
@@ -914,4 +926,11 @@ func colorFloatToHex(f float64) (s string) {
 		s = "0" + s
 	}
 	return
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
