@@ -35,7 +35,9 @@ const (
 const (
 	accountSettings settingsScreen = iota
 	scrappingSettings
+	autodmSettingsMenu
 	autodmEnablingSettings
+	autodmSettings
 	autodmGreetingMenu
 	autodmGreetingEnablingSettings
 	autodmGreetingSettings
@@ -206,6 +208,21 @@ func getAutoDmGreetingSettings() inputs {
 	return inp
 }
 
+func getAutoDmSettings() inputs {
+	inp := inputs{
+		title: fmt.Sprintf("\nPlease fill following %s with desired message templates (separated by ';') for %s configuration.\n\n", keyword("field"), keyword("AutoDm")),
+		input: []textinput.Model{
+			textinput.NewModel(),
+		}, submitButton: blurredSubmitButton}
+
+	inp.input[0].Placeholder = "Messages templates (separated by ';')"
+	inp.input[0].Focus()
+	inp.input[0].Prompt = focusedPrompt
+	inp.input[0].TextColor = focusedTextColor
+
+	return inp
+}
+
 func (m model) Init() tea.Cmd {
 	return textinput.Blink
 }
@@ -286,8 +303,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					settingsChoice = scrappingSettings
 					break
 				case 2:
-					m.screen = settingsBoolScreen
-					settingsChoice = autodmEnablingSettings
+					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
+					m.screen = genericMenu
+					settingsChoice = autodmSettingsMenu
 					break
 				case 3:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
@@ -384,6 +402,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				switch m.genericMenuScreen.cursor {
 				case 0:
 					switch settingsChoice {
+					case autodmSettingsMenu:
+						settingsChoice = autodmEnablingSettings
+						break
 					case autodmGreetingMenu:
 						settingsChoice = autodmGreetingEnablingSettings
 						break
@@ -401,6 +422,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					break
 				case 1:
 					switch settingsChoice {
+					case autodmSettingsMenu:
+						m.settingsInputsScreen = getAutoDmSettings()
+						settingsChoice = autodmSettings
+						break
 					case autodmGreetingMenu:
 						m.settingsInputsScreen = getAutoDmGreetingSettings()
 						settingsChoice = autodmGreetingSettings
@@ -474,6 +499,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							}
 						} else {
 							errorMessage = "Invalid quantity field, value must be numeric.\n\n"
+						}
+						break
+					case autodmSettings:
+						dm := igopher.AutoDmYaml{
+							DmTemplates: strings.Split(m.settingsInputsScreen.input[0].Value(), ";"),
+						}
+						err := validate.Struct(dm)
+						if err != nil {
+							errorMessage = "Invalid input, please check all fields.\n\n"
+							break
+						} else {
+							config.AutoDm.DmTemplates = dm.DmTemplates
+							errorMessage = ""
+							m.screen = settingsMenu
 						}
 						break
 					case autodmGreetingSettings:
