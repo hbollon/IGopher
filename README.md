@@ -25,6 +25,11 @@
 
 ---
 
+<p align="center">
+  <img src="doc/gifs/demo_tui.gif">
+  <small>Easily configurable and easy to use thanks to his TUI !</small>
+</p>
+
 ## Table of Contents
 
 - [Requirements](#requirements)
@@ -38,12 +43,26 @@
 - [Go](https://golang.org/doc/install) (v1.13+)
 
 ## Features
+- Selenium webdriver engine :stars:
+- Automatic dependencies downloading and installation :stars:
+- Automated IG connection & message sending :stars:
+- Scheduler :stars:
+- Quotas & user blacklist modules :stars:
+- Human writing simulation :stars:
+- Fully and easily customizable through Yaml files or with TUI :stars:
+- TUI (Terminal User Interface) :stars:
+- Many more to come ! 🥳
 
 **Check this [Project](https://github.com/hbollon/igopher/projects/1) to see all planned features for this tool! Feel free to suggest additional features to implement! 🥳**
 
 ## Installation
+**1. Clone this repo**
 
-**Comming soon**
+**2. Run it:**
+
+```go
+go run cmd/igopher/tui/*.go
+```
 
 ## Author
 
