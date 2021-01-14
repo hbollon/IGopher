@@ -1,0 +1,28 @@
+run:
+  tests: false
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  enable:
+    - dupl
+    - exportloopref
+    - godox
+    - gofmt
+    - goimports
+    - govet
+    - misspell
+    - prealloc
+    - rowserrcheck
+    - unconvert
+    - unparam
+    - whitespace
+  disable:
+    - deadcode # Disabled during early devellopment
+    - errcheck
+    - gosec # Disabled during early devellopment
+    - structcheck # Disabled during early devellopment
+    - unused # Disabled during early devellopment
+    - varcheck # Disabled during early devellopment
