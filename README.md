@@ -3,6 +3,9 @@
     <img alt="IGopher logo" height="250" src="doc/IGopher.png">
 </p>
 <p align="center">
+  <a href="https://github.com/hbollon/IGopher/actions" target="_blank">
+    <img alt="Build CI" src="https://github.com/hbollon/igopher/workflows/build/badge.svg" />
+  </a>
   <a href="https://goreportcard.com/report/github.com/hbollon/igopher" target="_blank">
     <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/hbollon/igopher" />
   </a>
