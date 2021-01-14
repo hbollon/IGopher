@@ -267,19 +267,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case 1:
 					config = igopher.ImportConfig()
 					m.screen = settingsMenu
-					break
 				case 2:
 					m.screen = settingsResetMenu
-					break
 				case 3:
 					return m, tea.Quit
 				default:
 					log.Warn("Invalid input!")
-					break
 				}
 			}
 		}
-		break
 
 	case settingsMenu:
 		switch msg := msg.(type) {
@@ -290,7 +286,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "ctrl+b":
 				m.screen = mainMenu
-				break
 
 			case "up", "k":
 				if m.configScreen.cursor > 0 {
@@ -308,47 +303,37 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.settingsInputsScreen = getAccountSettings()
 					m.screen = settingsInputsScreen
 					settingsChoice = accountSettings
-					break
 				case 1:
 					m.settingsInputsScreen = getUsersScrappingSettings()
 					m.screen = settingsInputsScreen
 					settingsChoice = scrappingSettings
-					break
 				case 2:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
 					settingsChoice = autodmSettingsMenu
-					break
 				case 3:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
 					settingsChoice = autodmGreetingMenu
-					break
 				case 4:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
 					settingsChoice = quotasSettingsMenu
-					break
 				case 5:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
 					settingsChoice = scheduleSettingsMenu
-					break
 				case 6:
 					m.screen = settingsBoolScreen
 					settingsChoice = blacklistEnablingSettings
-					break
 				case 7:
 					igopher.ExportConfig(config)
 					m.screen = mainMenu
-					break
 				default:
 					log.Warn("Invalid input!")
-					break
 				}
 			}
 		}
-		break
 
 	case settingsResetMenu:
 		switch msg := msg.(type) {
@@ -359,7 +344,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "ctrl+b":
 				m.screen = mainMenu
-				break
 
 			case "up", "k":
 				if m.configResetScreen.cursor > 0 {
@@ -377,17 +361,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					config = igopher.ResetBotConfig()
 					igopher.ExportConfig(config)
 					m.screen = mainMenu
-					break
 				case 1:
 					m.screen = mainMenu
-					break
 				default:
 					log.Warn("Invalid input!")
-					break
 				}
 			}
 		}
-		break
 
 	case genericMenu:
 		switch msg := msg.(type) {
@@ -398,7 +378,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "ctrl+b":
 				m.screen = settingsMenu
-				break
 
 			case "up", "k":
 				if m.genericMenuScreen.cursor > 0 {
@@ -416,53 +395,39 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					switch settingsChoice {
 					case autodmSettingsMenu:
 						settingsChoice = autodmEnablingSettings
-						break
 					case autodmGreetingMenu:
 						settingsChoice = autodmGreetingEnablingSettings
-						break
 					case quotasSettingsMenu:
 						settingsChoice = quotasEnablingSettings
-						break
 					case scheduleSettingsMenu:
 						settingsChoice = scheduleEnablingSettings
-						break
 					default:
 						log.Warn("Invalid input!")
-						break
 					}
 					m.screen = settingsBoolScreen
-					break
 				case 1:
 					switch settingsChoice {
 					case autodmSettingsMenu:
 						m.settingsInputsScreen = getAutoDmSettings()
 						settingsChoice = autodmSettings
-						break
 					case autodmGreetingMenu:
 						m.settingsInputsScreen = getAutoDmGreetingSettings()
 						settingsChoice = autodmGreetingSettings
-						break
 					case quotasSettingsMenu:
 						m.settingsInputsScreen = getQuotasSettings()
 						settingsChoice = quotasSettings
-						break
 					case scheduleSettingsMenu:
 						m.settingsInputsScreen = getSchedulerSettings()
 						settingsChoice = scheduleSettings
-						break
 					default:
 						log.Warn("Invalid input!")
-						break
 					}
 					m.screen = settingsInputsScreen
-					break
 				default:
 					log.Warn("Invalid input!")
-					break
 				}
 			}
 		}
-		break
 
 	case settingsInputsScreen:
 		switch msg := msg.(type) {
@@ -474,7 +439,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+b":
 				errorMessage = ""
 				m.screen = settingsMenu
-				break
 
 			case "enter":
 				if m.settingsInputsScreen.index == len(m.settingsInputsScreen.input) {
@@ -493,7 +457,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							errorMessage = ""
 							m.screen = settingsMenu
 						}
-						break
 					case scrappingSettings:
 						val, err := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
 						if err == nil {
@@ -513,7 +476,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						} else {
 							errorMessage = "Invalid quantity field, value must be numeric.\n\n"
 						}
-						break
 					case autodmSettings:
 						dm := igopher.AutoDmYaml{
 							DmTemplates: strings.Split(m.settingsInputsScreen.input[0].Value(), ";"),
@@ -527,7 +489,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							errorMessage = ""
 							m.screen = settingsMenu
 						}
-						break
 					case autodmGreetingSettings:
 						gre := igopher.GreetingYaml{
 							Template: m.settingsInputsScreen.input[0].Value(),
@@ -541,7 +502,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							errorMessage = ""
 							m.screen = settingsMenu
 						}
-						break
 					case quotasSettings:
 						dmDay, err := strconv.Atoi(m.settingsInputsScreen.input[0].Value())
 						dmHour, err2 := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
@@ -563,7 +523,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						} else {
 							errorMessage = "Invalid input, please check all fields.\n\n"
 						}
-						break
 					case scheduleSettings:
 						sche := igopher.ScheduleYaml{
 							BeginAt: m.settingsInputsScreen.input[0].Value(),
@@ -579,10 +538,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							errorMessage = ""
 							m.screen = settingsMenu
 						}
-						break
 					default:
 						log.Error("Unexpected settings screen value!\n\n")
-						break
 					}
 					break
 				}
@@ -640,7 +597,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "ctrl+b":
 				m.screen = settingsMenu
-				break
 
 			case "up", "k":
 				if m.settingsTrueFalseScreen.cursor > 0 {
@@ -658,66 +614,50 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					switch settingsChoice {
 					case autodmEnablingSettings:
 						config.AutoDm.Activated = true
-						break
 
 					case autodmGreetingEnablingSettings:
 						config.AutoDm.Greeting.Activated = true
-						break
 
 					case quotasEnablingSettings:
 						config.Quotas.Activated = true
-						break
 
 					case scheduleEnablingSettings:
 						config.Schedule.Activated = true
-						break
 
 					case blacklistEnablingSettings:
 						config.Blacklist.Activated = true
-						break
 
 					default:
 						log.Error("Unexpected settings screen value!")
-						break
 					}
 					m.screen = settingsMenu
-					break
 				case 1:
 					switch settingsChoice {
 					case autodmEnablingSettings:
 						config.AutoDm.Activated = false
-						break
 
 					case autodmGreetingEnablingSettings:
 						config.AutoDm.Greeting.Activated = false
-						break
 
 					case quotasEnablingSettings:
 						config.Quotas.Activated = false
-						break
 
 					case scheduleEnablingSettings:
 						config.Schedule.Activated = false
-						break
 
 					case blacklistEnablingSettings:
 						config.Blacklist.Activated = false
-						break
 
 					default:
 						log.Error("Unexpected settings screen value!")
-						break
 					}
 					m.screen = settingsMenu
-					break
 				default:
 					log.Warn("Invalid input!")
 					m.screen = settingsMenu
-					break
 				}
 			}
 		}
-		break
 	}
 
 	return m, nil
@@ -738,7 +678,6 @@ func (m model) View() string {
 		}
 
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+c: quit")
-		break
 
 	case settingsMenu:
 		s = fmt.Sprintf("\nWhat would you like to %s?\n\n", keyword("tweak"))
@@ -752,7 +691,6 @@ func (m model) View() string {
 		}
 
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: save & back") + dot + subtle("ctrl+c: quit")
-		break
 
 	case settingsResetMenu:
 		s = fmt.Sprintf("\nAre you sure you want to %s the default %s? This operation cannot be undone!\n\n", keyword("reset"), keyword("settings"))
@@ -766,7 +704,6 @@ func (m model) View() string {
 		}
 
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
-		break
 
 	case genericMenu:
 		s += "\n\n"
@@ -780,7 +717,6 @@ func (m model) View() string {
 		}
 
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
-		break
 
 	case settingsInputsScreen:
 		s = m.settingsInputsScreen.title
@@ -793,34 +729,27 @@ func (m model) View() string {
 		}
 		s += "\n\n" + m.settingsInputsScreen.submitButton + "\n"
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
-		break
 
 	case settingsBoolScreen:
 		switch settingsChoice {
 		case autodmEnablingSettings:
 			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("AutoDM"), keyword("true"))
-			break
 
 		case autodmGreetingEnablingSettings:
 			s = fmt.Sprintf("\nDo you want to enable %s sub-module with %s? (Default: %s)\n\n", keyword("Greeting"), keyword("AutoDm"), keyword("true"))
-			break
 
 		case quotasEnablingSettings:
 			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("Quotas"), keyword("true"))
-			break
 
 		case scheduleEnablingSettings:
 			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("Scheduler"), keyword("true"))
-			break
 
 		case blacklistEnablingSettings:
 			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("User Blacklist"), keyword("true"))
-			break
 
 		default:
 			log.Error("Unexpected settings screen value!")
 			s = ""
-			break
 		}
 
 		for i, choice := range m.settingsTrueFalseScreen.choices {
@@ -831,7 +760,6 @@ func (m model) View() string {
 			s += fmt.Sprintf("%s %s\n", cursor, choice)
 		}
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
-		break
 	}
 
 	return wordwrap.String(s, min(m.termWidth, maxLineWidth))
@@ -873,7 +801,7 @@ func launchBot() {
 	if err := SeleniumStruct.Config.BotConfig.Scheduler.CheckTime(); err == nil {
 		SeleniumStruct.ConnectToInstagram()
 		res, err := SeleniumStruct.SendMessage("_motivation.business", "Test message ! :)")
-		if res != true || err != nil {
+		if !res || err != nil {
 			log.Errorf("Error during message sending: %v", err)
 		}
 	} else {
@@ -913,7 +841,7 @@ func makeRamp(colorA, colorB string, steps float64) (s []string) {
 	return
 }
 
-// Convert a colorful.Color to a hexidecimal format compatible with termenv.
+// Convert a colorful.Color to a hexadecimal format compatible with termenv.
 func colorToHex(c colorful.Color) string {
 	return fmt.Sprintf("#%s%s%s", colorFloatToHex(c.R), colorFloatToHex(c.G), colorFloatToHex(c.B))
 }

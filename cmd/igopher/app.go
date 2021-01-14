@@ -97,7 +97,7 @@ func main() {
 	if err := SeleniumStruct.Config.BotConfig.Scheduler.CheckTime(); err == nil {
 		SeleniumStruct.ConnectToInstagram()
 		res, err := SeleniumStruct.SendMessage("_motivation.business", "Test message ! :)")
-		if res != true || err != nil {
+		if !res || err != nil {
 			log.Errorf("Error during message sending: %v", err)
 		}
 	} else {

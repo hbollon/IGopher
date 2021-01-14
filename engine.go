@@ -132,12 +132,12 @@ func (s *Selenium) WaitForElement(elementTag, locator string, delay int) (bool, 
 	defer s.WebDriver.SetImplicitWaitTimeout(30)
 
 	timeout := time.After(time.Duration(delay) * time.Second)
-	tick := time.Tick(500 * time.Millisecond)
+	tick := time.NewTicker(500 * time.Millisecond)
 	for {
 		select {
 		case <-timeout:
 			return false, errors.New("Timed out : element not found")
-		case <-tick:
+		case <-tick.C:
 			if (locator == "ID" && s.IsElementPresent(selenium.ByID, elementTag)) ||
 				(locator == "NAME" && s.IsElementPresent(selenium.ByName, elementTag)) ||
 				(locator == "XPATH" && s.IsElementPresent(selenium.ByXPATH, elementTag)) ||

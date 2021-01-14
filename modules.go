@@ -107,14 +107,15 @@ func (s *SchedulerManager) CheckTime() error {
 			return nil
 		}
 		logrus.Info("Reached end of service. Sleeping...")
-		for res, err = s.isWorkingTime(); res != true; {
+		for res, err := s.isWorkingTime(); !res; {
+			if err != nil {
+				return err
+			}
 			time.Sleep(3600)
 		}
 		logrus.Info("Back to work!")
-		return nil
 	}
-	logrus.Error(err)
-	return err
+	return nil
 }
 
 // Check if current time is between scheduler working interval
@@ -151,10 +152,10 @@ func (bm *BlacklistManager) InitializeBlacklist() error {
 			}
 			// Create and open csv blacklist
 			f, err := os.OpenFile(fileBlacklistPath, os.O_RDWR|os.O_CREATE, 0755)
-			defer f.Close()
 			if err != nil {
 				return err
 			}
+			defer f.Close()
 			// Write csv header
 			writer := csv.NewWriter(f)
 			err = writer.Write([]string{"Username"})
@@ -168,10 +169,11 @@ func (bm *BlacklistManager) InitializeBlacklist() error {
 	} else {
 		// Open existing blacklist and recover blacklisted usernames
 		f, err := os.OpenFile(fileBlacklistPath, os.O_RDONLY, 0644)
-		defer f.Close()
 		if err != nil {
 			return err
 		}
+		defer f.Close()
+
 		reader := csv.NewReader(f)
 		bm.BlacklistedUsers, err = reader.ReadAll()
 		if err != nil {
@@ -186,10 +188,10 @@ func (bm *BlacklistManager) InitializeBlacklist() error {
 func (bm *BlacklistManager) AddUser(user string) {
 	bm.BlacklistedUsers = append(bm.BlacklistedUsers, []string{user})
 	f, err := os.OpenFile(fileBlacklistPath, os.O_WRONLY|os.O_APPEND, 0644)
-	defer f.Close()
 	if err != nil {
 		logrus.Errorf("Failed to blacklist current user: %v", err)
 	}
+	defer f.Close()
 
 	writer := csv.NewWriter(f)
 	err = writer.Write([]string{user})

@@ -73,14 +73,14 @@ func (s *Selenium) connectToInstagramWebDriver() {
 func (s *Selenium) SendMessage(user, message string) (bool, error) {
 	if s.Config.BotConfig.Scheduler.CheckTime() == nil && (!s.Config.BotConfig.Blacklist.Activated || !s.Config.BotConfig.Blacklist.IsBlacklisted(user)) {
 		res, err := s.sendMessageWebDriver(user, message)
-		if res == true && err == nil {
+		if res && err == nil {
 			if s.Config.BotConfig.Quotas.Activated {
 				s.Config.BotConfig.Quotas.AddDm()
 			}
 			if s.Config.BotConfig.Blacklist.Activated {
 				s.Config.BotConfig.Blacklist.AddUser(user)
 			}
-			log.Info("Message successfuly sent!")
+			log.Info("Message successfully sent!")
 		}
 
 		return res, err
@@ -100,7 +100,7 @@ func (s *Selenium) sendMessageWebDriver(user, message string) (bool, error) {
 	if find, err := s.WaitForElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath", 10); err == nil && find {
 		elem, _ := s.GetElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath")
 		log.Debug("Finded an retrieved user searchbar")
-		if res := SimulateHandWriting(elem, user); res != true {
+		if res := SimulateHandWriting(elem, user); !res {
 			return false, errors.New("Error during user searching")
 		}
 		randomSleep()
@@ -134,7 +134,7 @@ func (s *Selenium) typeMessage(message string) error {
 	randomSleep()
 	if find, err := s.WaitForElement("//textarea[@placeholder]", "xpath", 5); err == nil && find {
 		elem, _ := s.GetElement("//textarea[@placeholder]", "xpath")
-		if res := SimulateHandWriting(elem, message); res != true {
+		if res := SimulateHandWriting(elem, message); !res {
 			return errors.New("Error during message typing")
 		}
 	} else {
