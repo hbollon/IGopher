@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	cloud.google.com/go v0.41.0
+	github.com/ahmdrz/goinsta/v2 v2.4.5-0.20191021103459-79702a8f3eda
 	github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e
 	github.com/charmbracelet/bubbles v0.7.5
 	github.com/charmbracelet/bubbletea v0.12.2
