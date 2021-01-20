@@ -110,6 +110,14 @@ type GreetingConfig struct {
 	Template string `yaml:"template"`
 }
 
+// ScrapperConfig store scrapper configuration for user fetching
+// It also store fetched usernames
+type ScrapperConfig struct {
+	SrcAccounts     []string `yaml:"src_accounts"`
+	FetchedAccounts []string
+	Quantity        int `yaml:"fetch_quantity"`
+}
+
 // BotConfig struct store all bot and ig related configuration .
 // These parameters are readed from Yaml config files.
 type BotConfig struct {
@@ -119,6 +127,8 @@ type BotConfig struct {
 	DmModule AutoDM `yaml:"auto_dm"`
 	// Quotas
 	Quotas QuotaManager `yaml:"quotas"`
+	// Scrapper
+	Scrapper ScrapperConfig `yaml:"users_src"`
 	// Scheduler
 	Scheduler SchedulerManager `yaml:"schedule"`
 	// Interracted users blacklist
