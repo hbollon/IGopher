@@ -11,8 +11,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// SeleniumStruct is the main Selenium instance used by this bot
-var SeleniumStruct igopher.Selenium
+// BotStruct is the main struct instance used by this bot
+var BotStruct igopher.IGopher
 
 /// Flags
 var flags = struct {

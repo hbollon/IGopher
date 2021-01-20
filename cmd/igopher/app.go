@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"math"
 	"os"
 
@@ -10,8 +11,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// SeleniumStruct is the main Selenium instance used by this bot
-var SeleniumStruct igopher.Selenium
+// BotStruct is the main struct instance used by this bot
+var BotStruct igopher.IGopher
 
 /// Flags
 var flags = struct {
@@ -83,6 +84,8 @@ func initClientConfig() *igopher.ClientConfig {
 func main() {
 	// Initialize client configuration
 	clientConfig := initClientConfig()
+	BotStruct = igopher.ReadBotConfigYaml()
+	fmt.Printf("BotStruct: %v\n", BotStruct)
 
 	// Download dependencies
 	if !clientConfig.IgnoreDependencies {
@@ -90,17 +93,17 @@ func main() {
 	}
 
 	// Initialize Selenium and WebDriver and defer their closing
-	SeleniumStruct.InitializeSelenium(clientConfig)
-	SeleniumStruct.InitChromeWebDriver()
-	defer SeleniumStruct.CloseSelenium()
+	BotStruct.SeleniumStruct.InitializeSelenium(clientConfig)
+	BotStruct.SeleniumStruct.InitChromeWebDriver()
+	defer BotStruct.SeleniumStruct.CloseSelenium()
 
-	if err := SeleniumStruct.Config.BotConfig.Scheduler.CheckTime(); err == nil {
-		SeleniumStruct.ConnectToInstagram()
-		res, err := SeleniumStruct.SendMessage("_motivation.business", "Test message ! :)")
+	if err := BotStruct.Scheduler.CheckTime(); err == nil {
+		BotStruct.ConnectToInstagram()
+		res, err := BotStruct.SendMessage("_motivation.business", "Test message ! :)")
 		if !res || err != nil {
 			log.Errorf("Error during message sending: %v", err)
 		}
 	} else {
-		SeleniumStruct.Fatal("Error on bot launch: ", err)
+		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
 	}
 }

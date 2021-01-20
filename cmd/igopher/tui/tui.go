@@ -460,7 +460,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					case scrappingSettings:
 						val, err := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
 						if err == nil {
-							scr := igopher.SrcUsersYaml{
+							scr := igopher.ScrapperConfigYaml{
 								Accounts: strings.Split(m.settingsInputsScreen.input[0].Value(), ","),
 								Quantity: val,
 							}
@@ -469,7 +469,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 								errorMessage = "Invalid input, please check all fields.\n\n"
 								break
 							} else {
-								config.SrcUsers = scr
+								config.SrcUsers.Config = scr
 								errorMessage = ""
 								m.screen = settingsMenu
 							}
@@ -787,6 +787,7 @@ func updateInputs(msg tea.Msg, m model) (model, tea.Cmd) {
 func launchBot() {
 	// Initialize client configuration
 	clientConfig := initClientConfig()
+	BotStruct = igopher.ReadBotConfigYaml()
 
 	// Download dependencies
 	if !clientConfig.IgnoreDependencies {
@@ -794,18 +795,18 @@ func launchBot() {
 	}
 
 	// Initialize Selenium and WebDriver and defer their closing
-	SeleniumStruct.InitializeSelenium(clientConfig)
-	SeleniumStruct.InitChromeWebDriver()
-	defer SeleniumStruct.CloseSelenium()
+	BotStruct.SeleniumStruct.InitializeSelenium(clientConfig)
+	BotStruct.SeleniumStruct.InitChromeWebDriver()
+	defer BotStruct.SeleniumStruct.CloseSelenium()
 
-	if err := SeleniumStruct.Config.BotConfig.Scheduler.CheckTime(); err == nil {
-		SeleniumStruct.ConnectToInstagram()
-		res, err := SeleniumStruct.SendMessage("_motivation.business", "Test message ! :)")
+	if err := BotStruct.Scheduler.CheckTime(); err == nil {
+		BotStruct.ConnectToInstagram()
+		res, err := BotStruct.SendMessage("_motivation.business", "Test message ! :)")
 		if !res || err != nil {
 			log.Errorf("Error during message sending: %v", err)
 		}
 	} else {
-		SeleniumStruct.Fatal("Error on bot launch: ", err)
+		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
 	}
 }
 

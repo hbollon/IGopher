@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -26,9 +27,9 @@ type QuotaManager struct {
 	// DmSentDay: quantity of dm sent in the last day
 	DmSentDay int
 	// MaxDmHour: maximum dm quantity per hour
-	MaxDmHour int `yaml:"dm_per_hour"`
+	MaxDmHour int `yaml:"dm_per_hour" validate:"numeric"`
 	// MaxDmDay: maximum dm quantity per day
-	MaxDmDay int `yaml:"dm_per_day"`
+	MaxDmDay int `yaml:"dm_per_day" validate:"numeric"`
 	// Activated: quota manager activation boolean
 	Activated bool `yaml:"activated"`
 }
@@ -88,12 +89,31 @@ func (qm *QuotaManager) CheckQuotas() {
 
 // SchedulerManager data
 type SchedulerManager struct {
-	// HourTimestamp: hourly timestamp used to handle hour limitations
-	BeginAt CustomTime `yaml:"begin_at"`
-	// DayTimestamp: daily timestamp used to handle day limitations
-	EndAt CustomTime `yaml:"end_at"`
+	// BeginAt: Begin time setting
+	BeginAt string `yaml:"begin_at" validate:"contains=:"`
+	// EndAt: End time setting
+	EndAt string `yaml:"end_at" validate:"contains=:"`
+	// BeginAtTimestamp: begin timestamp
+	BeginAtTimestamp time.Time
+	// EndAtTimestamp: end timestamp
+	EndAtTimestamp time.Time
 	// Activated: quota manager activation boolean
 	Activated bool `yaml:"activated"`
+}
+
+// InitializeScheduler convert string time from config to time.Time instances
+func (s *SchedulerManager) InitializeScheduler() error {
+	ttBegin, err := time.Parse("15:04", strings.TrimSpace(s.BeginAt))
+	if err != nil {
+		return err
+	}
+	s.BeginAtTimestamp = ttBegin
+	ttEnd, err := time.Parse("15:04", strings.TrimSpace(s.EndAt))
+	if err != nil {
+		return err
+	}
+	s.EndAtTimestamp = ttEnd
+	return nil
 }
 
 // CheckTime check scheduler and pause the bot if it's not working time
@@ -120,14 +140,14 @@ func (s *SchedulerManager) CheckTime() error {
 
 // Check if current time is between scheduler working interval
 func (s *SchedulerManager) isWorkingTime() (bool, error) {
-	if s.BeginAt.Equal(s.EndAt.Time) {
+	if s.BeginAtTimestamp.Equal(s.EndAtTimestamp) {
 		return false, errors.New("Bad scheduler configuration")
 	}
 	currentTime := time.Date(0, time.January, 1, time.Now().Hour(), time.Now().Minute(), 0, 0, time.Local)
-	if s.BeginAt.Before(s.EndAt.Time) {
-		return !currentTime.Before(s.BeginAt.Time) && !currentTime.After(s.EndAt.Time), nil
+	if s.BeginAtTimestamp.Before(s.EndAtTimestamp) {
+		return !currentTime.Before(s.BeginAtTimestamp) && !currentTime.After(s.EndAtTimestamp), nil
 	}
-	return !s.BeginAt.After(currentTime) || !s.EndAt.Before(currentTime), nil
+	return !s.BeginAtTimestamp.After(currentTime) || !s.EndAtTimestamp.Before(currentTime), nil
 }
 
 /* Blacklist manager */

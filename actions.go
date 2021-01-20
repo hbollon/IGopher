@@ -8,20 +8,20 @@ import (
 )
 
 // ConnectToInstagram get ig login webpage and connect user account
-func (s *Selenium) ConnectToInstagram() {
-	s.connectToInstagramWebDriver()
+func (bot *IGopher) ConnectToInstagram() {
+	bot.connectToInstagramWebDriver()
 }
 
-func (s *Selenium) connectToInstagramWebDriver() {
+func (bot *IGopher) connectToInstagramWebDriver() {
 	log.Info("Connecting to Instagram account...")
 	// Access Instagram url
-	if err := s.WebDriver.Get("https://instagram.com/?hl=en"); err != nil {
-		s.Fatal("Can't access to Instagram. ", err)
+	if err := bot.SeleniumStruct.WebDriver.Get("https://instagram.com/?hl=en"); err != nil {
+		bot.SeleniumStruct.Fatal("Can't access to Instagram. ", err)
 	}
 	randomSleep()
 	// Accept cookies if requested
-	if find, err := s.WaitForElement("//button[text()='Accept']", "xpath", 10); err == nil && find {
-		elem, _ := s.GetElement("//button[text()='Accept']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Accept']", "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Accept']", "xpath")
 		elem.Click()
 		log.Debug("Cookies validation done!")
 	} else {
@@ -29,8 +29,8 @@ func (s *Selenium) connectToInstagramWebDriver() {
 	}
 	randomSleep()
 	// Access to login screen if needed
-	if find, err := s.WaitForElement("//button[text()='Log In']", "xpath", 10); err == nil && find {
-		elem, _ := s.GetElement("//button[text()='Log In']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Log In']", "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Log In']", "xpath")
 		elem.Click()
 		log.Debug("Log in screen access done!")
 	} else {
@@ -38,30 +38,30 @@ func (s *Selenium) connectToInstagramWebDriver() {
 	}
 	randomSleep()
 	// Inject username and password to input fields and log in
-	if find, err := s.WaitForElement("username", "name", 10); err == nil && find {
-		elem, _ := s.GetElement("username", "name")
-		elem.SendKeys(s.Config.BotConfig.UserAccount.Username)
+	if find, err := bot.SeleniumStruct.WaitForElement("username", "name", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("username", "name")
+		elem.SendKeys(bot.UserAccount.Username)
 		log.Debug("Username injection done!")
 	} else {
-		s.Fatal("Exception during username inject: ", err)
+		bot.SeleniumStruct.Fatal("Exception during username inject: ", err)
 	}
-	if find, err := s.WaitForElement("password", "name", 10); err == nil && find {
-		elem, _ := s.GetElement("password", "name")
-		elem.SendKeys(s.Config.BotConfig.UserAccount.Password)
+	if find, err := bot.SeleniumStruct.WaitForElement("password", "name", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("password", "name")
+		elem.SendKeys(bot.UserAccount.Password)
 		log.Debug("Password injection done!")
 	} else {
-		s.Fatal("Exception during password inject: ", err)
+		bot.SeleniumStruct.Fatal("Exception during password inject: ", err)
 	}
-	if find, err := s.WaitForElement("//button/*[text()='Log In']", "xpath", 10); err == nil && find {
-		elem, _ := s.GetElement("//button/*[text()='Log In']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//button/*[text()='Log In']", "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//button/*[text()='Log In']", "xpath")
 		elem.Click()
 		log.Debug("Sent login request")
 	} else {
-		s.Fatal("Log in button not found: ", err)
+		bot.SeleniumStruct.Fatal("Log in button not found: ", err)
 	}
 	randomSleepCustom(10, 15)
 	// Check if login was successful
-	if s.IsElementPresent(selenium.ByXPATH, "//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {
+	if bot.SeleniumStruct.IsElementPresent(selenium.ByXPATH, "//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {
 		log.Info("Login Successful!")
 	} else {
 		log.Warnf("Instagram does not ask for informations saving, the login process may have failed.")
@@ -70,15 +70,15 @@ func (s *Selenium) connectToInstagramWebDriver() {
 
 // SendMessage navigate to Instagram direct message interface and send one to specified user
 // by simulating human typing
-func (s *Selenium) SendMessage(user, message string) (bool, error) {
-	if s.Config.BotConfig.Scheduler.CheckTime() == nil && (!s.Config.BotConfig.Blacklist.Activated || !s.Config.BotConfig.Blacklist.IsBlacklisted(user)) {
-		res, err := s.sendMessageWebDriver(user, message)
+func (bot *IGopher) SendMessage(user, message string) (bool, error) {
+	if bot.Scheduler.CheckTime() == nil && (!bot.Blacklist.Activated || !bot.Blacklist.IsBlacklisted(user)) {
+		res, err := bot.sendMessageWebDriver(user, message)
 		if res && err == nil {
-			if s.Config.BotConfig.Quotas.Activated {
-				s.Config.BotConfig.Quotas.AddDm()
+			if bot.Quotas.Activated {
+				bot.Quotas.AddDm()
 			}
-			if s.Config.BotConfig.Blacklist.Activated {
-				s.Config.BotConfig.Blacklist.AddUser(user)
+			if bot.Blacklist.Activated {
+				bot.Blacklist.AddUser(user)
 			}
 			log.Info("Message successfully sent!")
 		}
@@ -88,23 +88,23 @@ func (s *Selenium) SendMessage(user, message string) (bool, error) {
 	return false, err
 }
 
-func (s *Selenium) sendMessageWebDriver(user, message string) (bool, error) {
+func (bot *IGopher) sendMessageWebDriver(user, message string) (bool, error) {
 	log.Infof("Send message to %s...", user)
 	// Navigate to Instagram new direct message page
-	if err := s.WebDriver.Get("https://www.instagram.com/direct/new/?hl=en"); err != nil {
-		s.Fatal("Can't access to Instagram direct message redaction page! ", err)
+	if err := bot.SeleniumStruct.WebDriver.Get("https://www.instagram.com/direct/new/?hl=en"); err != nil {
+		bot.SeleniumStruct.Fatal("Can't access to Instagram direct message redaction page! ", err)
 	}
 	randomSleepCustom(6, 10)
 
 	// Type and select user to dm
-	if find, err := s.WaitForElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath", 10); err == nil && find {
-		elem, _ := s.GetElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath")
 		log.Debug("Finded an retrieved user searchbar")
 		if res := SimulateHandWriting(elem, user); !res {
 			return false, errors.New("Error during user searching")
 		}
 		randomSleep()
-		if usernames, err := s.WebDriver.FindElements(selenium.ByXPATH, "//div[@aria-labelledby]/div/span//img[@data-testid='user-avatar']"); err != nil {
+		if usernames, err := bot.SeleniumStruct.WebDriver.FindElements(selenium.ByXPATH, "//div[@aria-labelledby]/div/span//img[@data-testid='user-avatar']"); err != nil {
 			return false, errors.New("Error during user selection")
 		} else {
 			usernames[0].Click()
@@ -115,7 +115,7 @@ func (s *Selenium) sendMessageWebDriver(user, message string) (bool, error) {
 	}
 
 	// Type and send message by simulating human writing
-	if err := s.typeMessage(message); err != nil {
+	if err := bot.typeMessage(message); err != nil {
 		return false, errors.New("Error during message typing")
 	}
 	log.Debug("Message sended!")
@@ -123,17 +123,17 @@ func (s *Selenium) sendMessageWebDriver(user, message string) (bool, error) {
 	return true, nil
 }
 
-func (s *Selenium) typeMessage(message string) error {
-	if find, err := s.WaitForElement("//button/*[text()='Next']", "xpath", 5); err == nil && find {
-		elem, _ := s.GetElement("//button/*[text()='Next']", "xpath")
+func (bot *IGopher) typeMessage(message string) error {
+	if find, err := bot.SeleniumStruct.WaitForElement("//button/*[text()='Next']", "xpath", 5); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//button/*[text()='Next']", "xpath")
 		elem.Click()
 	} else {
 		log.Errorf("Error during message sending: %v", err)
 		return err
 	}
 	randomSleep()
-	if find, err := s.WaitForElement("//textarea[@placeholder]", "xpath", 5); err == nil && find {
-		elem, _ := s.GetElement("//textarea[@placeholder]", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//textarea[@placeholder]", "xpath", 5); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//textarea[@placeholder]", "xpath")
 		if res := SimulateHandWriting(elem, message); !res {
 			return errors.New("Error during message typing")
 		}
@@ -142,8 +142,8 @@ func (s *Selenium) typeMessage(message string) error {
 		return err
 	}
 	randomSleep()
-	if find, err := s.WaitForElement("//button[text()='Send']", "xpath", 5); err == nil && find {
-		elem, _ := s.GetElement("//button[text()='Send']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Send']", "xpath", 5); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Send']", "xpath")
 		elem.Click()
 	} else {
 		log.Errorf("Error during message sending: %v", err)
