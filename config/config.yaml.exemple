@@ -4,10 +4,11 @@ account:
   password: "YOUR_IG_PASSWORD"
 
 # User acquisition settings
-users_src:
-  src_accounts: # List of account where you want to fetch followers 
-    - ""
-  fetch_quantity: 500
+scrapper:
+  config:
+    src_accounts: # List of account where you want to fetch followers 
+      - ""
+    fetch_quantity: 500
 
 # Bot configuration
 auto_dm:
