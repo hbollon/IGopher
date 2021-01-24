@@ -85,7 +85,6 @@ func main() {
 	// Initialize client configuration
 	clientConfig := initClientConfig()
 	BotStruct = igopher.ReadBotConfigYaml()
-	fmt.Printf("BotStruct: %v\n", BotStruct)
 
 	// Download dependencies
 	if !clientConfig.IgnoreDependencies {
@@ -99,10 +98,15 @@ func main() {
 
 	if err := BotStruct.Scheduler.CheckTime(); err == nil {
 		BotStruct.ConnectToInstagram()
-		res, err := BotStruct.SendMessage("_motivation.business", "Test message ! :)")
-		if !res || err != nil {
-			log.Errorf("Error during message sending: %v", err)
+		users, err := BotStruct.FetchUsersFromUserFollowers()
+		if err != nil {
+			log.Error(err)
 		}
+		fmt.Printf("%v\n", users)
+		// res, err := BotStruct.SendMessage("_motivation.business", "Test message ! :)")
+		// if !res || err != nil {
+		// 	log.Errorf("Error during message sending: %v", err)
+		// }
 	} else {
 		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
 	}

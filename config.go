@@ -21,7 +21,7 @@ type IGopher struct {
 	// Quotas
 	Quotas QuotaManager `yaml:"quotas"`
 	// Scrapper
-	ScrapperManager Scrapper `yaml:"scrapper"`
+	ScrapperManager ScrapperConfig `yaml:"scrapper"`
 	// Scheduler
 	Scheduler SchedulerManager `yaml:"schedule"`
 	// Interracted users blacklist
