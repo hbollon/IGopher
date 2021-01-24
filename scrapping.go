@@ -16,6 +16,8 @@ type ScrapperConfig struct {
 	Quantity        int `yaml:"fetch_quantity" validate:"numeric"`
 }
 
+// FetchUsersFromUserFollowers scrap username list from users followers.
+// Source accounts and quantity are set by the bot user.
 func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 	logrus.Info("Fetching users from users followers...")
 	var igUsers []string
@@ -25,6 +27,7 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 			logrus.Warnf("Requested user '%s' doesn't exist, skip it", srcUsername)
 		}
 		randomSleepCustom(1, 3)
+		// Access to followers list view
 		if find, err := sc.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath", 10); err == nil && find {
 			elem, _ := sc.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath")
 			elem.Click()
@@ -33,6 +36,7 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 			return nil, errors.New("Error during access to user followers list")
 		}
 		randomSleepCustom(1, 3)
+		// Focus list
 		if find, err := sc.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div", "xpath", 10); err == nil && find {
 			dialog, _ := sc.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div", "xpath")
 			dialog.Click()
@@ -41,9 +45,11 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 			return nil, errors.New("Error during focus user followers list dialog")
 		}
 
+		// Scrap users until it has the right amount defined in ScrapperManager.Quantity by the user
 		var scrappedUsers []selenium.WebElement
 		for len(scrappedUsers) < sc.ScrapperManager.Quantity {
 			if len(scrappedUsers) != 0 {
+				// Scroll to the end of the list to gather more followers from ig
 				_, err = sc.SeleniumStruct.WebDriver.ExecuteScript("window.scrollTo(0, document.body.scrollHeight);", nil)
 				if err != nil {
 					return nil, errors.New("Error during followers dialog box scroll")
@@ -55,7 +61,9 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 				logrus.Error(err)
 				return nil, errors.New("Error during users scrapping from followers dialog box")
 			}
-			fmt.Println(len(scrappedUsers))
+			if sc.SeleniumStruct.Config.Debug {
+				logrus.Debugf("Users count finded: %d", len(scrappedUsers))
+			}
 		}
 
 		for _, user := range scrappedUsers {
@@ -67,7 +75,7 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 
 		logrus.Debugf("Scrapped users: %v\n", igUsers)
 	}
-	if igUsers == nil || len(igUsers) == 0 {
+	if len(igUsers) == 0 {
 		return nil, errors.New("Empty users result")
 	}
 	return igUsers, nil
