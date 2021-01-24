@@ -33,9 +33,8 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 			return nil, errors.New("Error during access to user followers list")
 		}
 		randomSleepCustom(1, 3)
-		var dialog selenium.WebElement
 		if find, err := sc.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div", "xpath", 10); err == nil && find {
-			dialog, _ = sc.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div", "xpath")
+			dialog, _ := sc.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div", "xpath")
 			dialog.Click()
 			logrus.Debug("Clicked on user followers dialog box")
 		} else {
@@ -45,12 +44,12 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 		var scrappedUsers []selenium.WebElement
 		for len(scrappedUsers) < sc.ScrapperManager.Quantity {
 			if len(scrappedUsers) != 0 {
-				_, err = sc.SeleniumStruct.WebDriver.ExecuteScript("arguments[0].scrollIntoView();", []interface{}{dialog})
+				_, err = sc.SeleniumStruct.WebDriver.ExecuteScript("window.scrollTo(0, document.body.scrollHeight);", nil)
 				if err != nil {
 					return nil, errors.New("Error during followers dialog box scroll")
 				}
 			}
-			randomSleepCustom(1, 2)
+			randomSleepCustom(3, 4)
 			scrappedUsers, err = sc.SeleniumStruct.WebDriver.FindElements(selenium.ByXPATH, "//*/li/div/div/div/div/a")
 			if err != nil {
 				logrus.Error(err)
@@ -66,7 +65,7 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 			}
 		}
 
-		logrus.Debugf("Scrapped users: %v", igUsers)
+		logrus.Debugf("Scrapped users: %v\n", igUsers)
 	}
 	if igUsers == nil || len(igUsers) == 0 {
 		return nil, errors.New("Empty users result")
