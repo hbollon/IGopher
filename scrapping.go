@@ -61,9 +61,8 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 				logrus.Error(err)
 				return nil, errors.New("Error during users scrapping from followers dialog box")
 			}
-			if sc.SeleniumStruct.Config.Debug {
-				logrus.Debugf("Users count finded: %d", len(scrappedUsers))
-			}
+			scrappedUsers = sc.Blacklist.FilterScrappedUsers(scrappedUsers)
+			logrus.Debugf("Users count finded: %d", len(scrappedUsers))
 		}
 
 		for _, user := range scrappedUsers {

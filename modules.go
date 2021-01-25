@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/tebeka/selenium"
 )
 
 const (
@@ -229,4 +230,16 @@ func (bm *BlacklistManager) IsBlacklisted(user string) bool {
 		}
 	}
 	return false
+}
+
+// FilterScrappedUsers remove blacklisted users from WebElement slice and return it
+func (bm *BlacklistManager) FilterScrappedUsers(users []selenium.WebElement) []selenium.WebElement {
+	var filteredUsers []selenium.WebElement
+	for _, user := range users {
+		username, err := user.Text()
+		if !bm.IsBlacklisted(username) && err == nil {
+			filteredUsers = append(filteredUsers, user)
+		}
+	}
+	return filteredUsers
 }
