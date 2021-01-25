@@ -18,6 +18,10 @@ const (
 var clear map[string]func() // Map storing clear funcs for different os
 
 func init() {
+	// Initialize random engine
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	// Prepare terminal cleaning functions for all os
 	clear = make(map[string]func())
 	clear["linux"] = func() {
 		cmd := exec.Command("clear")
@@ -29,11 +33,6 @@ func init() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
-}
-
-// Initialize random engine
-func init() {
-	rand.Seed(time.Now().UTC().UnixNano())
 }
 
 // Sleep random time between default sleepMin and sleepMax
