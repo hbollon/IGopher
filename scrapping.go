@@ -56,7 +56,7 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 				}
 			}
 			randomSleepCustom(3, 4)
-			scrappedUsers, err = sc.SeleniumStruct.WebDriver.FindElements(selenium.ByXPATH, "//*/li/div/div/div/div/a")
+			scrappedUsers, err = sc.SeleniumStruct.GetElements("//*/li/div/div/div/div/a", "xpath")
 			if err != nil {
 				logrus.Error(err)
 				return nil, errors.New("Error during users scrapping from followers dialog box")

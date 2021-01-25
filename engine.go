@@ -107,7 +107,7 @@ func (s *Selenium) IsElementPresent(by, value string) bool {
 	return true
 }
 
-// GetElement wait for element and then return when it is available
+// GetElement wait for element and then return when it's available
 func (s *Selenium) GetElement(elementTag, locator string) (selenium.WebElement, error) {
 	locator = strings.ToUpper(locator)
 	if locator == "ID" && s.IsElementPresent(selenium.ByID, elementTag) {
@@ -118,6 +118,23 @@ func (s *Selenium) GetElement(elementTag, locator string) (selenium.WebElement, 
 		return s.WebDriver.FindElement(selenium.ByXPATH, elementTag)
 	} else if locator == "CSS" && s.IsElementPresent(selenium.ByCSSSelector, elementTag) {
 		return s.WebDriver.FindElement(selenium.ByCSSSelector, elementTag)
+	} else {
+		log.Debugf("Incorrect locator '%s'", locator)
+		return nil, errors.New("Incorrect locator")
+	}
+}
+
+// GetElements wait for elements and then return when they're available
+func (s *Selenium) GetElements(elementTag, locator string) ([]selenium.WebElement, error) {
+	locator = strings.ToUpper(locator)
+	if locator == "ID" && s.IsElementPresent(selenium.ByID, elementTag) {
+		return s.WebDriver.FindElements(selenium.ByID, elementTag)
+	} else if locator == "NAME" && s.IsElementPresent(selenium.ByName, elementTag) {
+		return s.WebDriver.FindElements(selenium.ByName, elementTag)
+	} else if locator == "XPATH" && s.IsElementPresent(selenium.ByXPATH, elementTag) {
+		return s.WebDriver.FindElements(selenium.ByXPATH, elementTag)
+	} else if locator == "CSS" && s.IsElementPresent(selenium.ByCSSSelector, elementTag) {
+		return s.WebDriver.FindElements(selenium.ByCSSSelector, elementTag)
 	} else {
 		log.Debugf("Incorrect locator '%s'", locator)
 		return nil, errors.New("Incorrect locator")
