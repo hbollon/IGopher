@@ -4,10 +4,12 @@ import (
 	"flag"
 	"math"
 	"os"
+	"runtime"
 
-	runtime "github.com/banzaicloud/logrus-runtime-formatter"
+	logRuntime "github.com/banzaicloud/logrus-runtime-formatter"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/hbollon/igopher"
+	"github.com/shiena/ansicolor"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -45,14 +47,19 @@ var flags = struct {
 
 func init() {
 	// Add formatter to logrus in order to display line and function with messages
-	formatter := runtime.Formatter{ChildFormatter: &log.TextFormatter{
-		FullTimestamp: true,
+	formatter := logRuntime.Formatter{ChildFormatter: &log.TextFormatter{
+		FullTimestamp: false,
+		ForceColors:   true,
 	}}
 	formatter.Line = true
 	log.SetFormatter(&formatter)
 
 	// Output to stderr
-	log.SetOutput(os.Stderr)
+	if runtime.GOOS == "windows" {
+		log.SetOutput(ansicolor.NewAnsiColorWriter(os.Stderr))
+	} else {
+		log.SetOutput(os.Stderr)
+	}
 
 	flag.Parse()
 	level, err := log.ParseLevel(*flags.LogLevelFlag)

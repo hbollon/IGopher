@@ -13,6 +13,7 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.0.3
 	github.com/muesli/reflow v0.2.0
 	github.com/muesli/termenv v0.7.4
+	github.com/shiena/ansicolor v0.0.0-20200904210342-c7312218db18
 	github.com/sirupsen/logrus v1.7.0
 	github.com/tebeka/selenium v0.9.9
 	google.golang.org/api v0.7.0
