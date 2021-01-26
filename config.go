@@ -3,6 +3,7 @@ package igopher
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
@@ -145,7 +146,7 @@ func CreateClientConfig() *ClientConfig {
 // Read config yml file and initialize it for use with bot
 func ReadBotConfigYaml() IGopher {
 	var c IGopher
-	file, err := ioutil.ReadFile("./config/config.yaml")
+	file, err := ioutil.ReadFile(filepath.FromSlash("./config/config.yaml"))
 	if err != nil {
 		logrus.Fatalf("Error opening config file: %s", err)
 	}
@@ -171,7 +172,7 @@ func ReadBotConfigYaml() IGopher {
 // ImportConfig read config.yaml, parse it in BotCvalidate:"numeric"onfigYaml instance and finally return it
 func ImportConfig() BotConfigYaml {
 	var c BotConfigYaml
-	file, err := ioutil.ReadFile("./config/config.yaml")
+	file, err := ioutil.ReadFile(filepath.FromSlash("./config/config.yaml"))
 	if err != nil {
 		log.Fatalf("Error opening config file: %s", err)
 	}
@@ -191,7 +192,7 @@ func ExportConfig(c BotConfigYaml) {
 		log.Fatalf("Error during marshal config file: %s\n", err)
 	}
 
-	err = ioutil.WriteFile("./config/config.yaml", out, os.ModePerm)
+	err = ioutil.WriteFile(filepath.FromSlash("./config/config.yaml"), out, os.ModePerm)
 	if err != nil {
 		log.Fatalf("Error during config file writing: %s\n", err)
 	}

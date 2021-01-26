@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -12,13 +13,12 @@ import (
 	"github.com/tebeka/selenium/chrome"
 )
 
-const (
-	seleniumPath     = "./lib/selenium-server.jar"
-	geckoDriverPath  = "./lib/geckodriver"
-	chromeDriverPath = "./lib/chromedriver"
+var (
+	seleniumPath     = filepath.FromSlash("./lib/selenium-server.jar")
+	geckoDriverPath  = filepath.FromSlash("./lib/geckodriver")
+	chromeDriverPath = filepath.FromSlash("./lib/chromedriver")
+	err              error
 )
-
-var err error
 
 // Selenium instance and opts
 type Selenium struct {
@@ -69,7 +69,7 @@ func (s *Selenium) InitFirefoxWebDriver() {
 func (s *Selenium) InitChromeWebDriver() {
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	chromeCaps := chrome.Capabilities{
-		Path: "./lib/chrome-linux/chrome",
+		Path: filepath.FromSlash("./lib/chrome-linux/chrome"),
 		Args: []string{
 			"--disable-extensions",
 			"--disable-infobars",

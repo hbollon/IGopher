@@ -19,6 +19,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -42,8 +43,6 @@ const (
 	//
 	// Update this periodically.
 	desiredFirefoxVersion = "68.0.1"
-
-	downloadDirectory = "./lib/"
 )
 
 type file struct {
@@ -56,19 +55,23 @@ type file struct {
 	browser  bool
 }
 
-var files = []file{
-	{
-		url:  "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar",
-		name: "selenium-server.jar",
-		path: downloadDirectory + "selenium-server.jar",
-	},
-	{
-		url:    "https://saucelabs.com/downloads/sc-4.5.4-linux.tar.gz",
-		name:   "sauce-connect.tar.gz",
-		path:   downloadDirectory + "sauce-connect.tar.gz",
-		rename: []string{downloadDirectory + "sc-4.5.4-linux", downloadDirectory + "sauce-connect"},
-	},
-}
+var (
+	files = []file{
+		{
+			url:  "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar",
+			name: "selenium-server.jar",
+			path: downloadDirectory + "selenium-server.jar",
+		},
+		{
+			url:    "https://saucelabs.com/downloads/sc-4.5.4-linux.tar.gz",
+			name:   "sauce-connect.tar.gz",
+			path:   downloadDirectory + "sauce-connect.tar.gz",
+			rename: []string{downloadDirectory + "sc-4.5.4-linux", downloadDirectory + "sauce-connect"},
+		},
+	}
+
+	downloadDirectory = filepath.FromSlash("./lib/")
+)
 
 // addLatestGithubRelease adds a file to the list of files to download from the
 // latest release of the specified Github repository that matches the asset
