@@ -15,18 +15,20 @@ import (
 )
 
 var (
-	seleniumPath                      = filepath.FromSlash("./lib/selenium-server.jar")
-	chromeDriverPath, geckoDriverPath string
-	err                               error
+	seleniumPath                                  = filepath.FromSlash("./lib/selenium-server.jar")
+	chromePath, chromeDriverPath, geckoDriverPath string
+	err                                           error
 )
 
 func init() {
 	if runtime.GOOS == "windows" {
 		geckoDriverPath = filepath.FromSlash("./lib/geckodriver.exe")
 		chromeDriverPath = filepath.FromSlash("./lib/chromedriver.exe")
+		chromePath = filepath.FromSlash("./lib/chrome-win/chrome.exe")
 	} else {
 		geckoDriverPath = filepath.FromSlash("./lib/geckodriver")
 		chromeDriverPath = filepath.FromSlash("./lib/chromedriver")
+		chromePath = filepath.FromSlash("./lib/chrome-linux/chrome")
 	}
 }
 
@@ -79,7 +81,7 @@ func (s *Selenium) InitFirefoxWebDriver() {
 func (s *Selenium) InitChromeWebDriver() {
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	chromeCaps := chrome.Capabilities{
-		Path: filepath.FromSlash("./lib/chrome-linux/chrome"),
+		Path: filepath.FromSlash(chromePath),
 		Args: []string{
 			"--disable-extensions",
 			"--disable-infobars",
@@ -91,6 +93,7 @@ func (s *Selenium) InitChromeWebDriver() {
 		},
 	}
 	caps.AddChrome(chromeCaps)
+
 	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", s.Config.Port))
 	if err != nil {
 		log.Error(err)

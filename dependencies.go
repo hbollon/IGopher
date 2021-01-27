@@ -134,6 +134,8 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		chromeFilename             string
 		chromeDriverFilename       string
 		chromeDriverTargetFilename string // For backward compatibility
+		downloadDriverPath         string
+		targetDriverPath           string
 	)
 
 	if runtime.GOOS == "windows" {
@@ -142,12 +144,16 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		chromeFilename = "chrome-win.zip"
 		chromeDriverFilename = "chromedriver_win32.zip"
 		chromeDriverTargetFilename = "chromedriver.zip"
+		downloadDriverPath = filepath.FromSlash("chromedriver_win32/chromedriver.exe")
+		targetDriverPath = "chromedriver.exe"
 	} else {
 		prefixOS = "Linux_x64"
 		lastChangeFile = "Linux_x64/LAST_CHANGE"
 		chromeFilename = "chrome-linux.zip"
 		chromeDriverFilename = "chromedriver_linux64.zip"
 		chromeDriverTargetFilename = "chromedriver.zip"
+		downloadDriverPath = filepath.FromSlash("chromedriver_linux64/chromedriver")
+		targetDriverPath = "chromedriver"
 	}
 
 	gcsPath := fmt.Sprintf("gs://%s/", storageBktName)
@@ -189,7 +195,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		name:   chromeDriverTargetFilename,
 		path:   downloadDirectory + chromeDriverTargetFilename,
 		url:    cpAttrs.MediaLink,
-		rename: []string{downloadDirectory + "chromedriver_linux64/chromedriver", downloadDirectory + "chromedriver"},
+		rename: []string{downloadDirectory + downloadDriverPath, downloadDirectory + targetDriverPath},
 	})
 	return nil
 }
