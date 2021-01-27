@@ -20,8 +20,18 @@ type ScrapperConfig struct {
 // Source accounts and quantity are set by the bot user.
 func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 	logrus.Info("Fetching users from users followers...")
+
 	var igUsers []string
+	// Valid configuration checking before fetching process
+	if len(sc.ScrapperManager.SrcAccounts) == 0 || sc.ScrapperManager.SrcAccounts == nil {
+		return nil, errors.New("No source users are set, please check your scrapper settings and retry")
+	}
+	if sc.ScrapperManager.Quantity <= 0 {
+		return nil, errors.New("Scrapping quantity is null or negative, please check your scrapper settings and retry")
+	}
+
 	for _, srcUsername := range sc.ScrapperManager.SrcAccounts {
+		logrus.Debugf("Fetch from '%s' user", srcUsername)
 		// Navigate to Instagram user page
 		if err := sc.SeleniumStruct.WebDriver.Get(fmt.Sprintf("https://www.instagram.com/%s/?hl=en", srcUsername)); err != nil {
 			logrus.Warnf("Requested user '%s' doesn't exist, skip it", srcUsername)
