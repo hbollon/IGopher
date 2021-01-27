@@ -21,6 +21,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -46,27 +47,40 @@ const (
 )
 
 type file struct {
-	url      string
-	name     string
-	path     string
-	hash     string
-	hashType string // default is sha256
-	rename   []string
-	browser  bool
+	url        string
+	name       string
+	path       string
+	hash       string
+	hashType   string // default is sha256
+	rename     []string
+	os         string
+	compressed bool
+	browser    bool
 }
 
 var (
 	files = []file{
 		{
-			url:  "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar",
-			name: "selenium-server.jar",
-			path: downloadDirectory + "selenium-server.jar",
+			url:        "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar",
+			name:       "selenium-server.jar",
+			path:       downloadDirectory + "selenium-server.jar",
+			compressed: false,
 		},
 		{
-			url:    "https://saucelabs.com/downloads/sc-4.5.4-linux.tar.gz",
-			name:   "sauce-connect.tar.gz",
-			path:   downloadDirectory + "sauce-connect.tar.gz",
-			rename: []string{downloadDirectory + "sc-4.5.4-linux", downloadDirectory + "sauce-connect"},
+			url:        "https://saucelabs.com/downloads/sc-4.6.3-linux.tar.gz",
+			name:       "sauce-connect.tar.gz",
+			path:       downloadDirectory + "sauce-connect.tar.gz",
+			rename:     []string{downloadDirectory + "sc-4.6.3-linux", downloadDirectory + "sauce-connect"},
+			os:         "linux",
+			compressed: true,
+		},
+		{
+			url:        "https://saucelabs.com/downloads/sc-4.6.3-win32.zip",
+			name:       "sauce-connect.zip",
+			path:       downloadDirectory + "sauce-connect.zip",
+			rename:     []string{downloadDirectory + "sc-4.6.3-win32", downloadDirectory + "sauce-connect"},
+			os:         "windows",
+			compressed: true,
 		},
 	}
 
@@ -76,7 +90,7 @@ var (
 // addLatestGithubRelease adds a file to the list of files to download from the
 // latest release of the specified Github repository that matches the asset
 // name. The file will be downloaded to localFileName.
-func addLatestGithubRelease(ctx context.Context, owner, repo, assetName, localFileName string) error {
+func addLatestGithubRelease(ctx context.Context, owner, repo, assetName, localFileName string, comp bool) error {
 	client := github.NewClient(nil)
 
 	rel, _, err := client.Repositories.GetLatestRelease(ctx, owner, repo)
@@ -96,9 +110,10 @@ func addLatestGithubRelease(ctx context.Context, owner, repo, assetName, localFi
 			return fmt.Errorf("%s does not have a download URL", a.GetName())
 		}
 		files = append(files, file{
-			name: localFileName,
-			path: downloadDirectory + localFileName,
-			url:  u,
+			name:       localFileName,
+			path:       downloadDirectory + localFileName,
+			url:        u,
+			compressed: comp,
 		})
 		return nil
 	}
@@ -111,15 +126,30 @@ func addLatestGithubRelease(ctx context.Context, owner, repo, assetName, localFi
 // If `latestChromeBuild` is empty, then the latest build will be used.
 // Otherwise, that specific build will be used.
 func addChrome(ctx context.Context, latestChromeBuild string) error {
-	const (
-		// Bucket URL: https://console.cloud.google.com/storage/browser/chromium-browser-continuous/?pli=1
-		storageBktName             = "chromium-browser-snapshots"
-		prefixLinux64              = "Linux_x64"
-		lastChangeFile             = "Linux_x64/LAST_CHANGE"
-		chromeFilename             = "chrome-linux.zip"
-		chromeDriverFilename       = "chromedriver_linux64.zip"
-		chromeDriverTargetFilename = "chromedriver.zip" // For backward compatibility
+	// Bucket URL: https://console.cloud.google.com/storage/browser/chromium-browser-continuous/?pli=1
+	const storageBktName = "chromium-browser-snapshots"
+	var (
+		lastChangeFile             string
+		prefixOS                   string
+		chromeFilename             string
+		chromeDriverFilename       string
+		chromeDriverTargetFilename string // For backward compatibility
 	)
+
+	if runtime.GOOS == "windows" {
+		prefixOS = "Win_x64"
+		lastChangeFile = "Win_x64/LAST_CHANGE"
+		chromeFilename = "chrome-win.zip"
+		chromeDriverFilename = "chromedriver_win32.zip"
+		chromeDriverTargetFilename = "chromedriver.zip"
+	} else {
+		prefixOS = "Linux_x64"
+		lastChangeFile = "Linux_x64/LAST_CHANGE"
+		chromeFilename = "chrome-linux.zip"
+		chromeDriverFilename = "chromedriver_linux64.zip"
+		chromeDriverTargetFilename = "chromedriver.zip"
+	}
+
 	gcsPath := fmt.Sprintf("gs://%s/", storageBktName)
 	client, err := storage.NewClient(ctx, option.WithHTTPClient(http.DefaultClient))
 	if err != nil {
@@ -139,7 +169,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		}
 		latestChromeBuild = string(data)
 	}
-	latestChromePackage := path.Join(prefixLinux64, latestChromeBuild, chromeFilename)
+	latestChromePackage := path.Join(prefixOS, latestChromeBuild, chromeFilename)
 	cpAttrs, err := bkt.Object(latestChromePackage).Attrs(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot get the chrome package %s%s attrs: %v", gcsPath, latestChromePackage, err)
@@ -150,7 +180,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		browser: true,
 		url:     cpAttrs.MediaLink,
 	})
-	latestChromeDriverPackage := path.Join(prefixLinux64, latestChromeBuild, chromeDriverFilename)
+	latestChromeDriverPackage := path.Join(prefixOS, latestChromeBuild, chromeDriverFilename)
 	cpAttrs, err = bkt.Object(latestChromeDriverPackage).Attrs(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot get the chrome driver package %s%s attrs: %v", gcsPath, latestChromeDriverPackage, err)
@@ -169,22 +199,46 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 // If `desiredVersion` is empty, the the latest version will be used.
 // Otherwise, the specific version will be used.
 func addFirefox(desiredVersion string) {
-	if desiredVersion == "" {
-		files = append(files, file{
-			// This is a recent nightly. Update this path periodically.
-			url:     "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US",
-			name:    "firefox-nightly.tar.bz2",
-			path:    downloadDirectory + "firefox-nightly.tar.bz2",
-			browser: true,
-		})
+	if runtime.GOOS == "windows" {
+		if desiredVersion == "" {
+			files = append(files, file{
+				// This is a recent nightly. Update this path periodically.
+				url:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&lang=en-US",
+				name:       "firefox-nightly.exe",
+				path:       downloadDirectory + "firefox-nightly.exe",
+				compressed: false,
+				browser:    true,
+			})
+		} else {
+			files = append(files, file{
+				// This is a recent nightly. Update this path periodically.
+				url:        "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" + url.PathEscape(desiredVersion) + "/en-US/firefox-" + url.PathEscape(desiredVersion) + ".exe",
+				name:       "firefox.exe",
+				path:       downloadDirectory + "firefox.exe",
+				compressed: false,
+				browser:    true,
+			})
+		}
 	} else {
-		files = append(files, file{
-			// This is a recent nightly. Update this path periodically.
-			url:     "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" + url.PathEscape(desiredVersion) + "/linux-x86_64/en-US/firefox-" + url.PathEscape(desiredVersion) + ".tar.bz2",
-			name:    "firefox.tar.bz2",
-			path:    downloadDirectory + "firefox.tar.bz2",
-			browser: true,
-		})
+		if desiredVersion == "" {
+			files = append(files, file{
+				// This is a recent nightly. Update this path periodically.
+				url:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US",
+				name:       "firefox-nightly.tar.bz2",
+				path:       downloadDirectory + "firefox-nightly.tar.bz2",
+				compressed: true,
+				browser:    true,
+			})
+		} else {
+			files = append(files, file{
+				// This is a recent nightly. Update this path periodically.
+				url:        "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" + url.PathEscape(desiredVersion) + "/linux-x86_64/en-US/firefox-" + url.PathEscape(desiredVersion) + ".tar.bz2",
+				name:       "firefox.tar.bz2",
+				path:       downloadDirectory + "firefox.tar.bz2",
+				compressed: true,
+				browser:    true,
+			})
+		}
 	}
 }
 
@@ -207,25 +261,32 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 		addFirefox(firefoxVersion)
 	}
 
-	if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar", "htmlunit-driver.jar"); err != nil {
+	if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar", "htmlunit-driver.jar", false); err != nil {
 		log.Errorf("Unable to find the latest HTMLUnit Driver: %s", err)
 	}
 
-	if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*linux64.tar.gz", "geckodriver.tar.gz"); err != nil {
-		log.Errorf("Unable to find the latest Geckodriver: %s", err)
+	if runtime.GOOS == "windows" {
+		if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*win64.zip", "geckodriver.zip", true); err != nil {
+			log.Errorf("Unable to find the latest Geckodriver: %s", err)
+		}
+	} else {
+		if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*linux64.tar.gz", "geckodriver.tar.gz", true); err != nil {
+			log.Errorf("Unable to find the latest Geckodriver: %s", err)
+		}
 	}
 
 	var wg sync.WaitGroup
 	for _, file := range files {
-		//if !alreadyInstalled(file)
-		wg.Add(1)
-		file := file
-		go func() {
-			if err := handleFile(file, downloadBrowsers, forceDl); err != nil {
-				log.Fatalf("Error handling %s: %s", file.name, err)
-			}
-			wg.Done()
-		}()
+		if file.os == "" || file.os == runtime.GOOS {
+			wg.Add(1)
+			file := file
+			go func() {
+				if err := handleFile(file, downloadBrowsers, forceDl); err != nil {
+					log.Fatalf("Error handling %s: %s", file.name, err)
+				}
+				wg.Done()
+			}()
+		}
 	}
 	wg.Wait()
 }
@@ -247,8 +308,14 @@ func handleFile(file file, downloadBrowsers, forceDl bool) error {
 	switch path.Ext(file.name) {
 	case ".zip":
 		log.Debugf("Unzipping %q", file.path)
-		if err := exec.Command("unzip", "-o", file.path, "-d", downloadDirectory).Run(); err != nil {
-			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
+		if runtime.GOOS == "windows" {
+			if err := exec.Command("tar", "-xf", file.path, "-C", downloadDirectory).Run(); err != nil {
+				return fmt.Errorf("Error unzipping %q: %v", file.path, err)
+			}
+		} else {
+			if err := exec.Command("unzip", "-o", file.path, "-d", downloadDirectory).Run(); err != nil {
+				return fmt.Errorf("Error unzipping %q: %v", file.path, err)
+			}
 		}
 	case ".gz":
 		log.Debugf("Unzipping %q", file.path)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -14,11 +15,20 @@ import (
 )
 
 var (
-	seleniumPath     = filepath.FromSlash("./lib/selenium-server.jar")
-	geckoDriverPath  = filepath.FromSlash("./lib/geckodriver")
-	chromeDriverPath = filepath.FromSlash("./lib/chromedriver")
-	err              error
+	seleniumPath                      = filepath.FromSlash("./lib/selenium-server.jar")
+	chromeDriverPath, geckoDriverPath string
+	err                               error
 )
+
+func init() {
+	if runtime.GOOS == "windows" {
+		geckoDriverPath = filepath.FromSlash("./lib/geckodriver.exe")
+		chromeDriverPath = filepath.FromSlash("./lib/chromedriver.exe")
+	} else {
+		geckoDriverPath = filepath.FromSlash("./lib/geckodriver")
+		chromeDriverPath = filepath.FromSlash("./lib/chromedriver")
+	}
+}
 
 // Selenium instance and opts
 type Selenium struct {
