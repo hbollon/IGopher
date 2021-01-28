@@ -4,9 +4,8 @@ go 1.15
 
 require (
 	cloud.google.com/go v0.41.0
-	github.com/ahmdrz/goinsta/v2 v2.4.5-0.20191021103459-79702a8f3eda
 	github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e
-	github.com/charmbracelet/bubbles v0.7.5
+	github.com/charmbracelet/bubbles v0.7.6
 	github.com/charmbracelet/bubbletea v0.12.2
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/google/go-github/v27 v27.0.4
@@ -16,6 +15,7 @@ require (
 	github.com/shiena/ansicolor v0.0.0-20200904210342-c7312218db18
 	github.com/sirupsen/logrus v1.7.0
 	github.com/tebeka/selenium v0.9.9
+	github.com/vbauerster/mpb/v6 v6.0.2
 	google.golang.org/api v0.7.0
 	gopkg.in/yaml.v2 v2.3.0
 )

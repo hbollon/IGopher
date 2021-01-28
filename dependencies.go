@@ -1,7 +1,3 @@
-// Binary init downloads the necessary files to perform an integration test
-// between this WebDriver client and multiple versions of Selenium and
-// browsers.
-
 package igopher
 
 import (
@@ -24,10 +20,13 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/go-github/v27/github"
 	log "github.com/sirupsen/logrus"
+	"github.com/vbauerster/mpb/v6"
+	"github.com/vbauerster/mpb/v6/decor"
 	"google.golang.org/api/option"
 )
 
@@ -281,23 +280,46 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 		}
 	}
 
-	var wg sync.WaitGroup
+	var downloads []file
 	for _, file := range files {
 		if file.os == "" || file.os == runtime.GOOS {
-			wg.Add(1)
-			file := file
-			go func() {
-				if err := handleFile(file, downloadBrowsers, forceDl); err != nil {
-					log.Fatalf("Error handling %s: %s", file.name, err)
-				}
-				wg.Done()
-			}()
+			downloads = append(downloads, file)
 		}
+	}
+
+	p := mpb.New(
+		mpb.WithWidth(60),
+		mpb.WithRefreshRate(180*time.Millisecond),
+	)
+
+	var wg sync.WaitGroup
+	for _, download := range downloads {
+		wg.Add(1)
+		download := download
+		go func() {
+			time.Sleep(2 * time.Second)
+			if err := handleFile(p, download, downloadBrowsers, forceDl); err != nil {
+				log.Fatalf("Error handling %s: %s", download.name, err)
+			}
+			wg.Done()
+		}()
 	}
 	wg.Wait()
 }
 
-func handleFile(file file, downloadBrowsers, forceDl bool) error {
+func handleFile(p *mpb.Progress, file file, downloadBrowsers, forceDl bool) error {
+	bar := p.Add(0,
+		mpb.NewBarFiller("[=>-|"),
+		mpb.PrependDecorators(
+			decor.CountersKibiByte("% .2f / % .2f"),
+		),
+		mpb.AppendDecorators(
+			decor.EwmaETA(decor.ET_STYLE_GO, 90),
+			decor.Name(" ] "),
+			decor.EwmaSpeed(decor.UnitKiB, "% .2f", 60),
+		),
+	)
+
 	if file.browser && !downloadBrowsers {
 		log.Infof("Skipping %q because --download_browser is not set.", file.name)
 		return nil
@@ -306,7 +328,7 @@ func handleFile(file file, downloadBrowsers, forceDl bool) error {
 		log.Debugf("Skipping file %q which has already been downloaded.", file.name)
 	} else {
 		log.Debugf("Downloading %q from %q", file.name, file.url)
-		if err := downloadFile(file); err != nil {
+		if err := downloadFile(bar, file); err != nil {
 			return err
 		}
 	}
@@ -344,7 +366,7 @@ func handleFile(file file, downloadBrowsers, forceDl bool) error {
 	return nil
 }
 
-func downloadFile(file file) (err error) {
+func downloadFile(bar *mpb.Bar, file file) (err error) {
 	f, err := os.Create(file.path)
 	if err != nil {
 		return fmt.Errorf("error creating %q: %v", file.path, err)
@@ -356,6 +378,7 @@ func downloadFile(file file) (err error) {
 	}()
 
 	resp, err := http.Get(file.url)
+	bar.SetTotal(resp.ContentLength, false)
 	if err != nil {
 		return fmt.Errorf("%s: error downloading %q: %v", file.name, file.url, err)
 	}
@@ -370,14 +393,14 @@ func downloadFile(file file) (err error) {
 		default:
 			h = sha256.New()
 		}
-		if _, err := io.Copy(io.MultiWriter(f, h), resp.Body); err != nil {
+		if _, err := io.Copy(io.MultiWriter(f, h), bar.ProxyReader(resp.Body)); err != nil {
 			return fmt.Errorf("%s: error downloading %q: %v", file.name, file.url, err)
 		}
 		if h := hex.EncodeToString(h.Sum(nil)); h != file.hash {
 			return fmt.Errorf("%s: got %s hash %q, want %q", file.name, file.hashType, h, file.hash)
 		}
 	} else {
-		if _, err := io.Copy(f, resp.Body); err != nil {
+		if _, err := io.Copy(f, bar.ProxyReader(resp.Body)); err != nil {
 			return fmt.Errorf("%s: error downloading %q: %v", file.name, file.url, err)
 		}
 	}
