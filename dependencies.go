@@ -312,19 +312,22 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 			}()
 		}
 	}
+	p.Wait()
 	wg.Wait()
 }
 
 func handleFile(bar *mpb.Bar, file file, downloadBrowsers, forceDl bool) error {
 	if file.browser && !downloadBrowsers {
 		log.Infof("Skipping %q because --download_browser is not set.", file.name)
+		bar.Abort(true)
 		return nil
 	}
 	if _, err := os.Stat(file.path); err == nil && !forceDl {
 		log.Debugf("Skipping file %q which has already been downloaded.", file.name)
+		bar.Abort(true)
 	} else {
-		log.Debugf("Downloading %q from %q", file.name, file.url)
 		if err := downloadFile(bar, file); err != nil {
+			bar.Abort(true)
 			return err
 		}
 	}
