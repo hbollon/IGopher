@@ -280,46 +280,42 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 		}
 	}
 
-	var downloads []file
-	for _, file := range files {
-		if file.os == "" || file.os == runtime.GOOS {
-			downloads = append(downloads, file)
-		}
-	}
-
 	p := mpb.New(
 		mpb.WithWidth(60),
 		mpb.WithRefreshRate(180*time.Millisecond),
 	)
 
 	var wg sync.WaitGroup
-	for _, download := range downloads {
-		wg.Add(1)
-		download := download
-		go func() {
-			time.Sleep(2 * time.Second)
-			if err := handleFile(p, download, downloadBrowsers, forceDl); err != nil {
-				log.Fatalf("Error handling %s: %s", download.name, err)
-			}
-			wg.Done()
-		}()
+	for _, file := range files {
+		if file.os == "" || file.os == runtime.GOOS {
+			wg.Add(1)
+			bar := p.Add(0,
+				mpb.NewBarFiller("[=>-|"),
+				mpb.BarFillerClearOnComplete(),
+				mpb.PrependDecorators(
+					decor.OnComplete(decor.Name(file.name+": ", decor.WCSyncSpaceR), file.name+": done!"),
+					decor.OnComplete(decor.CountersKibiByte("% .2f / % .2f", decor.WCSyncWidth), ""),
+				),
+				mpb.AppendDecorators(
+					decor.OnComplete(decor.EwmaETA(decor.ET_STYLE_GO, 90, decor.WCSyncWidth), ""),
+					decor.OnComplete(decor.Name(" ] "), ""),
+					decor.OnComplete(decor.EwmaSpeed(decor.UnitKiB, "% .2f", 60, decor.WCSyncWidth), ""),
+				),
+			)
+			file := file
+			go func() {
+				time.Sleep(2 * time.Second)
+				if err := handleFile(bar, file, downloadBrowsers, forceDl); err != nil {
+					log.Fatalf("Error handling %s: %s", file.name, err)
+				}
+				wg.Done()
+			}()
+		}
 	}
 	wg.Wait()
 }
 
-func handleFile(p *mpb.Progress, file file, downloadBrowsers, forceDl bool) error {
-	bar := p.Add(0,
-		mpb.NewBarFiller("[=>-|"),
-		mpb.PrependDecorators(
-			decor.CountersKibiByte("% .2f / % .2f"),
-		),
-		mpb.AppendDecorators(
-			decor.EwmaETA(decor.ET_STYLE_GO, 90),
-			decor.Name(" ] "),
-			decor.EwmaSpeed(decor.UnitKiB, "% .2f", 60),
-		),
-	)
-
+func handleFile(bar *mpb.Bar, file file, downloadBrowsers, forceDl bool) error {
 	if file.browser && !downloadBrowsers {
 		log.Infof("Skipping %q because --download_browser is not set.", file.name)
 		return nil
