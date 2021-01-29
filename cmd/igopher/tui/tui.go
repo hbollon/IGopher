@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -111,7 +113,7 @@ type inputs struct {
 
 var initialModel = model{
 	screen:                  0,
-	homeScreen:              menu{choices: []string{"🚀 - Launch!", "⚙️  - Configure", "🗒  - Reset settings", "🚪 - Exit"}},
+	homeScreen:              menu{choices: []string{"🚀 - Launch!", "🔧 - Configure", "🧨 - Reset settings", "🚪 - Exit"}},
 	configScreen:            menu{choices: []string{"Account", "Users scraping", "AutoDM", "Greeting", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
 	configResetScreen:       menu{choices: []string{"Yes", "No"}},
 	settingsTrueFalseScreen: menu{choices: []string{"True", "False"}},
@@ -799,11 +801,18 @@ func launchBot() {
 	BotStruct.SeleniumStruct.InitChromeWebDriver()
 	defer BotStruct.SeleniumStruct.CloseSelenium()
 
+	rand.Seed(time.Now().Unix())
 	if err := BotStruct.Scheduler.CheckTime(); err == nil {
 		BotStruct.ConnectToInstagram()
-		res, err := BotStruct.SendMessage("_motivation.business", "Test message ! :)")
-		if !res || err != nil {
-			log.Errorf("Error during message sending: %v", err)
+		users, err := BotStruct.FetchUsersFromUserFollowers()
+		if err != nil {
+			log.Error(err)
+		}
+		for _, username := range users {
+			res, err := BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
+			if !res || err != nil {
+				log.Errorf("Error during message sending: %v", err)
+			}
 		}
 	} else {
 		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
