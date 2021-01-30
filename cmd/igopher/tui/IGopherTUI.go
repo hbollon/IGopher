@@ -89,6 +89,9 @@ func initClientConfig() *igopher.ClientConfig {
 }
 
 func main() {
+	// Initialize environment
+	igopher.CheckEnvironment()
+
 	// Clear terminal session
 	igopher.ClearTerminal()
 

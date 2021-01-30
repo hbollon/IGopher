@@ -10,6 +10,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var (
+	requiredDirectories = [...]string{"./lib", "./config"}
+)
+
 // IGopher struct store all bot and ig related configuration and modules instances.
 // Settings are readed from Yaml config files.
 type IGopher struct {
@@ -143,6 +147,25 @@ func CreateClientConfig() *ClientConfig {
 	}
 }
 
+// CheckEnvironment check existence of sub-directories and files required
+// for the operation of the program and creates them otherwise
+func CheckEnvironment() {
+	// Check and create directories
+	for _, dir := range requiredDirectories {
+		dir = filepath.FromSlash(dir)
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			if err = os.Mkdir(dir, 0755); err != nil {
+				log.Fatalf("Error during creation of '%s' sub-directory, check root directory permissions or try to create it manually\nMkdir error:\n%v", dir, err)
+			}
+		}
+	}
+
+	// Check config.yaml existence
+	if _, err := os.Stat(filepath.FromSlash("./config/config.yaml")); os.IsNotExist(err) {
+		ExportConfig(ResetBotConfig())
+	}
+}
+
 // Read config yml file and initialize it for use with bot
 func ReadBotConfigYaml() IGopher {
 	var c IGopher
@@ -169,7 +192,7 @@ func ReadBotConfigYaml() IGopher {
 	return c
 }
 
-// ImportConfig read config.yaml, parse it in BotCvalidate:"numeric"onfigYaml instance and finally return it
+// ImportConfig read config.yaml, parse it in BotConfigYaml instance and finally return it
 func ImportConfig() BotConfigYaml {
 	var c BotConfigYaml
 	file, err := ioutil.ReadFile(filepath.FromSlash("./config/config.yaml"))
