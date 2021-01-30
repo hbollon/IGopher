@@ -1,10 +1,12 @@
 package igopher
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -54,14 +56,14 @@ type ClientConfig struct {
 // Account store personnal credentials
 type Account struct {
 	Username string `yaml:"username" validate:"required,min=1,max=30"`
-	Password string `yaml:"password" validate:"required"`
+	Password string `yaml:"password" validate:"required,min=1"`
 }
 
 // AutoDM store messaging module configuration
 type AutoDM struct {
 	Activated bool `yaml:"activated"`
 	// List of all availlables message templates
-	DmTemplates []string `yaml:"dm_templates"`
+	DmTemplates []string `yaml:"dm_templates" validate:"required"`
 	// Greeting module add a customized DM header with recipient username
 	Greeting GreetingConfig `yaml:"greeting"`
 }
@@ -97,15 +99,14 @@ type ScrapperYaml struct {
 }
 
 // ScrapperConfigYaml is the yaml user scrapping configuration representation
-
 type ScrapperConfigYaml struct {
-	Accounts []string `yaml:"src_accounts"`
-	Quantity int      `yaml:"fetch_quantity" validate:"numeric"`
+	Accounts []string `yaml:"src_accounts" validate:"required"`
+	Quantity int      `yaml:"fetch_quantity" validate:"numeric,min=1"`
 }
 
 // AutoDmYaml is the yaml autodm module configuration representation
 type AutoDmYaml struct {
-	DmTemplates []string     `yaml:"dm_templates"`
+	DmTemplates []string     `yaml:"dm_templates" validate:"required"`
 	Greeting    GreetingYaml `yaml:"greeting"`
 	Activated   bool         `yaml:"activated"`
 }
@@ -164,6 +165,23 @@ func CheckEnvironment() {
 	if _, err := os.Stat(filepath.FromSlash("./config/config.yaml")); os.IsNotExist(err) {
 		ExportConfig(ResetBotConfig())
 	}
+}
+
+// CheckConfigValidity check bot config validity
+func CheckConfigValidity() error {
+	config := ImportConfig()
+	validate := validator.New()
+	if err := validate.Struct(config.Account); err != nil {
+		return errors.New("Invalid credentials format! Please check your settings.\n\n")
+	}
+	if err := validate.Struct(config.SrcUsers); err != nil {
+		return errors.New("Invalid scrapper configuration! Please check your settings.\n\n")
+	}
+	if err := validate.Struct(config.AutoDm); err != nil {
+		return errors.New("Invalid autodm module configuration! Please check your settings.\n\n")
+	}
+
+	return nil
 }
 
 // Read config yml file and initialize it for use with bot

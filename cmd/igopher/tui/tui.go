@@ -262,10 +262,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 			case "enter":
+				errorMessage = ""
 				switch m.homeScreen.cursor {
 				case 0:
-					execBot = true
-					return m, tea.Quit
+					err := igopher.CheckConfigValidity()
+					if err == nil {
+						execBot = true
+						return m, tea.Quit
+					} else {
+						errorMessage = err.Error()
+						break
+					}
 				case 1:
 					config = igopher.ImportConfig()
 					m.screen = settingsMenu
@@ -670,6 +677,7 @@ func (m model) View() string {
 	switch m.screen {
 	case mainMenu:
 		s = fmt.Sprintf("\n🦄 Welcome to %s, the (soon) most powerful and versatile %s bot!\n\n", keyword("IGopher"), keyword("Instagram"))
+		s += errorColor(errorMessage)
 
 		for i, choice := range m.homeScreen.choices {
 			cursor := " "
