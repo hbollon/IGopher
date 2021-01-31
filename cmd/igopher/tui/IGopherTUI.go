@@ -37,7 +37,7 @@ var flags = struct {
 	// PortFlag specifie custom communication port for Selenium and web drivers
 	PortFlag *int
 }{
-	LogLevelFlag:           flag.String("loglevel", "info", "Log level threasold"),
+	LogLevelFlag:           flag.String("loglevel", "info", "Log level threshold"),
 	ForceDlFlag:            flag.Bool("force-download", false, "Force redownload of all dependencies even if exists"),
 	DebugFlag:              flag.Bool("debug", false, "Display debug and selenium output"),
 	IgnoreDependenciesFlag: flag.Bool("ignore-dependencies", false, "Skip dependencies management"),

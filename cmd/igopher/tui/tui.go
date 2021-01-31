@@ -469,7 +469,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					case scrappingSettings:
 						val, err := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
 						if err == nil {
-							scr := igopher.ScrapperConfigYaml{
+							scr := igopher.ScrapperYaml{
 								Accounts: strings.Split(m.settingsInputsScreen.input[0].Value(), ","),
 								Quantity: val,
 							}
@@ -478,7 +478,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 								errorMessage = "Invalid input, please check all fields.\n\n"
 								break
 							} else {
-								config.SrcUsers.Config = scr
+								config.SrcUsers = scr
 								errorMessage = ""
 								m.screen = settingsMenu
 							}

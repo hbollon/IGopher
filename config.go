@@ -93,13 +93,8 @@ type AccountYaml struct {
 	Password string `yaml:"password" validate:"required"`
 }
 
-// ScrapperYaml is the yaml scrapper representation
+// ScrapperYaml is the yaml user scrapping configuration representation
 type ScrapperYaml struct {
-	Config ScrapperConfigYaml `yaml:"config"`
-}
-
-// ScrapperConfigYaml is the yaml user scrapping configuration representation
-type ScrapperConfigYaml struct {
 	Accounts []string `yaml:"src_accounts" validate:"required"`
 	Quantity int      `yaml:"fetch_quantity" validate:"numeric,min=1"`
 }
@@ -247,10 +242,8 @@ func ResetBotConfig() BotConfigYaml {
 			Password: "",
 		},
 		SrcUsers: ScrapperYaml{
-			Config: ScrapperConfigYaml{
-				Accounts: []string{""},
-				Quantity: 500,
-			},
+			Accounts: []string{""},
+			Quantity: 500,
 		},
 		AutoDm: AutoDmYaml{
 			DmTemplates: []string{"Hey ! What's up?"},
