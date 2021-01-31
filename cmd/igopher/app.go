@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"math"
+	"math/rand"
 	"os"
+	"time"
 
 	runtime "github.com/banzaicloud/logrus-runtime-formatter"
 	"github.com/hbollon/igopher"
@@ -82,6 +83,9 @@ func initClientConfig() *igopher.ClientConfig {
 }
 
 func main() {
+	// Initialize environment
+	igopher.CheckEnvironment()
+
 	// Initialize client configuration
 	clientConfig := initClientConfig()
 	BotStruct = igopher.ReadBotConfigYaml()
@@ -96,17 +100,19 @@ func main() {
 	BotStruct.SeleniumStruct.InitChromeWebDriver()
 	defer BotStruct.SeleniumStruct.CloseSelenium()
 
+	rand.Seed(time.Now().Unix())
 	if err := BotStruct.Scheduler.CheckTime(); err == nil {
 		BotStruct.ConnectToInstagram()
 		users, err := BotStruct.FetchUsersFromUserFollowers()
 		if err != nil {
 			log.Error(err)
 		}
-		fmt.Printf("%v\n", users)
-		// res, err := BotStruct.SendMessage("_motivation.business", "Test message ! :)")
-		// if !res || err != nil {
-		// 	log.Errorf("Error during message sending: %v", err)
-		// }
+		for _, username := range users {
+			res, err := BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
+			if !res || err != nil {
+				log.Errorf("Error during message sending: %v", err)
+			}
+		}
 	} else {
 		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
 	}
