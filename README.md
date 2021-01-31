@@ -28,27 +28,40 @@
 
 ---
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Contributing](#-contributing)
+- [Author](#author)
+- [License](#-license)
+
+## Introduction
+
+IGopher is a new Instagram automation tool that aims to simplify the deployment of such tools and make their use more pleasant thanks to a TUI (terminal User Interface) as well as a GUI (Graphical User Interface) arriving very soon.
+
+<p align="center">
+  <img src="doc/gifs/demo.gif">
+  <small>Automatic user fetching and message sending!</small>
+</p>
+
+The bot configuration is very easy thanks to the different configuration menus in the TUI. Parameters are managed and saved in Yaml files easy to edit manually!
+
 <p align="center">
   <img src="doc/gifs/demo_tui.gif">
   <small>Easily configurable and easy to use thanks to his TUI !</small>
 </p>
 
-## Table of Contents
-
-- [Requirements](#requirements)
-- [Features](#features)
-- [Installation](#installation)
-- [Author](#author)
-- [Contributing](#-contributing)
-- [License](#-license)
-
-## Requirements
-- [Go](https://golang.org/doc/install) (v1.13+)
+### Requirements
+- For Windows:
+  - [Optionnal] [Windows Terminal](https://www.microsoft.com/fr-fr/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab) -> in order to have a best TUI experience
 
 ## Features
 - Selenium webdriver engine :stars:
 - Automatic dependencies downloading and installation :stars:
 - Automated IG connection & message sending :stars:
+- Users scrapping from ig user followers :stars:
 - Scheduler :stars:
 - Quotas & user blacklist modules :stars:
 - Human writing simulation :stars:
@@ -58,14 +71,62 @@
 
 **Check this [Project](https://github.com/hbollon/igopher/projects/1) to see all planned features for this tool! Feel free to suggest additional features to implement! 🥳**
 
-## Installation
-**1. Clone this repo**
+## Getting Started
 
-**2. Run it:**
+### From release
 
-```go
-go run cmd/igopher/tui/*.go
+1. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) executable for your operating system
+2. Move the executable to a dedicated folder (it will create folders/files)
+3. Launch it:
+- On Windows, open a **Windows Terminal** in the folder (or powershell/cmd but the experience quality can be lower) and execute it: ```./tui.exe```
+- On Linux, open you favorite shell in the folder and execute it: ```./tui```
+4. Configure the bot with your Instagram credentials and set your desired scrapping and autodm settings. To do that, you can use the TUI settings screen or directly edit the config.yaml file.
+5. You're ready! Just hit the "Launch" option in the TUI main menu 🚀
+
+### From sources
+
+1. Install [Go](https://golang.org/doc/install) (v1.13+) on your system
+2. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) source archive or clone the master branch
+3. Launch it with this command: ```go run ./cmd/igopher/tui```
+4. Configure the bot with your Instagram credentials and set your desired scrapping and autodm settings. To do that, you can use the TUI settings screen or directly edit the config.yaml file.
+5. You're ready! Just hit the "Launch" option in the TUI main menu 🚀
+
+### Flags
+
+IGopher have a flags system for debuging or to enable system feature.
+You can activate them by adding them after the executable call, for exemple to activate headless mode:
+```./tui --headless```
+
+There is the list of all available flags:
 ```
+--debug
+      Display debug and selenium output
+--force-download
+      Force redownload of all dependencies even if exists
+--headless
+      Run WebDriver with frame buffer
+--ignore-dependencies
+      Skip dependencies management
+--loglevel string
+      Log level threshold (default "info")
+--port int
+      Specify custom communication port (default 8080)
+```
+
+You can recover this list by adding **--help** flag.
+
+## 🤝 Contributing
+
+Contributions are greatly appreciated!
+
+1. Fork the project
+2. Create your feature branch (```git checkout -b feature/AmazingFeature```)
+3. Commit your changes (```git commit -m 'Add some amazing stuff'```)
+4. Push to the branch (```git push origin feature/AmazingFeature```)
+5. Create a new Pull Request
+
+Issues and feature requests are welcome!
+Feel free to check [issues page](https://github.com/hbollon/igopher/issues).
 
 ## Author
 
@@ -74,10 +135,6 @@ go run cmd/igopher/tui/*.go
 * Github: [@hbollon](https://github.com/hbollon)
 * LinkedIn: [@Hugo Bollon](https://www.linkedin.com/in/hugobollon/)
 * Portfolio: [hugobollon.me](https://www.hugobollon.me)
-
-## 🤝 Contributing
-
-Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/hbollon/igopher/issues). 
 
 ## Show your support
 
