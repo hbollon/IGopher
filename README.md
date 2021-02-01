@@ -54,6 +54,7 @@ The bot configuration is very easy thanks to the different configuration menus i
 </p>
 
 ### Requirements
+- [Java](https://java.com/fr/download/)
 - For Windows:
   - [Optionnal] [Windows Terminal](https://www.microsoft.com/fr-fr/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab) -> in order to have a best TUI experience
 
@@ -75,21 +76,23 @@ The bot configuration is very easy thanks to the different configuration menus i
 
 ### From release
 
-1. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) executable for your operating system
-2. Move the executable to a dedicated folder (it will create folders/files)
-3. Launch it:
-- On Windows, open a **Windows Terminal** in the folder (or powershell/cmd but the experience quality can be lower) and execute it: ```./tui.exe```
+1. Download and install [Java](https://java.com/fr/download/) (needed for Selenium webdriver) and add it to your path (on Windows)
+2. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) executable for your operating system
+3. Move the executable to a dedicated folder (it will create folders/files)
+4. Launch it:
+- On Windows, open a **Windows Terminal** in the folder (or powershell/cmd but the experience quality can be lower) and execute it: ```./tui.exe``` or just drag and drop tui.exe in your command prompt
 - On Linux, open you favorite shell in the folder and execute it: ```./tui```
-4. Configure the bot with your Instagram credentials and set your desired scrapping and autodm settings. To do that, you can use the TUI settings screen or directly edit the config.yaml file.
-5. You're ready! Just hit the "Launch" option in the TUI main menu 🚀
+5. Configure the bot with your Instagram credentials and set your desired scrapping and autodm settings. To do that, you can use the TUI settings screen or directly edit the config.yaml file.
+6. You're ready! Just hit the "Launch" option in the TUI main menu 🚀
 
 ### From sources
 
-1. Install [Go](https://golang.org/doc/install) (v1.13+) on your system
-2. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) source archive or clone the master branch
-3. Launch it with this command: ```go run ./cmd/igopher/tui```
-4. Configure the bot with your Instagram credentials and set your desired scrapping and autodm settings. To do that, you can use the TUI settings screen or directly edit the config.yaml file.
-5. You're ready! Just hit the "Launch" option in the TUI main menu 🚀
+1. Download and install [Java](https://java.com/fr/download/) (needed for Selenium webdriver) and add it to your path (on Windows)
+2. Install [Go](https://golang.org/doc/install) (v1.13+) on your system
+3. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) source archive or clone the master branch
+4. Launch it with this command: ```go run ./cmd/igopher/tui```
+5. Configure the bot with your Instagram credentials and set your desired scrapping and autodm settings. To do that, you can use the TUI settings screen or directly edit the config.yaml file.
+6. You're ready! Just hit the "Launch" option in the TUI main menu 🚀
 
 ### Flags
 
