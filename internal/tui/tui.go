@@ -3,7 +3,6 @@ package tui
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -244,7 +243,6 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	// Get terminal windows dimensions from msg and update model
 	case tea.WindowSizeMsg:
@@ -257,386 +255,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.UpdateHomePage(msg)
 
 	case settingsMenu:
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "ctrl+c":
-				return m, tea.Quit
-
-			case "ctrl+b":
-				m.screen = mainMenu
-
-			case "up", "k":
-				if m.configScreen.cursor > 0 {
-					m.configScreen.cursor--
-				}
-
-			case "down", "j":
-				if m.configScreen.cursor < len(m.configScreen.choices)-1 {
-					m.configScreen.cursor++
-				}
-
-			case "enter":
-				switch m.configScreen.cursor {
-				case 0:
-					m.settingsInputsScreen = getAccountSettings()
-					m.screen = settingsInputsScreen
-					m.settingsChoice = accountSettings
-				case 1:
-					m.settingsInputsScreen = getUsersScrappingSettings()
-					m.screen = settingsInputsScreen
-					m.settingsChoice = scrappingSettings
-				case 2:
-					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
-					m.screen = genericMenu
-					m.settingsChoice = autodmSettingsMenu
-				case 3:
-					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
-					m.screen = genericMenu
-					m.settingsChoice = autodmGreetingMenu
-				case 4:
-					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
-					m.screen = genericMenu
-					m.settingsChoice = quotasSettingsMenu
-				case 5:
-					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
-					m.screen = genericMenu
-					m.settingsChoice = scheduleSettingsMenu
-				case 6:
-					m.screen = settingsBoolScreen
-					m.settingsChoice = blacklistEnablingSettings
-				case 7:
-					igopher.ExportConfig(config)
-					m.screen = mainMenu
-				default:
-					log.Warn("Invalid input!")
-				}
-			}
-		}
+		return m.UpdateSettingsMenu(msg)
 
 	case settingsResetMenu:
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "ctrl+c":
-				return m, tea.Quit
-
-			case "ctrl+b":
-				m.screen = mainMenu
-
-			case "up", "k":
-				if m.configResetScreen.cursor > 0 {
-					m.configResetScreen.cursor--
-				}
-
-			case "down", "j":
-				if m.configResetScreen.cursor < len(m.configResetScreen.choices)-1 {
-					m.configResetScreen.cursor++
-				}
-
-			case "enter":
-				switch m.configResetScreen.cursor {
-				case 0:
-					config = igopher.ResetBotConfig()
-					igopher.ExportConfig(config)
-					m.screen = mainMenu
-				case 1:
-					m.screen = mainMenu
-				default:
-					log.Warn("Invalid input!")
-				}
-			}
-		}
+		return m.UpdateSettingsResetMenu(msg)
 
 	case genericMenu:
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "ctrl+c":
-				return m, tea.Quit
-
-			case "ctrl+b":
-				m.screen = settingsMenu
-
-			case "up", "k":
-				if m.genericMenuScreen.cursor > 0 {
-					m.genericMenuScreen.cursor--
-				}
-
-			case "down", "j":
-				if m.genericMenuScreen.cursor < len(m.genericMenuScreen.choices)-1 {
-					m.genericMenuScreen.cursor++
-				}
-
-			case "enter":
-				switch m.genericMenuScreen.cursor {
-				case 0:
-					switch m.settingsChoice {
-					case autodmSettingsMenu:
-						m.settingsChoice = autodmEnablingSettings
-					case autodmGreetingMenu:
-						m.settingsChoice = autodmGreetingEnablingSettings
-					case quotasSettingsMenu:
-						m.settingsChoice = quotasEnablingSettings
-					case scheduleSettingsMenu:
-						m.settingsChoice = scheduleEnablingSettings
-					default:
-						log.Warn("Invalid input!")
-					}
-					m.screen = settingsBoolScreen
-				case 1:
-					switch m.settingsChoice {
-					case autodmSettingsMenu:
-						m.settingsInputsScreen = getAutoDmSettings()
-						m.settingsChoice = autodmSettings
-					case autodmGreetingMenu:
-						m.settingsInputsScreen = getAutoDmGreetingSettings()
-						m.settingsChoice = autodmGreetingSettings
-					case quotasSettingsMenu:
-						m.settingsInputsScreen = getQuotasSettings()
-						m.settingsChoice = quotasSettings
-					case scheduleSettingsMenu:
-						m.settingsInputsScreen = getSchedulerSettings()
-						m.settingsChoice = scheduleSettings
-					default:
-						log.Warn("Invalid input!")
-					}
-					m.screen = settingsInputsScreen
-				default:
-					log.Warn("Invalid input!")
-				}
-			}
-		}
+		return m.UpdateGenericMenu(msg)
 
 	case settingsInputsScreen:
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "ctrl+c":
-				return m, tea.Quit
-
-			case "ctrl+b":
-				errorMessage = ""
-				m.screen = settingsMenu
-
-			case "enter":
-				if m.settingsInputsScreen.index == len(m.settingsInputsScreen.input) {
-					switch m.settingsChoice {
-					case accountSettings:
-						acc := igopher.AccountYaml{
-							Username: m.settingsInputsScreen.input[0].Value(),
-							Password: m.settingsInputsScreen.input[1].Value(),
-						}
-						err := validate.Struct(acc)
-						if err != nil {
-							errorMessage = "Invalid input, please check all fields.\n\n"
-							break
-						} else {
-							config.Account = acc
-							errorMessage = ""
-							m.screen = settingsMenu
-						}
-					case scrappingSettings:
-						val, err := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
-						if err == nil {
-							scr := igopher.ScrapperYaml{
-								Accounts: strings.Split(m.settingsInputsScreen.input[0].Value(), ","),
-								Quantity: val,
-							}
-							err := validate.Struct(scr)
-							if err != nil {
-								errorMessage = "Invalid input, please check all fields.\n\n"
-								break
-							} else {
-								config.SrcUsers = scr
-								errorMessage = ""
-								m.screen = settingsMenu
-							}
-						} else {
-							errorMessage = "Invalid quantity field, value must be numeric.\n\n"
-						}
-					case autodmSettings:
-						dm := igopher.AutoDmYaml{
-							DmTemplates: strings.Split(m.settingsInputsScreen.input[0].Value(), ";"),
-						}
-						err := validate.Struct(dm)
-						if err != nil {
-							errorMessage = "Invalid input, please check all fields.\n\n"
-							break
-						} else {
-							config.AutoDm.DmTemplates = dm.DmTemplates
-							errorMessage = ""
-							m.screen = settingsMenu
-						}
-					case autodmGreetingSettings:
-						gre := igopher.GreetingYaml{
-							Template: m.settingsInputsScreen.input[0].Value(),
-						}
-						err := validate.Struct(gre)
-						if err != nil {
-							errorMessage = "Invalid input, please check all fields.\n\n"
-							break
-						} else {
-							config.AutoDm.Greeting.Template = gre.Template
-							errorMessage = ""
-							m.screen = settingsMenu
-						}
-					case quotasSettings:
-						dmDay, err := strconv.Atoi(m.settingsInputsScreen.input[0].Value())
-						dmHour, err2 := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
-						if err == nil && err2 == nil {
-							quo := igopher.QuotasYaml{
-								DmDay:  dmDay,
-								DmHour: dmHour,
-							}
-							err := validate.Struct(quo)
-							if err != nil {
-								errorMessage = "Invalid input, please check all fields.\n\n"
-								break
-							} else {
-								config.Quotas.DmDay = quo.DmDay
-								config.Quotas.DmHour = quo.DmHour
-								errorMessage = ""
-								m.screen = settingsMenu
-							}
-						} else {
-							errorMessage = "Invalid input, please check all fields.\n\n"
-						}
-					case scheduleSettings:
-						sche := igopher.ScheduleYaml{
-							BeginAt: m.settingsInputsScreen.input[0].Value(),
-							EndAt:   m.settingsInputsScreen.input[1].Value(),
-						}
-						err := validate.Struct(sche)
-						if err != nil {
-							errorMessage = "Invalid input, please check all fields.\n\n"
-							break
-						} else {
-							config.Schedule.BeginAt = sche.BeginAt
-							config.Schedule.EndAt = sche.EndAt
-							errorMessage = ""
-							m.screen = settingsMenu
-						}
-					default:
-						log.Error("Unexpected settings screen value!\n\n")
-					}
-					break
-				}
-
-			// Cycle between inputs
-			case "tab", "shift+tab", "up", "down":
-				s := msg.String()
-
-				// Cycle indexes
-				if s == "up" || s == "shift+tab" {
-					m.settingsInputsScreen.index--
-				} else {
-					m.settingsInputsScreen.index++
-				}
-
-				if m.settingsInputsScreen.index > len(m.settingsInputsScreen.input) {
-					m.settingsInputsScreen.index = 0
-				} else if m.settingsInputsScreen.index < 0 {
-					m.settingsInputsScreen.index = len(m.settingsInputsScreen.input)
-				}
-
-				for i := 0; i < len(m.settingsInputsScreen.input); i++ {
-					if i == m.settingsInputsScreen.index {
-						// Set focused state
-						m.settingsInputsScreen.input[i].Focus()
-						m.settingsInputsScreen.input[i].Prompt = focusedPrompt
-						m.settingsInputsScreen.input[i].TextColor = focusedTextColor
-						continue
-					}
-					// Remove focused state
-					m.settingsInputsScreen.input[i].Blur()
-					m.settingsInputsScreen.input[i].Prompt = blurredPrompt
-					m.settingsInputsScreen.input[i].TextColor = ""
-				}
-
-				if m.settingsInputsScreen.index == len(m.settingsInputsScreen.input) {
-					m.settingsInputsScreen.submitButton = focusedSubmitButton
-				} else {
-					m.settingsInputsScreen.submitButton = blurredSubmitButton
-				}
-
-				return m, nil
-			}
-		}
-		// Handle character input and blinks
-		m, cmd = updateInputs(msg, m)
-		return m, cmd
+		return m.UpdateSettingsInputsMenu(msg)
 
 	case settingsBoolScreen:
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "ctrl+c":
-				return m, tea.Quit
-
-			case "ctrl+b":
-				m.screen = settingsMenu
-
-			case "up", "k":
-				if m.settingsTrueFalseScreen.cursor > 0 {
-					m.settingsTrueFalseScreen.cursor--
-				}
-
-			case "down", "j":
-				if m.settingsTrueFalseScreen.cursor < len(m.settingsTrueFalseScreen.choices)-1 {
-					m.settingsTrueFalseScreen.cursor++
-				}
-
-			case "enter":
-				switch m.settingsTrueFalseScreen.cursor {
-				case 0:
-					switch m.settingsChoice {
-					case autodmEnablingSettings:
-						config.AutoDm.Activated = true
-
-					case autodmGreetingEnablingSettings:
-						config.AutoDm.Greeting.Activated = true
-
-					case quotasEnablingSettings:
-						config.Quotas.Activated = true
-
-					case scheduleEnablingSettings:
-						config.Schedule.Activated = true
-
-					case blacklistEnablingSettings:
-						config.Blacklist.Activated = true
-
-					default:
-						log.Error("Unexpected settings screen value!")
-					}
-					m.screen = settingsMenu
-				case 1:
-					switch m.settingsChoice {
-					case autodmEnablingSettings:
-						config.AutoDm.Activated = false
-
-					case autodmGreetingEnablingSettings:
-						config.AutoDm.Greeting.Activated = false
-
-					case quotasEnablingSettings:
-						config.Quotas.Activated = false
-
-					case scheduleEnablingSettings:
-						config.Schedule.Activated = false
-
-					case blacklistEnablingSettings:
-						config.Blacklist.Activated = false
-
-					default:
-						log.Error("Unexpected settings screen value!")
-					}
-					m.screen = settingsMenu
-				default:
-					log.Warn("Invalid input!")
-					m.screen = settingsMenu
-				}
-			}
-		}
+		return m.UpdateSettingsBoolMenu(msg)
 	}
 
 	return m, nil
@@ -646,91 +277,22 @@ func (m model) View() string {
 	var s string
 	switch m.screen {
 	case mainMenu:
-		s = fmt.Sprintf("\n🦄 Welcome to %s, the (soon) most powerful and versatile %s bot!\n\n", keyword("IGopher"), keyword("Instagram"))
-		s += errorColor(errorMessage)
-
-		for i, choice := range m.homeScreen.choices {
-			cursor := " "
-			if m.homeScreen.cursor == i {
-				cursor = cursorColor(">")
-			}
-			s += fmt.Sprintf("%s %s\n", cursor, choice)
-		}
-
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+c: quit")
+		s = m.ViewHomePage()
 
 	case settingsMenu:
-		s = fmt.Sprintf("\nWhat would you like to %s?\n\n", keyword("tweak"))
-
-		for i, choice := range m.configScreen.choices {
-			cursor := " "
-			if m.configScreen.cursor == i {
-				cursor = cursorColor(">")
-			}
-			s += fmt.Sprintf("%s %s\n", cursor, choice)
-		}
-
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: save & back") + dot + subtle("ctrl+c: quit")
+		s = m.ViewSettingsMenu()
 
 	case settingsResetMenu:
-		s = fmt.Sprintf("\nAre you sure you want to %s the default %s? This operation cannot be undone!\n\n", keyword("reset"), keyword("settings"))
-
-		for i, choice := range m.configResetScreen.choices {
-			cursor := " "
-			if m.configResetScreen.cursor == i {
-				cursor = cursorColor(">")
-			}
-			s += fmt.Sprintf("%s %s\n", cursor, choice)
-		}
-
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
+		s = m.ViewSettingsResetMenu()
 
 	case genericMenu:
-		s += "\n\n"
-
-		for i, choice := range m.genericMenuScreen.choices {
-			cursor := " "
-			if m.genericMenuScreen.cursor == i {
-				cursor = cursorColor(">")
-			}
-			s += fmt.Sprintf("%s %s\n", cursor, choice)
-		}
-
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
+		s = m.ViewGenericMenu()
 
 	case settingsInputsScreen:
-		s = m.settingsInputsScreen.title
-		s += errorColor(errorMessage)
-		for i := 0; i < len(m.settingsInputsScreen.input); i++ {
-			s += m.settingsInputsScreen.input[i].View()
-			if i < len(m.settingsInputsScreen.input)-1 {
-				s += "\n"
-			}
-		}
-		s += "\n\n" + m.settingsInputsScreen.submitButton + "\n"
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
+		s = m.ViewSettingsInputsMenu()
 
 	case settingsBoolScreen:
-		switch m.settingsChoice {
-		case autodmEnablingSettings:
-			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("AutoDM"), keyword("true"))
-
-		case autodmGreetingEnablingSettings:
-			s = fmt.Sprintf("\nDo you want to enable %s sub-module with %s? (Default: %s)\n\n", keyword("Greeting"), keyword("AutoDm"), keyword("true"))
-
-		case quotasEnablingSettings:
-			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("Quotas"), keyword("true"))
-
-		case scheduleEnablingSettings:
-			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("Scheduler"), keyword("true"))
-
-		case blacklistEnablingSettings:
-			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("User Blacklist"), keyword("true"))
-
-		default:
-			log.Error("Unexpected settings screen value!")
-			s = ""
-		}
+		s = m.ViewSettingsBoolMenu()
 
 		for i, choice := range m.settingsTrueFalseScreen.choices {
 			cursor := " "
