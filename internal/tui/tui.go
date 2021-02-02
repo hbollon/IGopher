@@ -70,16 +70,16 @@ var (
 
 	ramp = makeRamp("#B14FFF", "#00FFA3", progressBarWidth)
 
-	execBot        = false
-	errorMessage   string
-	settingsChoice settingsScreen = 0
-	config         igopher.BotConfigYaml
+	execBot      = false
+	errorMessage string
+	config       igopher.BotConfigYaml
 
 	validate = validator.New()
 )
 
 type model struct {
 	screen                  screen
+	settingsChoice          settingsScreen
 	homeScreen              menu
 	configScreen            menu
 	configResetScreen       menu
@@ -254,46 +254,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.screen {
 	case mainMenu:
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "ctrl+c":
-				return m, tea.Quit
-
-			case "up", "k":
-				if m.homeScreen.cursor > 0 {
-					m.homeScreen.cursor--
-				}
-
-			case "down", "j":
-				if m.homeScreen.cursor < len(m.homeScreen.choices)-1 {
-					m.homeScreen.cursor++
-				}
-
-			case "enter":
-				errorMessage = ""
-				switch m.homeScreen.cursor {
-				case 0:
-					err := igopher.CheckConfigValidity()
-					if err == nil {
-						execBot = true
-						return m, tea.Quit
-					} else {
-						errorMessage = err.Error()
-						break
-					}
-				case 1:
-					config = igopher.ImportConfig()
-					m.screen = settingsMenu
-				case 2:
-					m.screen = settingsResetMenu
-				case 3:
-					return m, tea.Quit
-				default:
-					log.Warn("Invalid input!")
-				}
-			}
-		}
+		return m.UpdateHomePage(msg)
 
 	case settingsMenu:
 		switch msg := msg.(type) {
@@ -320,30 +281,30 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case 0:
 					m.settingsInputsScreen = getAccountSettings()
 					m.screen = settingsInputsScreen
-					settingsChoice = accountSettings
+					m.settingsChoice = accountSettings
 				case 1:
 					m.settingsInputsScreen = getUsersScrappingSettings()
 					m.screen = settingsInputsScreen
-					settingsChoice = scrappingSettings
+					m.settingsChoice = scrappingSettings
 				case 2:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
-					settingsChoice = autodmSettingsMenu
+					m.settingsChoice = autodmSettingsMenu
 				case 3:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
-					settingsChoice = autodmGreetingMenu
+					m.settingsChoice = autodmGreetingMenu
 				case 4:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
-					settingsChoice = quotasSettingsMenu
+					m.settingsChoice = quotasSettingsMenu
 				case 5:
 					m.genericMenuScreen = menu{choices: []string{"Enable/Disable Module", "Configuration"}}
 					m.screen = genericMenu
-					settingsChoice = scheduleSettingsMenu
+					m.settingsChoice = scheduleSettingsMenu
 				case 6:
 					m.screen = settingsBoolScreen
-					settingsChoice = blacklistEnablingSettings
+					m.settingsChoice = blacklistEnablingSettings
 				case 7:
 					igopher.ExportConfig(config)
 					m.screen = mainMenu
@@ -410,33 +371,33 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				switch m.genericMenuScreen.cursor {
 				case 0:
-					switch settingsChoice {
+					switch m.settingsChoice {
 					case autodmSettingsMenu:
-						settingsChoice = autodmEnablingSettings
+						m.settingsChoice = autodmEnablingSettings
 					case autodmGreetingMenu:
-						settingsChoice = autodmGreetingEnablingSettings
+						m.settingsChoice = autodmGreetingEnablingSettings
 					case quotasSettingsMenu:
-						settingsChoice = quotasEnablingSettings
+						m.settingsChoice = quotasEnablingSettings
 					case scheduleSettingsMenu:
-						settingsChoice = scheduleEnablingSettings
+						m.settingsChoice = scheduleEnablingSettings
 					default:
 						log.Warn("Invalid input!")
 					}
 					m.screen = settingsBoolScreen
 				case 1:
-					switch settingsChoice {
+					switch m.settingsChoice {
 					case autodmSettingsMenu:
 						m.settingsInputsScreen = getAutoDmSettings()
-						settingsChoice = autodmSettings
+						m.settingsChoice = autodmSettings
 					case autodmGreetingMenu:
 						m.settingsInputsScreen = getAutoDmGreetingSettings()
-						settingsChoice = autodmGreetingSettings
+						m.settingsChoice = autodmGreetingSettings
 					case quotasSettingsMenu:
 						m.settingsInputsScreen = getQuotasSettings()
-						settingsChoice = quotasSettings
+						m.settingsChoice = quotasSettings
 					case scheduleSettingsMenu:
 						m.settingsInputsScreen = getSchedulerSettings()
-						settingsChoice = scheduleSettings
+						m.settingsChoice = scheduleSettings
 					default:
 						log.Warn("Invalid input!")
 					}
@@ -460,7 +421,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "enter":
 				if m.settingsInputsScreen.index == len(m.settingsInputsScreen.input) {
-					switch settingsChoice {
+					switch m.settingsChoice {
 					case accountSettings:
 						acc := igopher.AccountYaml{
 							Username: m.settingsInputsScreen.input[0].Value(),
@@ -629,7 +590,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				switch m.settingsTrueFalseScreen.cursor {
 				case 0:
-					switch settingsChoice {
+					switch m.settingsChoice {
 					case autodmEnablingSettings:
 						config.AutoDm.Activated = true
 
@@ -650,7 +611,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 					m.screen = settingsMenu
 				case 1:
-					switch settingsChoice {
+					switch m.settingsChoice {
 					case autodmEnablingSettings:
 						config.AutoDm.Activated = false
 
@@ -750,7 +711,7 @@ func (m model) View() string {
 		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
 
 	case settingsBoolScreen:
-		switch settingsChoice {
+		switch m.settingsChoice {
 		case autodmEnablingSettings:
 			s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("AutoDM"), keyword("true"))
 
