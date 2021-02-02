@@ -3,12 +3,14 @@ package main
 import (
 	"flag"
 	"math"
+	"math/rand"
 	"os"
 	"runtime"
+	"time"
 
 	logRuntime "github.com/banzaicloud/logrus-runtime-formatter"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/hbollon/igopher"
+	tui "github.com/hbollon/igopher/internal/tui"
 	"github.com/shiena/ansicolor"
 	log "github.com/sirupsen/logrus"
 )
@@ -96,13 +98,43 @@ func main() {
 	igopher.ClearTerminal()
 
 	// Launch TUI
-	p := tea.NewProgram(initialModel)
-	if err := p.Start(); err != nil {
-		log.Fatal(err)
-	}
+	execBot := tui.InitTui()
 
 	// Lauch bot if option selected
 	if execBot {
 		launchBot()
+	}
+}
+
+func launchBot() {
+	// Initialize client configuration
+	clientConfig := initClientConfig()
+	BotStruct = igopher.ReadBotConfigYaml()
+
+	// Download dependencies
+	if !clientConfig.IgnoreDependencies {
+		igopher.DownloadDependencies(true, true, clientConfig.ForceDependenciesDl)
+	}
+
+	// Initialize Selenium and WebDriver and defer their closing
+	BotStruct.SeleniumStruct.InitializeSelenium(clientConfig)
+	BotStruct.SeleniumStruct.InitChromeWebDriver()
+	defer BotStruct.SeleniumStruct.CloseSelenium()
+
+	rand.Seed(time.Now().Unix())
+	if err := BotStruct.Scheduler.CheckTime(); err == nil {
+		BotStruct.ConnectToInstagram()
+		users, err := BotStruct.FetchUsersFromUserFollowers()
+		if err != nil {
+			log.Error(err)
+		}
+		for _, username := range users {
+			res, err := BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
+			if !res || err != nil {
+				log.Errorf("Error during message sending: %v", err)
+			}
+		}
+	} else {
+		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
 	}
 }

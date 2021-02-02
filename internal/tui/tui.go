@@ -1,11 +1,9 @@
-package main
+package tui
 
 import (
 	"fmt"
-	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -117,6 +115,17 @@ var initialModel = model{
 	configScreen:            menu{choices: []string{"Account", "Users scraping", "AutoDM", "Greeting", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
 	configResetScreen:       menu{choices: []string{"Yes", "No"}},
 	settingsTrueFalseScreen: menu{choices: []string{"True", "False"}},
+}
+
+// InitTui initialize and start a terminal user interface instance
+// Return the bot execution state on tui exit
+func InitTui() bool {
+	p := tea.NewProgram(initialModel)
+	if err := p.Start(); err != nil {
+		log.Fatal(err)
+	}
+
+	return execBot
 }
 
 func getAccountSettings() inputs {
@@ -790,41 +799,6 @@ func updateInputs(msg tea.Msg, m model) (model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
-}
-
-// Actions
-
-func launchBot() {
-	// Initialize client configuration
-	clientConfig := initClientConfig()
-	BotStruct = igopher.ReadBotConfigYaml()
-
-	// Download dependencies
-	if !clientConfig.IgnoreDependencies {
-		igopher.DownloadDependencies(true, true, clientConfig.ForceDependenciesDl)
-	}
-
-	// Initialize Selenium and WebDriver and defer their closing
-	BotStruct.SeleniumStruct.InitializeSelenium(clientConfig)
-	BotStruct.SeleniumStruct.InitChromeWebDriver()
-	defer BotStruct.SeleniumStruct.CloseSelenium()
-
-	rand.Seed(time.Now().Unix())
-	if err := BotStruct.Scheduler.CheckTime(); err == nil {
-		BotStruct.ConnectToInstagram()
-		users, err := BotStruct.FetchUsersFromUserFollowers()
-		if err != nil {
-			log.Error(err)
-		}
-		for _, username := range users {
-			res, err := BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
-			if !res || err != nil {
-				log.Errorf("Error during message sending: %v", err)
-			}
-		}
-	} else {
-		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
-	}
 }
 
 // Utils
