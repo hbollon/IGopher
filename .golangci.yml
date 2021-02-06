@@ -9,9 +9,11 @@ linters:
   enable:
     - dupl
     - exportloopref
+    - gocyclo
     - godox
     - gofmt
     - goimports
+    - golint
     - govet
     - misspell
     - prealloc

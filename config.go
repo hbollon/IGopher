@@ -167,19 +167,19 @@ func CheckConfigValidity() error {
 	config := ImportConfig()
 	validate := validator.New()
 	if err := validate.Struct(config.Account); err != nil {
-		return errors.New("Invalid credentials format! Please check your settings.\n\n")
+		return errors.New("Invalid credentials format! Please check your settings")
 	}
 	if err := validate.Struct(config.SrcUsers); err != nil {
-		return errors.New("Invalid scrapper configuration! Please check your settings.\n\n")
+		return errors.New("Invalid scrapper configuration! Please check your settings")
 	}
 	if err := validate.Struct(config.AutoDm); err != nil {
-		return errors.New("Invalid autodm module configuration! Please check your settings.\n\n")
+		return errors.New("Invalid autodm module configuration! Please check your settings")
 	}
 
 	return nil
 }
 
-// Read config yml file and initialize it for use with bot
+// ReadBotConfigYaml read config yml file and initialize it for use with bot
 func ReadBotConfigYaml() IGopher {
 	var c IGopher
 	file, err := ioutil.ReadFile(filepath.FromSlash("./config/config.yaml"))

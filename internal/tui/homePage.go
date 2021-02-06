@@ -33,10 +33,8 @@ func (m model) UpdateHomePage(msg tea.Msg) (model, tea.Cmd) {
 				if err == nil {
 					execBot = true
 					return m, tea.Quit
-				} else {
-					errorMessage = err.Error()
-					break
 				}
+				errorMessage = err.Error() + "\n\n"
 			case 1:
 				config = igopher.ImportConfig()
 				m.screen = settingsMenu

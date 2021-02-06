@@ -104,12 +104,12 @@ func (bot *IGopher) sendMessageWebDriver(user, message string) (bool, error) {
 			return false, errors.New("Error during user searching")
 		}
 		randomSleep()
-		if usernames, err := bot.SeleniumStruct.WebDriver.FindElements(selenium.ByXPATH, "//div[@aria-labelledby]/div/span//img[@data-testid='user-avatar']"); err != nil {
+		usernames, err := bot.SeleniumStruct.WebDriver.FindElements(selenium.ByXPATH, "//div[@aria-labelledby]/div/span//img[@data-testid='user-avatar']")
+		if err != nil {
 			return false, errors.New("Error during user selection")
-		} else {
-			usernames[0].Click()
-			log.Debug("User to dm selected")
 		}
+		usernames[0].Click()
+		log.Debug("User to dm selected")
 	} else {
 		return false, errors.New("Error during user selection")
 	}
