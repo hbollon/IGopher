@@ -332,6 +332,20 @@ func handleFile(bar *mpb.Bar, file file, downloadBrowsers, forceDl bool) error {
 		}
 	}
 
+	if extractFile(file) != nil {
+		return err
+	}
+	if rename := file.rename; len(rename) == 2 {
+		log.Debugf("Renaming %q to %q", rename[0], rename[1])
+		os.RemoveAll(rename[1]) // Ignore error.
+		if err := os.Rename(rename[0], rename[1]); err != nil {
+			log.Warnf("Error renaming %q to %q: %v", rename[0], rename[1], err)
+		}
+	}
+	return nil
+}
+
+func extractFile(file file) error {
 	switch path.Ext(file.name) {
 	case ".zip":
 		log.Debugf("Unzipping %q", file.path)
@@ -355,13 +369,7 @@ func handleFile(bar *mpb.Bar, file file, downloadBrowsers, forceDl bool) error {
 			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
 		}
 	}
-	if rename := file.rename; len(rename) == 2 {
-		log.Debugf("Renaming %q to %q", rename[0], rename[1])
-		os.RemoveAll(rename[1]) // Ignore error.
-		if err := os.Rename(rename[0], rename[1]); err != nil {
-			log.Warnf("Error renaming %q to %q: %v", rename[0], rename[1], err)
-		}
-	}
+
 	return nil
 }
 

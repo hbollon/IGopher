@@ -50,31 +50,14 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 
 	for _, srcUsername := range sc.ScrapperManager.SrcAccounts {
 		logrus.Debugf("Fetch from '%s' user", srcUsername)
-		// Navigate to Instagram user page
-		if err := sc.SeleniumStruct.WebDriver.Get(fmt.Sprintf("https://www.instagram.com/%s/?hl=en", srcUsername)); err != nil {
-			logrus.Warnf("Requested user '%s' doesn't exist, skip it", srcUsername)
+		finded, err := sc.navigateUserFollowersList(srcUsername)
+		if err != nil {
+			totalBar.Abort(true)
+			return nil, err
+		}
+		if !finded {
 			totalBar.IncrBy(1)
 			continue
-		}
-		randomSleepCustom(1, 3)
-		// Access to followers list view
-		if find, err := sc.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath", 10); err == nil && find {
-			elem, _ := sc.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath")
-			elem.Click()
-			logrus.Debug("Clicked on user followers list")
-		} else {
-			totalBar.Abort(true)
-			return nil, errors.New("Error during access to user followers list")
-		}
-		randomSleepCustom(1, 3)
-		// Focus list
-		if find, err := sc.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div", "xpath", 10); err == nil && find {
-			dialog, _ := sc.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div", "xpath")
-			dialog.Click()
-			logrus.Debug("Clicked on user followers dialog box")
-		} else {
-			totalBar.Abort(true)
-			return nil, errors.New("Error during focus user followers list dialog")
 		}
 
 		userBar := p.Add(int64(sc.ScrapperManager.Quantity),
@@ -129,4 +112,33 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 		return nil, errors.New("Empty users result")
 	}
 	return igUsers, nil
+}
+
+// Go to user followers list with webdriver
+func (sc *IGopher) navigateUserFollowersList(srcUsername string) (bool, error) {
+	// Navigate to Instagram user page
+	if err := sc.SeleniumStruct.WebDriver.Get(fmt.Sprintf("https://www.instagram.com/%s/?hl=en", srcUsername)); err != nil {
+		logrus.Warnf("Requested user '%s' doesn't exist, skip it", srcUsername)
+		return false, nil
+	}
+	randomSleepCustom(1, 3)
+	// Access to followers list view
+	if find, err := sc.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath", 10); err == nil && find {
+		elem, _ := sc.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath")
+		elem.Click()
+		logrus.Debug("Clicked on user followers list")
+	} else {
+		return true, errors.New("Error during access to user followers list")
+	}
+	randomSleepCustom(1, 3)
+	// Focus list
+	if find, err := sc.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div", "xpath", 10); err == nil && find {
+		dialog, _ := sc.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div", "xpath")
+		dialog.Click()
+		logrus.Debug("Clicked on user followers dialog box")
+	} else {
+		return true, errors.New("Error during focus user followers list dialog")
+	}
+
+	return true, nil
 }
