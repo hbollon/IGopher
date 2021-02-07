@@ -5,16 +5,38 @@ issues:
   max-issues-per-linter: 0
   max-same-issues: 0
 
+linters-settings:
+  gocyclo:
+    min-complexity: 30 # Will be decreased later in the devellopement
+  govet:
+    check-shadowing: true
+    settings:
+      printf:
+        funcs:
+          - (github.com/sirupsen/logrus).Debugf
+          - (github.com/sirupsen/logrus).Infof
+          - (github.com/sirupsen/logrus).Warnf
+          - (github.com/sirupsen/logrus).Errorf
+          - (github.com/sirupsen/logrus).Fatalf
+  misspell:
+    locale: US
+  lll:
+    line-length: 140
+  
+
 linters:
   enable:
     - dupl
     - exportloopref
+    - goconst
     - gocyclo
     - godox
     - gofmt
     - goimports
     - golint
     - govet
+    - lll
+    - maligned
     - misspell
     - prealloc
     - rowserrcheck
@@ -24,7 +46,7 @@ linters:
   disable:
     - deadcode # Disabled during early devellopment
     - errcheck
-    - gosec # Disabled during early devellopment
+    - gosec
     - structcheck # Disabled during early devellopment
     - unused # Disabled during early devellopment
     - varcheck # Disabled during early devellopment
