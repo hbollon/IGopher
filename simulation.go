@@ -8,7 +8,8 @@ import (
 // SimulateHandWriting simulate human writing by typing input string character by character with random interruptions
 // between letters
 func SimulateHandWriting(element selenium.WebElement, input string) bool {
-	if err := element.Click(); err == nil {
+	var err error
+	if err = element.Click(); err == nil {
 		for _, c := range input {
 			if err = element.SendKeys(string(c)); err != nil {
 				logrus.Debug("Unable to send key during message typing")

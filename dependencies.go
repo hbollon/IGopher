@@ -164,13 +164,15 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 	}
 	bkt := client.Bucket(storageBktName)
 	if latestChromeBuild == "" {
-		r, err := bkt.Object(lastChangeFile).NewReader(ctx)
+		var r *storage.Reader
+		r, err = bkt.Object(lastChangeFile).NewReader(ctx)
 		if err != nil {
 			return fmt.Errorf("cannot create a reader for %s%s file: %v", gcsPath, lastChangeFile, err)
 		}
 		defer r.Close()
 		// Read the last change file content for the latest build directory name
-		data, err := ioutil.ReadAll(r)
+		var data []byte
+		data, err = ioutil.ReadAll(r)
 		if err != nil {
 			return fmt.Errorf("cannot read from %s%s file: %v", gcsPath, lastChangeFile, err)
 		}
@@ -339,7 +341,7 @@ func handleFile(bar *mpb.Bar, file file, downloadBrowsers, forceDl bool) error {
 		}
 	}
 
-	if extractFile(file) != nil {
+	if err := extractFile(file); err != nil {
 		return err
 	}
 	if rename := file.rename; len(rename) == 2 {

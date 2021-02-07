@@ -163,16 +163,18 @@ type BlacklistManager struct {
 
 // InitializeBlacklist check existence of the blacklist csv file and initialize it if it doesn't exist.
 func (bm *BlacklistManager) InitializeBlacklist() error {
+	var err error
 	// Check if blacklist csv exist
-	_, err := os.Stat(fileBlacklistPath)
+	_, err = os.Stat(fileBlacklistPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			// Create data folder if not exist
-			if _, err := os.Stat("data/"); os.IsNotExist(err) {
+			if _, err = os.Stat("data/"); os.IsNotExist(err) {
 				os.Mkdir("data/", os.ModePerm)
 			}
 			// Create and open csv blacklist
-			f, err := os.OpenFile(fileBlacklistPath, os.O_RDWR|os.O_CREATE, 0755)
+			var f *os.File
+			f, err = os.OpenFile(fileBlacklistPath, os.O_RDWR|os.O_CREATE, 0755)
 			if err != nil {
 				return err
 			}

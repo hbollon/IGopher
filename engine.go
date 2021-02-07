@@ -24,7 +24,6 @@ const (
 var (
 	seleniumPath                                  = filepath.FromSlash("./lib/selenium-server.jar")
 	chromePath, chromeDriverPath, geckoDriverPath string
-	err                                           error
 )
 
 func init() {
@@ -50,6 +49,7 @@ type Selenium struct {
 // InitializeSelenium start a Selenium WebDriver server instance
 // (if one is not already running).
 func (s *Selenium) InitializeSelenium(clientConfig *ClientConfig) {
+	var err error
 	s.Config = clientConfig
 
 	var output *os.File
@@ -77,6 +77,7 @@ func (s *Selenium) InitializeSelenium(clientConfig *ClientConfig) {
 
 // InitFirefoxWebDriver init and launch web driver with Firefox
 func (s *Selenium) InitFirefoxWebDriver() {
+	var err error
 	caps := selenium.Capabilities{"browserName": "firefox"}
 	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", s.Config.Port))
 	if err != nil {
@@ -86,6 +87,7 @@ func (s *Selenium) InitFirefoxWebDriver() {
 
 // InitChromeWebDriver init and launch web driver with Chrome
 func (s *Selenium) InitChromeWebDriver() {
+	var err error
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	chromeCaps := chrome.Capabilities{
 		Path: filepath.FromSlash(chromePath),

@@ -121,15 +121,18 @@ func launchBot() {
 	BotStruct.SeleniumStruct.InitChromeWebDriver()
 	defer BotStruct.SeleniumStruct.CloseSelenium()
 
+	var err error
 	rand.Seed(time.Now().Unix())
-	if err := BotStruct.Scheduler.CheckTime(); err == nil {
+	if err = BotStruct.Scheduler.CheckTime(); err == nil {
 		BotStruct.ConnectToInstagram()
-		users, err := BotStruct.FetchUsersFromUserFollowers()
+		var users []string
+		users, err = BotStruct.FetchUsersFromUserFollowers()
 		if err != nil {
 			log.Error(err)
 		}
 		for _, username := range users {
-			res, err := BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
+			var res bool
+			res, err = BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
 			if !res || err != nil {
 				log.Errorf("Error during message sending: %v", err)
 			}

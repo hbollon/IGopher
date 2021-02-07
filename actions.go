@@ -86,7 +86,7 @@ func (bot *IGopher) SendMessage(user, message string) (bool, error) {
 
 		return res, err
 	}
-	return false, err
+	return false, nil
 }
 
 func (bot *IGopher) sendMessageWebDriver(user, message string) (bool, error) {
