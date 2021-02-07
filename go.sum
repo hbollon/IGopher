@@ -13,6 +13,12 @@ github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d/go.mod h1:asat6
 github.com/ahmdrz/goinsta/v2 v2.4.5-0.20191021103459-79702a8f3eda h1:GLWPsoxRolnPakJCaDhnfEgeOoe/CkTeXYwTBcMzAcM=
 github.com/ahmdrz/goinsta/v2 v2.4.5-0.20191021103459-79702a8f3eda/go.mod h1:XUEELCWd3hVSqADejqxTa8Uc7Yto9cb6a6HrfkGwVf8=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
+github.com/asticode/go-astikit v0.15.0 h1:mpy55njSQ9SS9gP9vmPAfo08YpRt+4pr5/1emK6DFF0=
+github.com/asticode/go-astikit v0.15.0/go.mod h1:h4ly7idim1tNhaVkdVBeXQZEE3L0xblP7fCWbgwipF0=
+github.com/asticode/go-astikit v0.17.0 h1:wzhhMmOOJFJnBXv5lBEcWrubD8WKXc1RyTTVfcEnnm8=
+github.com/asticode/go-astikit v0.17.0/go.mod h1:h4ly7idim1tNhaVkdVBeXQZEE3L0xblP7fCWbgwipF0=
+github.com/asticode/go-astilectron v0.22.3 h1:OIeAEskmdP4uNzwiM/RUT613YRNt2qqzbcOMamjhH4U=
+github.com/asticode/go-astilectron v0.22.3/go.mod h1:Tx+aS0IvbV0cO4TlQbOO1NFA/lATj11vEStydyIjMjM=
 github.com/atotto/clipboard v0.1.2 h1:YZCtFu5Ie8qX2VmVTBnrqLSiU9XOWwqNRmdT3gIQzbY=
 github.com/atotto/clipboard v0.1.2/go.mod h1:ZY9tmq7sm5xIbd9bOK4onWV4S6X0u6GY7Vn0Yu86PYI=
 github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e h1:ZOnKnYG1LLgq4W7wZUYj9ntn3RxQ65EZyYqdtFpP2Dw=
