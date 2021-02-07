@@ -14,6 +14,13 @@ import (
 	"github.com/tebeka/selenium/chrome"
 )
 
+const (
+	locatorID    = "ID"
+	locatorName  = "NAME"
+	locatorXPath = "XPATH"
+	locatorCSS   = "CSS"
+)
+
 var (
 	seleniumPath                                  = filepath.FromSlash("./lib/selenium-server.jar")
 	chromePath, chromeDriverPath, geckoDriverPath string
@@ -123,13 +130,13 @@ func (s *Selenium) IsElementPresent(by, value string) bool {
 // GetElement wait for element and then return when it's available
 func (s *Selenium) GetElement(elementTag, locator string) (selenium.WebElement, error) {
 	locator = strings.ToUpper(locator)
-	if locator == "ID" && s.IsElementPresent(selenium.ByID, elementTag) {
+	if locator == locatorID && s.IsElementPresent(selenium.ByID, elementTag) {
 		return s.WebDriver.FindElement(selenium.ByID, elementTag)
-	} else if locator == "NAME" && s.IsElementPresent(selenium.ByName, elementTag) {
+	} else if locator == locatorName && s.IsElementPresent(selenium.ByName, elementTag) {
 		return s.WebDriver.FindElement(selenium.ByName, elementTag)
-	} else if locator == "XPATH" && s.IsElementPresent(selenium.ByXPATH, elementTag) {
+	} else if locator == locatorXPath && s.IsElementPresent(selenium.ByXPATH, elementTag) {
 		return s.WebDriver.FindElement(selenium.ByXPATH, elementTag)
-	} else if locator == "CSS" && s.IsElementPresent(selenium.ByCSSSelector, elementTag) {
+	} else if locator == locatorCSS && s.IsElementPresent(selenium.ByCSSSelector, elementTag) {
 		return s.WebDriver.FindElement(selenium.ByCSSSelector, elementTag)
 	} else {
 		log.Debugf("Incorrect locator '%s'", locator)
@@ -140,13 +147,13 @@ func (s *Selenium) GetElement(elementTag, locator string) (selenium.WebElement, 
 // GetElements wait for elements and then return when they're available
 func (s *Selenium) GetElements(elementTag, locator string) ([]selenium.WebElement, error) {
 	locator = strings.ToUpper(locator)
-	if locator == "ID" && s.IsElementPresent(selenium.ByID, elementTag) {
+	if locator == locatorID && s.IsElementPresent(selenium.ByID, elementTag) {
 		return s.WebDriver.FindElements(selenium.ByID, elementTag)
-	} else if locator == "NAME" && s.IsElementPresent(selenium.ByName, elementTag) {
+	} else if locator == locatorName && s.IsElementPresent(selenium.ByName, elementTag) {
 		return s.WebDriver.FindElements(selenium.ByName, elementTag)
-	} else if locator == "XPATH" && s.IsElementPresent(selenium.ByXPATH, elementTag) {
+	} else if locator == locatorXPath && s.IsElementPresent(selenium.ByXPATH, elementTag) {
 		return s.WebDriver.FindElements(selenium.ByXPATH, elementTag)
-	} else if locator == "CSS" && s.IsElementPresent(selenium.ByCSSSelector, elementTag) {
+	} else if locator == locatorCSS && s.IsElementPresent(selenium.ByCSSSelector, elementTag) {
 		return s.WebDriver.FindElements(selenium.ByCSSSelector, elementTag)
 	} else {
 		log.Debugf("Incorrect locator '%s'", locator)
@@ -168,10 +175,10 @@ func (s *Selenium) WaitForElement(elementTag, locator string, delay int) (bool, 
 		case <-timeout:
 			return false, errors.New("Timed out : element not found")
 		case <-tick.C:
-			if (locator == "ID" && s.IsElementPresent(selenium.ByID, elementTag)) ||
-				(locator == "NAME" && s.IsElementPresent(selenium.ByName, elementTag)) ||
-				(locator == "XPATH" && s.IsElementPresent(selenium.ByXPATH, elementTag)) ||
-				(locator == "CSS" && s.IsElementPresent(selenium.ByCSSSelector, elementTag)) {
+			if (locator == locatorID && s.IsElementPresent(selenium.ByID, elementTag)) ||
+				(locator == locatorName && s.IsElementPresent(selenium.ByName, elementTag)) ||
+				(locator == locatorXPath && s.IsElementPresent(selenium.ByXPATH, elementTag)) ||
+				(locator == locatorCSS && s.IsElementPresent(selenium.ByCSSSelector, elementTag)) {
 				return true, nil
 			}
 		}

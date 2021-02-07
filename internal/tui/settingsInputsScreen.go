@@ -9,18 +9,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const invalidInputMsg = "Invalid input, please check all fields.\n\n"
+
 func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c":
+		case ctrlC:
 			return m, tea.Quit
 
-		case "ctrl+b":
+		case ctrlB:
 			errorMessage = ""
 			m.screen = settingsMenu
 
-		case "enter":
+		case enter:
 			if m.settingsInputsScreen.index == len(m.settingsInputsScreen.input) {
 				switch m.settingsChoice {
 				case accountSettings:
@@ -30,7 +32,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					}
 					err := validate.Struct(acc)
 					if err != nil {
-						errorMessage = "Invalid input, please check all fields.\n\n"
+						errorMessage = invalidInputMsg
 						break
 					} else {
 						config.Account = acc
@@ -46,7 +48,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 						}
 						err := validate.Struct(scr)
 						if err != nil {
-							errorMessage = "Invalid input, please check all fields.\n\n"
+							errorMessage = invalidInputMsg
 							break
 						} else {
 							config.SrcUsers = scr
@@ -62,7 +64,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					}
 					err := validate.Struct(dm)
 					if err != nil {
-						errorMessage = "Invalid input, please check all fields.\n\n"
+						errorMessage = invalidInputMsg
 						break
 					} else {
 						config.AutoDm.DmTemplates = dm.DmTemplates
@@ -75,7 +77,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					}
 					err := validate.Struct(gre)
 					if err != nil {
-						errorMessage = "Invalid input, please check all fields.\n\n"
+						errorMessage = invalidInputMsg
 						break
 					} else {
 						config.AutoDm.Greeting.Template = gre.Template
@@ -92,7 +94,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 						}
 						err := validate.Struct(quo)
 						if err != nil {
-							errorMessage = "Invalid input, please check all fields.\n\n"
+							errorMessage = invalidInputMsg
 							break
 						} else {
 							config.Quotas.DmDay = quo.DmDay
@@ -101,7 +103,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 							m.screen = settingsMenu
 						}
 					} else {
-						errorMessage = "Invalid input, please check all fields.\n\n"
+						errorMessage = invalidInputMsg
 					}
 				case scheduleSettings:
 					sche := igopher.ScheduleYaml{
@@ -110,7 +112,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					}
 					err := validate.Struct(sche)
 					if err != nil {
-						errorMessage = "Invalid input, please check all fields.\n\n"
+						errorMessage = invalidInputMsg
 						break
 					} else {
 						config.Schedule.BeginAt = sche.BeginAt
@@ -125,11 +127,11 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 			}
 
 		// Cycle between inputs
-		case "tab", "shift+tab", "up", "down":
+		case "tab", "shift+tab", up, down:
 			s := msg.String()
 
 			// Cycle indexes
-			if s == "up" || s == "shift+tab" {
+			if s == up || s == "shift+tab" {
 				m.settingsInputsScreen.index--
 			} else {
 				m.settingsInputsScreen.index++

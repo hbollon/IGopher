@@ -12,23 +12,23 @@ func (m model) UpdateSettingsMenu(msg tea.Msg) (model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c":
+		case ctrlC:
 			return m, tea.Quit
 
-		case "ctrl+b":
+		case ctrlB:
 			m.screen = mainMenu
 
-		case "up", "k":
+		case up, "k":
 			if m.configScreen.cursor > 0 {
 				m.configScreen.cursor--
 			}
 
-		case "down", "j":
+		case down, "j":
 			if m.configScreen.cursor < len(m.configScreen.choices)-1 {
 				m.configScreen.cursor++
 			}
 
-		case "enter":
+		case enter:
 			switch m.configScreen.cursor {
 			case 0:
 				m.settingsInputsScreen = getAccountSettings()

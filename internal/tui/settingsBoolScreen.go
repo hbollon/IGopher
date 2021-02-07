@@ -11,23 +11,23 @@ func (m model) UpdateSettingsBoolMenu(msg tea.Msg) (model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c":
+		case ctrlC:
 			return m, tea.Quit
 
-		case "ctrl+b":
+		case ctrlB:
 			m.screen = settingsMenu
 
-		case "up", "k":
+		case up, "k":
 			if m.settingsTrueFalseScreen.cursor > 0 {
 				m.settingsTrueFalseScreen.cursor--
 			}
 
-		case "down", "j":
+		case down, "j":
 			if m.settingsTrueFalseScreen.cursor < len(m.settingsTrueFalseScreen.choices)-1 {
 				m.settingsTrueFalseScreen.cursor++
 			}
 
-		case "enter":
+		case enter:
 			switch m.settingsTrueFalseScreen.cursor {
 			case 0:
 				switch m.settingsChoice {
@@ -87,7 +87,8 @@ func (m model) ViewSettingsBoolMenu() string {
 		s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("AutoDM"), keyword("true"))
 
 	case autodmGreetingEnablingSettings:
-		s = fmt.Sprintf("\nDo you want to enable %s sub-module with %s? (Default: %s)\n\n", keyword("Greeting"), keyword("AutoDm"), keyword("true"))
+		s = fmt.Sprintf("\nDo you want to enable %s sub-module with %s? (Default: %s)\n\n",
+			keyword("Greeting"), keyword("AutoDm"), keyword("true"))
 
 	case quotasEnablingSettings:
 		s = fmt.Sprintf("\nDo you want to enable %s module? (Default: %s)\n\n", keyword("Quotas"), keyword("true"))

@@ -151,7 +151,8 @@ func CheckEnvironment() {
 		dir = filepath.FromSlash(dir)
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
 			if err = os.Mkdir(dir, 0755); err != nil {
-				log.Fatalf("Error during creation of '%s' sub-directory, check root directory permissions or try to create it manually\nMkdir error:\n%v", dir, err)
+				log.Fatalf("Error during creation of '%s' sub-directory,"+
+					" check root directory permissions or try to create it manually\nMkdir error:\n%v", dir, err)
 			}
 		}
 	}

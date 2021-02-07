@@ -24,6 +24,7 @@ const (
 	maxLineWidth      = 80
 )
 
+// Screen identifiers
 const (
 	mainMenu screen = iota
 	settingsMenu
@@ -33,6 +34,7 @@ const (
 	settingsBoolScreen
 )
 
+// Settings screen identifiers
 const (
 	accountSettings settingsScreen = iota
 	scrappingSettings
@@ -49,6 +51,15 @@ const (
 	scheduleEnablingSettings
 	scheduleSettings
 	blacklistEnablingSettings
+)
+
+// Keyboard key
+const (
+	ctrlC = "ctrl+c"
+	ctrlB = "ctrl+b"
+	enter = "enter"
+	up    = "up"
+	down  = "down"
 )
 
 var (
@@ -109,9 +120,10 @@ type inputs struct {
 }
 
 var initialModel = model{
-	screen:                  0,
-	homeScreen:              menu{choices: []string{"🚀 - Launch!", "🔧 - Configure", "🧨 - Reset settings", "🚪 - Exit"}},
-	configScreen:            menu{choices: []string{"Account", "Users scraping", "AutoDM", "Greeting", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
+	screen:     0,
+	homeScreen: menu{choices: []string{"🚀 - Launch!", "🔧 - Configure", "🧨 - Reset settings", "🚪 - Exit"}},
+	configScreen: menu{choices: []string{"Account", "Users scraping", "AutoDM",
+		"Greeting", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
 	configResetScreen:       menu{choices: []string{"Yes", "No"}},
 	settingsTrueFalseScreen: menu{choices: []string{"True", "False"}},
 }
@@ -150,7 +162,8 @@ func getAccountSettings() inputs {
 
 func getUsersScrappingSettings() inputs {
 	inp := inputs{
-		title: fmt.Sprintf("\nPlease enter the list of %s you would like to use for %s (separated by a comma) :\n\n", keyword("accounts"), keyword("users scraping")),
+		title: fmt.Sprintf("\nPlease enter the list of %s you would like to use for %s (separated by a comma) :\n\n",
+			keyword("accounts"), keyword("users scraping")),
 		input: []textinput.Model{
 			textinput.NewModel(),
 			textinput.NewModel(),
@@ -170,7 +183,8 @@ func getUsersScrappingSettings() inputs {
 
 func getQuotasSettings() inputs {
 	inp := inputs{
-		title: fmt.Sprintf("\nPlease fill following %s with desired values for %s module configuration.\n\n", keyword("inputs"), keyword("Quotas")),
+		title: fmt.Sprintf("\nPlease fill following %s with desired values for %s module configuration.\n\n",
+			keyword("inputs"), keyword("Quotas")),
 		input: []textinput.Model{
 			textinput.NewModel(),
 			textinput.NewModel(),
@@ -190,7 +204,8 @@ func getQuotasSettings() inputs {
 
 func getSchedulerSettings() inputs {
 	inp := inputs{
-		title: fmt.Sprintf("\nPlease fill following %s with desired values for %s module configuration.\n\n", keyword("inputs"), keyword("Scheduler")),
+		title: fmt.Sprintf("\nPlease fill following %s with desired values for %s module configuration.\n\n",
+			keyword("inputs"), keyword("Scheduler")),
 		input: []textinput.Model{
 			textinput.NewModel(),
 			textinput.NewModel(),
@@ -210,7 +225,8 @@ func getSchedulerSettings() inputs {
 
 func getAutoDmGreetingSettings() inputs {
 	inp := inputs{
-		title: fmt.Sprintf("\nPlease fill following %s with desired greeting message template for %s sub-module configuration.\n\n", keyword("field"), keyword("Greeting")),
+		title: fmt.Sprintf("\nPlease fill following %s with desired greeting message template for %s sub-module configuration.\n\n",
+			keyword("field"), keyword("Greeting")),
 		input: []textinput.Model{
 			textinput.NewModel(),
 		}, submitButton: blurredSubmitButton}
@@ -225,7 +241,8 @@ func getAutoDmGreetingSettings() inputs {
 
 func getAutoDmSettings() inputs {
 	inp := inputs{
-		title: fmt.Sprintf("\nPlease fill following %s with desired message templates (separated by ';') for %s configuration.\n\n", keyword("field"), keyword("AutoDm")),
+		title: fmt.Sprintf("\nPlease fill following %s with desired message templates (separated by ';') for %s configuration.\n\n",
+			keyword("field"), keyword("AutoDm")),
 		input: []textinput.Model{
 			textinput.NewModel(),
 		}, submitButton: blurredSubmitButton}

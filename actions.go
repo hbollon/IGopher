@@ -61,7 +61,8 @@ func (bot *IGopher) connectToInstagramWebDriver() {
 	}
 	randomSleepCustom(10, 15)
 	// Check if login was successful
-	if bot.SeleniumStruct.IsElementPresent(selenium.ByXPATH, "//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {
+	if bot.SeleniumStruct.IsElementPresent(selenium.ByXPATH,
+		"//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {
 		log.Info("Login Successful!")
 	} else {
 		log.Warnf("Instagram does not ask for informations saving, the login process may have failed.")
@@ -97,14 +98,16 @@ func (bot *IGopher) sendMessageWebDriver(user, message string) (bool, error) {
 	randomSleepCustom(6, 10)
 
 	// Type and select user to dm
-	if find, err := bot.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath", 10); err == nil && find {
+	if find, err := bot.SeleniumStruct.WaitForElement(
+		"//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath", 10); err == nil && find {
 		elem, _ := bot.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath")
 		log.Debug("Finded an retrieved user searchbar")
 		if res := SimulateHandWriting(elem, user); !res {
 			return false, errors.New("Error during user searching")
 		}
 		randomSleep()
-		usernames, err := bot.SeleniumStruct.WebDriver.FindElements(selenium.ByXPATH, "//div[@aria-labelledby]/div/span//img[@data-testid='user-avatar']")
+		usernames, err := bot.SeleniumStruct.WebDriver.FindElements(selenium.ByXPATH,
+			"//div[@aria-labelledby]/div/span//img[@data-testid='user-avatar']")
 		if err != nil {
 			return false, errors.New("Error during user selection")
 		}

@@ -43,6 +43,8 @@ const (
 	//
 	// Update this periodically.
 	desiredFirefoxVersion = "68.0.1"
+
+	windowsOs = "windows"
 )
 
 type file struct {
@@ -78,7 +80,7 @@ var (
 			name:       "sauce-connect.zip",
 			path:       downloadDirectory + "sauce-connect.zip",
 			rename:     []string{downloadDirectory + "sc-4.6.3-win32", downloadDirectory + "sauce-connect"},
-			os:         "windows",
+			os:         windowsOs,
 			compressed: true,
 		},
 	}
@@ -137,7 +139,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		targetDriverPath           string
 	)
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOs {
 		prefixOS = "Win_x64"
 		lastChangeFile = "Win_x64/LAST_CHANGE"
 		chromeFilename = "chrome-win.zip"
@@ -204,7 +206,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 // If `desiredVersion` is empty, the the latest version will be used.
 // Otherwise, the specific version will be used.
 func addFirefox(desiredVersion string) {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOs {
 		if desiredVersion == "" {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
@@ -217,7 +219,9 @@ func addFirefox(desiredVersion string) {
 		} else {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				url:        "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" + url.PathEscape(desiredVersion) + "/en-US/firefox-" + url.PathEscape(desiredVersion) + ".exe",
+				url: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
+					url.PathEscape(desiredVersion) + "/en-US/firefox-" +
+					url.PathEscape(desiredVersion) + ".exe",
 				name:       "firefox.exe",
 				path:       downloadDirectory + "firefox.exe",
 				compressed: false,
@@ -237,7 +241,9 @@ func addFirefox(desiredVersion string) {
 		} else {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				url:        "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" + url.PathEscape(desiredVersion) + "/linux-x86_64/en-US/firefox-" + url.PathEscape(desiredVersion) + ".tar.bz2",
+				url: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
+					url.PathEscape(desiredVersion) + "/linux-x86_64/en-US/firefox-" +
+					url.PathEscape(desiredVersion) + ".tar.bz2",
 				name:       "firefox.tar.bz2",
 				path:       downloadDirectory + "firefox.tar.bz2",
 				compressed: true,
@@ -266,11 +272,12 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 		addFirefox(firefoxVersion)
 	}
 
-	if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar", "htmlunit-driver.jar", false); err != nil {
+	if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar",
+		"htmlunit-driver.jar", false); err != nil {
 		log.Errorf("Unable to find the latest HTMLUnit Driver: %s", err)
 	}
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOs {
 		if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*win64.zip", "geckodriver.zip", true); err != nil {
 			log.Errorf("Unable to find the latest Geckodriver: %s", err)
 		}
@@ -349,7 +356,7 @@ func extractFile(file file) error {
 	switch path.Ext(file.name) {
 	case ".zip":
 		log.Debugf("Unzipping %q", file.path)
-		if runtime.GOOS == "windows" {
+		if runtime.GOOS == windowsOs {
 			if err := exec.Command("tar", "-xf", file.path, "-C", downloadDirectory).Run(); err != nil {
 				return fmt.Errorf("Error unzipping %q: %v", file.path, err)
 			}

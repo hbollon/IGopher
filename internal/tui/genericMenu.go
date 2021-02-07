@@ -11,23 +11,23 @@ func (m model) UpdateGenericMenu(msg tea.Msg) (model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c":
+		case ctrlC:
 			return m, tea.Quit
 
-		case "ctrl+b":
+		case ctrlB:
 			m.screen = settingsMenu
 
-		case "up", "k":
+		case up, "k":
 			if m.genericMenuScreen.cursor > 0 {
 				m.genericMenuScreen.cursor--
 			}
 
-		case "down", "j":
+		case down, "j":
 			if m.genericMenuScreen.cursor < len(m.genericMenuScreen.choices)-1 {
 				m.genericMenuScreen.cursor++
 			}
 
-		case "enter":
+		case enter:
 			switch m.genericMenuScreen.cursor {
 			case 0:
 				switch m.settingsChoice {

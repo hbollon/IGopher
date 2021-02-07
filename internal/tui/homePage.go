@@ -12,20 +12,20 @@ func (m model) UpdateHomePage(msg tea.Msg) (model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c":
+		case ctrlC:
 			return m, tea.Quit
 
-		case "up", "k":
+		case up, "k":
 			if m.homeScreen.cursor > 0 {
 				m.homeScreen.cursor--
 			}
 
-		case "down", "j":
+		case down, "j":
 			if m.homeScreen.cursor < len(m.homeScreen.choices)-1 {
 				m.homeScreen.cursor++
 			}
 
-		case "enter":
+		case enter:
 			errorMessage = ""
 			switch m.homeScreen.cursor {
 			case 0:
