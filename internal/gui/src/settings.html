@@ -72,54 +72,54 @@
                                     <hr>
                                     <form>
                                         <div class="form-group"><label>Activation:&nbsp;</label>
-                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" value="1" name="quotasActivation"><label class="form-check-label" for="formCheck-1">Enabled</label></div>
-                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-6" value="2" name="quotasActivation"><label class="form-check-label" for="formCheck-2">Disabled</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" value="1" name="quotasActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-6" value="2" name="quotasActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
                                         </div>
                                         <hr>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Likes per day</span></div><input class="form-control" type="number" name="likesPerDay">
+                                                <div class="input-group-prepend"><span class="input-group-text">Likes per day</span></div><input class="form-control" type="number" name="likesPerDay" required="" value="100">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Likes per hour</span></div><input class="form-control" type="number" name="likesPerHour">
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <div class="form-group">
-                                            <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Follows per day</span></div><input class="form-control" type="number" name="followsPerDay">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Follows per hour</span></div><input class="form-control" type="number" name="followsPerHour">
+                                                <div class="input-group-prepend"><span class="input-group-text">Likes per hour</span></div><input class="form-control" type="number" name="likesPerHour" required="" value="10">
                                             </div>
                                         </div>
                                         <hr>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Unfollows per day</span></div><input class="form-control" type="number" name="unfollowsPerDay">
+                                                <div class="input-group-prepend"><span class="input-group-text">Follows per day</span></div><input class="form-control" type="number" name="followsPerDay" required="" value="80">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Unfollows per hour</span></div><input class="form-control" type="number" name="unfolllowsPerHour">
+                                                <div class="input-group-prepend"><span class="input-group-text">Follows per hour</span></div><input class="form-control" type="number" name="followsPerHour" required="" value="8">
                                             </div>
                                         </div>
                                         <hr>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per day</span></div><input class="form-control" type="number" name="dmPerDay">
+                                                <div class="input-group-prepend"><span class="input-group-text">Unfollows per day</span></div><input class="form-control" type="number" name="unfollowsPerDay" required="" value="60">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per hour</span></div><input class="form-control" type="number" name="dmPerHour">
+                                                <div class="input-group-prepend"><span class="input-group-text">Unfollows per hour</span></div><input class="form-control" type="number" name="unfolllowsPerHour" required="" value="6">
                                             </div>
                                         </div>
-                                        <div><button class="btn btn-primary" type="submit">Save</button></div>
+                                        <hr>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per day</span></div><input class="form-control" type="number" name="dmPerDay" required="" value="40">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per hour</span></div><input class="form-control" type="number" name="dmPerHour" required="" value="4">
+                                            </div>
+                                        </div>
+                                        <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
                                     </form>
                                 </div>
                             </div>
@@ -134,21 +134,21 @@
                                     <hr>
                                     <form>
                                         <div class="form-group"><label>Activation:&nbsp;</label>
-                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" value="1" name="schedulerActivation"><label class="form-check-label" for="formCheck-1">Enabled</label></div>
-                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-2" value="2" name="schedulerActivation"><label class="form-check-label" for="formCheck-2">Disabled</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" value="1" name="schedulerActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-2" value="2" name="schedulerActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
                                         </div>
                                         <hr>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Start time</span></div><input class="form-control" type="time" name="startTime">
+                                                <div class="input-group-prepend"><span class="input-group-text">Start time</span></div><input class="form-control" type="time" name="startTime" required="" value="08:00">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">End time</span></div><input class="form-control" type="time" name="endTime">
+                                                <div class="input-group-prepend"><span class="input-group-text">End time</span></div><input class="form-control" type="time" name="endTime" required="" value="18:00">
                                             </div>
                                         </div>
-                                        <div><button class="btn btn-primary" type="submit">Save</button></div>
+                                        <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
                                     </form>
                                 </div>
                             </div>
@@ -161,10 +161,10 @@
                                     <hr>
                                     <form>
                                         <div class="form-group"><label>Activation:&nbsp;</label>
-                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" value="1" name="blacklistActivation"><label class="form-check-label" for="formCheck-1">Enabled</label></div>
-                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-4" value="2" name="blacklistActivation"><label class="form-check-label" for="formCheck-2">Disabled</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" value="1" name="blacklistActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-4" value="2" name="blacklistActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
                                         </div>
-                                        <div><button class="btn btn-primary" type="submit">Save</button></div>
+                                        <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
                                     </form>
                                 </div>
                             </div>
