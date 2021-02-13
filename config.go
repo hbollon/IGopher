@@ -55,24 +55,24 @@ type ClientConfig struct {
 
 // Account store personnal credentials
 type Account struct {
-	Username string `yaml:"username" validate:"required,min=1,max=30"`
-	Password string `yaml:"password" validate:"required,min=1"`
+	Username string `json:"username" yaml:"username" validate:"required,min=1,max=30"`
+	Password string `json:"password" yaml:"password" validate:"required,min=1"`
 }
 
 // AutoDM store messaging module configuration
 type AutoDM struct {
-	Activated bool `yaml:"activated"`
+	Activated bool `json:"dmActivated" yaml:"activated"`
 	// List of all availlables message templates
-	DmTemplates []string `yaml:"dm_templates" validate:"required"`
+	DmTemplates []string `json:"dmTemplates" yaml:"dm_templates" validate:"required"`
 	// Greeting module add a customized DM header with recipient username
 	Greeting GreetingConfig `yaml:"greeting"`
 }
 
 // GreetingConfig store greeting configuration for AutoDM module
 type GreetingConfig struct {
-	Activated bool `yaml:"activated"`
+	Activated bool `json:"greetingActivated" yaml:"activated"`
 	// Add a string before the username
-	Template string `yaml:"template"`
+	Template string `json:"greetingTemplate" yaml:"template" validate:"required"`
 }
 
 /* Yaml */
@@ -89,8 +89,8 @@ type BotConfigYaml struct {
 
 // AccountYaml is the yaml account configuration representation
 type AccountYaml struct {
-	Username string `yaml:"username" validate:"required,min=1,max=30"`
-	Password string `yaml:"password" validate:"required"`
+	Username string `json:"username" yaml:"username" validate:"required,min=1,max=30"`
+	Password string `json:"password" yaml:"password" validate:"required"`
 }
 
 // ScrapperYaml is the yaml user scrapping configuration representation
@@ -101,34 +101,34 @@ type ScrapperYaml struct {
 
 // AutoDmYaml is the yaml autodm module configuration representation
 type AutoDmYaml struct {
-	DmTemplates []string     `yaml:"dm_templates" validate:"required"`
+	DmTemplates []string     `json:"dmTemplates" yaml:"dm_templates" validate:"required"`
 	Greeting    GreetingYaml `yaml:"greeting"`
-	Activated   bool         `yaml:"activated"`
+	Activated   bool         `json:"dmActivated" yaml:"activated"`
 }
 
 // GreetingYaml is the yaml dm greeting configuration representation
 type GreetingYaml struct {
-	Template  string `yaml:"template"`
-	Activated bool   `yaml:"activated"`
+	Template  string `json:"greetingActivated" yaml:"template" validate:"required"`
+	Activated bool   `json:"greetingTemplate" yaml:"activated"`
 }
 
 // QuotasYaml is the yaml quotas module configuration representation
 type QuotasYaml struct {
-	DmDay     int  `yaml:"dm_per_day" validate:"numeric"`
-	DmHour    int  `yaml:"dm_per_hour" validate:"numeric"`
-	Activated bool `yaml:"activated"`
+	DmDay     int  `json:"dmDay" yaml:"dm_per_day" validate:"numeric"`
+	DmHour    int  `json:"dmHour" yaml:"dm_per_hour" validate:"numeric"`
+	Activated bool `json:"quotasActivated" yaml:"activated"`
 }
 
 // ScheduleYaml is the yaml scheduler module configuration representation
 type ScheduleYaml struct {
-	BeginAt   string `yaml:"begin_at" validate:"contains=:"`
-	EndAt     string `yaml:"end_at" validate:"contains=:"`
-	Activated bool   `yaml:"activated"`
+	BeginAt   string `json:"beginAt" yaml:"begin_at" validate:"contains=:"`
+	EndAt     string `json:"endAt" yaml:"end_at" validate:"contains=:"`
+	Activated bool   `json:"scheduleActivated" yaml:"activated"`
 }
 
 // BlacklistYaml is the yaml blacklist module configuration representation
 type BlacklistYaml struct {
-	Activated bool `yaml:"activated"`
+	Activated bool `json:"blacklistActivated" yaml:"activated"`
 }
 
 // CreateClientConfig create default ClientConfig instance and return a pointer on it
