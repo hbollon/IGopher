@@ -41,6 +41,7 @@ func InitGui() {
 	if err = w.Create(); err != nil {
 		log.Fatal(fmt.Errorf("main: creating window failed: %w", err))
 	}
+	handleMessages(w)
 
 	// Blocking pattern
 	a.Wait()
