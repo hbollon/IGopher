@@ -70,10 +70,10 @@
                                 <div class="card-body">
                                     <p class="text-center">This module manages and limits the number of interactions performed per hour and per day, in order to respect the limits set. The default settings are those recommended to protect your Instagram account from restrictions.<br>This module is recommended.</p>
                                     <hr>
-                                    <form>
+                                    <form id="quotasForm">
                                         <div class="form-group"><label>Activation:&nbsp;</label>
-                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" value="1" name="quotasActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
-                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-6" value="2" name="quotasActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" value="true" name="quotasActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-6" value="false" name="quotasActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
                                         </div>
                                         <hr>
                                         <div class="form-group">
@@ -111,12 +111,12 @@
                                         <hr>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per day</span></div><input class="form-control" type="number" name="dmPerDay" required="" value="40">
+                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per day</span></div><input class="form-control" type="number" name="dmDay" required="" value="40">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per hour</span></div><input class="form-control" type="number" name="dmPerHour" required="" value="4">
+                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per hour</span></div><input class="form-control" type="number" name="dmHour" required="" value="4">
                                             </div>
                                         </div>
                                         <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
@@ -132,20 +132,20 @@
                                 <div class="card-body">
                                     <p class="text-center">This module defines and manages the bot's operating hours.<br>It is recommended to activate it and leave a period of inactivity.</p>
                                     <hr>
-                                    <form>
+                                    <form id="schedulerForm">
                                         <div class="form-group"><label>Activation:&nbsp;</label>
-                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" value="1" name="schedulerActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
-                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-2" value="2" name="schedulerActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" value="true" name="scheduleActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-2" value="false" name="scheduleActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
                                         </div>
                                         <hr>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">Start time</span></div><input class="form-control" type="time" name="startTime" required="" value="08:00">
+                                                <div class="input-group-prepend"><span class="input-group-text">Start time</span></div><input class="form-control" type="time" name="beginAt" required="" value="08:00">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <div class="input-group-prepend"><span class="input-group-text">End time</span></div><input class="form-control" type="time" name="endTime" required="" value="18:00">
+                                                <div class="input-group-prepend"><span class="input-group-text">End time</span></div><input class="form-control" type="time" name="endAt" required="" value="18:00">
                                             </div>
                                         </div>
                                         <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
@@ -159,10 +159,10 @@
                                 <div class="card-body">
                                     <p class="text-center">This module maintains a blacklist where are added the users with whom we have already interacted in order to avoid duplicates and spam.</p>
                                     <hr>
-                                    <form>
+                                    <form id="blacklistForm">
                                         <div class="form-group"><label>Activation:&nbsp;</label>
-                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" value="1" name="blacklistActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
-                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-4" value="2" name="blacklistActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" value="true" name="blacklistActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-4" value="false" name="blacklistActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
                                         </div>
                                         <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
                                     </form>
