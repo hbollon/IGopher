@@ -70,12 +70,12 @@
                                     <h6 class="text-primary font-weight-bold m-0">Module Settings</h6>
                                 </div>
                                 <div class="card-body">
-                                    <form>
-                                        <div class="form-group"><label>Message templates (separated by a semicolon):</label><textarea class="form-control" name="messageTemplates" required="">Hey ! What's up?</textarea></div>
+                                    <form id="dmSettingsForm">
+                                        <div class="form-group"><label>Message templates (separated by a semicolon):</label><textarea class="form-control" name="dmTemplates" required="">Hey ! What's up?</textarea></div>
                                         <hr>
                                         <div class="form-group"><label>Greeting:&nbsp;</label>
-                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" value="1" name="greetingActivation" required=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
-                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-6" value="2" name="greetingActivation" required="" checked=""><label class="form-check-label" for="formCheck-2">Disabled</label></div><small class="form-text text-muted">Will add custom greeting with user's username before message templates: ("Hello" will produce -&gt; "Hello &lt;username&gt;, [template]")</small>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" value="true" name="greetingActivation" required=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-6" value="false" name="greetingActivation" required="" checked=""><label class="form-check-label" for="formCheck-2">Disabled</label></div><small class="form-text text-muted">Will add custom greeting with user's username before message templates: ("Hello" will produce -&gt; "Hello &lt;username&gt;, [template]")</small>
                                         </div>
                                         <div class="form-group"><label>Greeting template:</label><input class="form-control" type="text" required="" name="greetingTemplate" value="Hello"></div>
                                         <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
@@ -89,7 +89,7 @@
                                     <h6 class="text-primary font-weight-bold m-0">Users Scrapping</h6>
                                 </div>
                                 <div class="card-body">
-                                    <form>
+                                    <form id="dmUserScrappingSettingsForm">
                                         <div class="form-group"><label>Source Users (separated by a semicolon):</label><input class="form-control" type="text" name="srcUsers" required=""></div>
                                         <div class="form-group"><label>Fetch from:</label>
                                             <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" value="1" name="fetchUsersFrom" required="" checked=""><label class="form-check-label" for="formCheck-1">Users followers</label></div>
@@ -97,7 +97,7 @@
                                             <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-3" value="3" name="fetchUsersFrom" required=""><label class="form-check-label" for="formCheck-3">Users post likers&nbsp;(not available yet)</label></div>
                                             <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-4" value="4" name="fetchUsersFrom" required=""><label class="form-check-label" for="formCheck-4">Users post&nbsp;commentators (not available yet)</label></div>
                                         </div>
-                                        <div class="form-group"><label>Fetch quantity:</label><input class="form-control" type="number" min="1" max="5000" required="" name="fetchQuantity" value="200"></div>
+                                        <div class="form-group"><label>Fetch quantity:</label><input class="form-control" type="number" min="1" max="5000" required="" name="scrappingQuantity" value="200"></div>
                                         <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
                                     </form>
                                 </div>

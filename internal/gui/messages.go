@@ -59,6 +59,12 @@ func handleMessages(w *astilectron.Window) {
 		case "blacklistForm":
 			return i.blacklistFormCallback()
 
+		case "dmSettingsForm":
+			return i.dmBotFormCallback()
+
+		case "dmUserScrappingSettingsForm":
+			return i.dmScrapperFormCallback()
+
 		default:
 			logrus.Error("Unexpected message received.")
 			return MessageOut{Msg: FAIL}
@@ -148,6 +154,46 @@ func (m *MessageIn) blacklistFormCallback() MessageOut {
 	}
 
 	config.Blacklist = blacklistConfig
+	igopher.ExportConfig(config)
+	return MessageOut{Msg: SUCCESS}
+}
+
+func (m *MessageIn) dmBotFormCallback() MessageOut {
+	var err error
+	var dmConfig igopher.AutoDmYaml
+	// Unmarshal payload
+	if err = json.Unmarshal([]byte(m.Payload), &dmConfig); err != nil {
+		logrus.Errorf("Failed to unmarshal message payload: %v", err)
+		return MessageOut{Msg: FAIL}
+	}
+
+	err = validate.Struct(dmConfig)
+	if err != nil {
+		logrus.Warning("Validation issue on dm tool form, abort.")
+		return MessageOut{Msg: FAIL}
+	}
+
+	config.AutoDm = dmConfig
+	igopher.ExportConfig(config)
+	return MessageOut{Msg: SUCCESS}
+}
+
+func (m *MessageIn) dmScrapperFormCallback() MessageOut {
+	var err error
+	var scrapperConfig igopher.ScrapperYaml
+	// Unmarshal payload
+	if err = json.Unmarshal([]byte(m.Payload), &scrapperConfig); err != nil {
+		logrus.Errorf("Failed to unmarshal message payload: %v", err)
+		return MessageOut{Msg: FAIL}
+	}
+
+	err = validate.Struct(scrapperConfig)
+	if err != nil {
+		logrus.Warning("Validation issue on blacklist form, abort.")
+		return MessageOut{Msg: FAIL}
+	}
+
+	config.SrcUsers = scrapperConfig
 	igopher.ExportConfig(config)
 	return MessageOut{Msg: SUCCESS}
 }
