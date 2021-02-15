@@ -41,7 +41,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					val, err := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
 					if err == nil {
 						scr := igopher.ScrapperYaml{
-							Accounts: strings.Split(m.settingsInputsScreen.input[0].Value(), ","),
+							Accounts: strings.Split(m.settingsInputsScreen.input[0].Value(), ";"),
 							Quantity: val,
 						}
 						err := validate.Struct(scr)

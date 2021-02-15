@@ -1,10 +1,12 @@
 package igopher
 
 import (
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
@@ -15,6 +17,19 @@ import (
 var (
 	requiredDirectories = [...]string{"./lib", "./config"}
 )
+
+// SplitStringSlice is a custom string slice type used to define a custom json unmarshal rule
+type SplitStringSlice []string
+
+// UnmarshalJSON custom rule for unmarshal string array from string by splitting it by ';'
+func (strSlice *SplitStringSlice) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*strSlice = strings.Split(s, ";")
+	return nil
+}
 
 // IGopher struct store all bot and ig related configuration and modules instances.
 // Settings are readed from Yaml config files.
@@ -95,21 +110,21 @@ type AccountYaml struct {
 
 // ScrapperYaml is the yaml user scrapping configuration representation
 type ScrapperYaml struct {
-	Accounts []string `yaml:"src_accounts" validate:"required"`
-	Quantity int      `yaml:"fetch_quantity" validate:"numeric,min=1"`
+	Accounts SplitStringSlice `json:"srcUsers" yaml:"src_accounts" validate:"required"`
+	Quantity int              `json:"scrappingQuantity,string" yaml:"fetch_quantity" validate:"numeric,min=1"`
 }
 
 // AutoDmYaml is the yaml autodm module configuration representation
 type AutoDmYaml struct {
-	DmTemplates []string     `json:"dmTemplates" yaml:"dm_templates" validate:"required"`
-	Greeting    GreetingYaml `yaml:"greeting"`
-	Activated   bool         `json:"dmActivated" yaml:"activated"`
+	DmTemplates SplitStringSlice `json:"dmTemplates" yaml:"dm_templates" validate:"required"`
+	Greeting    GreetingYaml     `yaml:"greeting"`
+	Activated   bool             `json:"dmActivation,string" yaml:"activated"`
 }
 
 // GreetingYaml is the yaml dm greeting configuration representation
 type GreetingYaml struct {
-	Template  string `json:"greetingTemplate" yaml:"template" validate:"required"`
-	Activated bool   `json:"greetingActivated,string" yaml:"activated"`
+	Template  string `json:"greetingTemplate" yaml:"template"`
+	Activated bool   `json:"greetingActivation,string" yaml:"activated"`
 }
 
 // QuotasYaml is the yaml quotas module configuration representation
