@@ -108,27 +108,27 @@ type AutoDmYaml struct {
 
 // GreetingYaml is the yaml dm greeting configuration representation
 type GreetingYaml struct {
-	Template  string `json:"greetingActivated" yaml:"template" validate:"required"`
-	Activated bool   `json:"greetingTemplate" yaml:"activated"`
+	Template  string `json:"greetingTemplate" yaml:"template" validate:"required"`
+	Activated bool   `json:"greetingActivated,string" yaml:"activated"`
 }
 
 // QuotasYaml is the yaml quotas module configuration representation
 type QuotasYaml struct {
-	DmDay     int  `json:"dmDay" yaml:"dm_per_day" validate:"numeric"`
-	DmHour    int  `json:"dmHour" yaml:"dm_per_hour" validate:"numeric"`
-	Activated bool `json:"quotasActivated" yaml:"activated"`
+	DmDay     int  `json:"dmDay,string" yaml:"dm_per_day" validate:"numeric"`
+	DmHour    int  `json:"dmHour,string" yaml:"dm_per_hour" validate:"numeric"`
+	Activated bool `json:"quotasActivation,string" yaml:"activated"`
 }
 
 // ScheduleYaml is the yaml scheduler module configuration representation
 type ScheduleYaml struct {
 	BeginAt   string `json:"beginAt" yaml:"begin_at" validate:"contains=:"`
 	EndAt     string `json:"endAt" yaml:"end_at" validate:"contains=:"`
-	Activated bool   `json:"scheduleActivated" yaml:"activated"`
+	Activated bool   `json:"scheduleActivation,string" yaml:"activated"`
 }
 
 // BlacklistYaml is the yaml blacklist module configuration representation
 type BlacklistYaml struct {
-	Activated bool `json:"blacklistActivated" yaml:"activated"`
+	Activated bool `json:"blacklistActivation,string" yaml:"activated"`
 }
 
 // CreateClientConfig create default ClientConfig instance and return a pointer on it
