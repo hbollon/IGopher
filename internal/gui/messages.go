@@ -9,9 +9,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type SucessState string
+
 const (
-	SUCCESS = "Success"
-	FAIL    = "Fail"
+	SUCCESS SucessState = "Success"
+	ERROR   SucessState = "Error"
 )
 
 var (
@@ -21,6 +23,7 @@ var (
 
 // MessageOut represents a message going out
 type MessageOut struct {
+	Status  SucessState `json:"status"`
 	Msg     string      `json:"msg"`
 	Payload interface{} `json:"payload,omitempty"`
 }
@@ -39,7 +42,7 @@ func handleMessages(w *astilectron.Window) {
 		var err error
 		if err = m.Unmarshal(&i); err != nil {
 			logrus.Errorf("Unmarshaling message %+v failed: %v", *m, err)
-			return MessageOut{Msg: "Error during message reception"}
+			return MessageOut{Status: "Error during message reception"}
 		}
 
 		// Process message
@@ -67,7 +70,7 @@ func handleMessages(w *astilectron.Window) {
 
 		default:
 			logrus.Error("Unexpected message received.")
-			return MessageOut{Msg: FAIL}
+			return MessageOut{Status: ERROR}
 		}
 	})
 }
@@ -75,7 +78,7 @@ func handleMessages(w *astilectron.Window) {
 func (m *MessageIn) resetGlobalSettingsCallback() MessageOut {
 	config = igopher.ResetBotConfig()
 	igopher.ExportConfig(config)
-	return MessageOut{Msg: SUCCESS}
+	return MessageOut{Status: SUCCESS, Msg: "Global configuration was successfully reseted!"}
 }
 
 func (m *MessageIn) credentialsFormCallback() MessageOut {
@@ -84,18 +87,18 @@ func (m *MessageIn) credentialsFormCallback() MessageOut {
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &credentialsConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Failed to unmarshal message payload."}
 	}
 
 	err = validate.Struct(credentialsConfig)
 	if err != nil {
 		logrus.Warning("Validation issue on credentials form, abort.")
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Validation issue on credentials form, please check given informations."}
 	}
 
 	config.Account = credentialsConfig
 	igopher.ExportConfig(config)
-	return MessageOut{Msg: SUCCESS}
+	return MessageOut{Status: SUCCESS, Msg: "Credentials settings successfully updated!"}
 }
 
 func (m *MessageIn) quotasFormCallback() MessageOut {
@@ -104,18 +107,18 @@ func (m *MessageIn) quotasFormCallback() MessageOut {
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &quotasConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Failed to unmarshal message payload."}
 	}
 
 	err = validate.Struct(quotasConfig)
 	if err != nil {
 		logrus.Warning("Validation issue on quotas form, abort.")
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Validation issue on quotas form, please check given informations."}
 	}
 
 	config.Quotas = quotasConfig
 	igopher.ExportConfig(config)
-	return MessageOut{Msg: SUCCESS}
+	return MessageOut{Status: SUCCESS, Msg: "Quotas settings successfully updated!"}
 }
 
 func (m *MessageIn) schedulerCallback() MessageOut {
@@ -124,18 +127,18 @@ func (m *MessageIn) schedulerCallback() MessageOut {
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &schedulerConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Failed to unmarshal message payload."}
 	}
 
 	err = validate.Struct(schedulerConfig)
 	if err != nil {
 		logrus.Warning("Validation issue on scheduler form, abort.")
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Validation issue on scheduler form, please check given informations."}
 	}
 
 	config.Schedule = schedulerConfig
 	igopher.ExportConfig(config)
-	return MessageOut{Msg: SUCCESS}
+	return MessageOut{Status: SUCCESS, Msg: "Scheduler settings successfully updated!"}
 }
 
 func (m *MessageIn) blacklistFormCallback() MessageOut {
@@ -144,18 +147,18 @@ func (m *MessageIn) blacklistFormCallback() MessageOut {
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &blacklistConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Failed to unmarshal message payload."}
 	}
 
 	err = validate.Struct(blacklistConfig)
 	if err != nil {
 		logrus.Warning("Validation issue on blacklist form, abort.")
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Validation issue on blacklist form, please check given informations."}
 	}
 
 	config.Blacklist = blacklistConfig
 	igopher.ExportConfig(config)
-	return MessageOut{Msg: SUCCESS}
+	return MessageOut{Status: SUCCESS, Msg: "Blacklist settings successfully updated!"}
 }
 
 func (m *MessageIn) dmBotFormCallback() MessageOut {
@@ -164,18 +167,18 @@ func (m *MessageIn) dmBotFormCallback() MessageOut {
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &dmConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Failed to unmarshal message payload."}
 	}
 
 	err = validate.Struct(dmConfig)
 	if err != nil {
 		logrus.Warning("Validation issue on dm tool form, abort.")
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Validation issue on dm tool form, please check given informations."}
 	}
 
 	config.AutoDm = dmConfig
 	igopher.ExportConfig(config)
-	return MessageOut{Msg: SUCCESS}
+	return MessageOut{Status: SUCCESS, Msg: "Dm bot settings successfully updated!"}
 }
 
 func (m *MessageIn) dmScrapperFormCallback() MessageOut {
@@ -184,16 +187,16 @@ func (m *MessageIn) dmScrapperFormCallback() MessageOut {
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &scrapperConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
-		return MessageOut{Msg: FAIL}
+		return MessageOut{Status: ERROR, Msg: "Failed to unmarshal message payload."}
 	}
 
 	err = validate.Struct(scrapperConfig)
 	if err != nil {
-		logrus.Warning("Validation issue on blacklist form, abort.")
-		return MessageOut{Msg: FAIL}
+		logrus.Warning("Validation issue on scrapper form, abort.")
+		return MessageOut{Status: ERROR, Msg: "Validation issue on scrapper form, please check given informations."}
 	}
 
 	config.SrcUsers = scrapperConfig
 	igopher.ExportConfig(config)
-	return MessageOut{Msg: SUCCESS}
+	return MessageOut{Status: SUCCESS, Msg: "Scrapper settings successfully updated!"}
 }
