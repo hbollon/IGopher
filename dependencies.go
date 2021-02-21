@@ -45,6 +45,7 @@ const (
 	desiredFirefoxVersion = "68.0.1"
 
 	windowsOs = "windows"
+	macOs     = "darwin"
 )
 
 type file struct {
@@ -81,6 +82,14 @@ var (
 			path:       downloadDirectory + "sauce-connect.zip",
 			rename:     []string{downloadDirectory + "sc-4.6.3-win32", downloadDirectory + "sauce-connect"},
 			os:         windowsOs,
+			compressed: true,
+		},
+		{
+			url:        "https://saucelabs.com/downloads/sc-4.6.3-osx.zip",
+			name:       "sauce-connect.zip",
+			path:       downloadDirectory + "sauce-connect.zip",
+			rename:     []string{downloadDirectory + "sc-4.6.3-osx", downloadDirectory + "sauce-connect"},
+			os:         macOs,
 			compressed: true,
 		},
 	}
@@ -147,6 +156,14 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		chromeDriverTargetFilename = "chromedriver.zip"
 		downloadDriverPath = filepath.FromSlash("chromedriver_win32/chromedriver.exe")
 		targetDriverPath = "chromedriver.exe"
+	} else if runtime.GOOS == macOs {
+		prefixOS = "Mac"
+		lastChangeFile = "Mac/LAST_CHANGE"
+		chromeFilename = "chrome-mac.zip"
+		chromeDriverFilename = "chromedriver_mac64.zip"
+		chromeDriverTargetFilename = "chromedriver.zip"
+		downloadDriverPath = filepath.FromSlash("chromedriver_mac64/chromedriver")
+		targetDriverPath = "chromedriver"
 	} else {
 		prefixOS = "Linux_x64"
 		lastChangeFile = "Linux_x64/LAST_CHANGE"
@@ -281,6 +298,10 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 
 	if runtime.GOOS == windowsOs {
 		if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*win64.zip", "geckodriver.zip", true); err != nil {
+			log.Errorf("Unable to find the latest Geckodriver: %s", err)
+		}
+	} else if runtime.GOOS == macOs {
+		if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*macos.tar.gz", "geckodriver.tar.gz", true); err != nil {
 			log.Errorf("Unable to find the latest Geckodriver: %s", err)
 		}
 	} else {

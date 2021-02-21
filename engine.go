@@ -31,6 +31,10 @@ func init() {
 		geckoDriverPath = filepath.FromSlash("./lib/geckodriver.exe")
 		chromeDriverPath = filepath.FromSlash("./lib/chromedriver.exe")
 		chromePath = filepath.FromSlash("./lib/chrome-win/chrome.exe")
+	} else if runtime.GOOS == "darwin" {
+		geckoDriverPath = filepath.FromSlash("./lib/geckodriver")
+		chromeDriverPath = filepath.FromSlash("./lib/chromedriver")
+		chromePath = filepath.FromSlash("./lib/chrome-mac/Chromium.app/Contents/MacOS/Chromium")
 	} else {
 		geckoDriverPath = filepath.FromSlash("./lib/geckodriver")
 		chromeDriverPath = filepath.FromSlash("./lib/chromedriver")

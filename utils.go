@@ -33,6 +33,7 @@ func init() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
+	clear["darwin"] = clear["linux"]
 }
 
 // Sleep random time between default sleepMin and sleepMax
