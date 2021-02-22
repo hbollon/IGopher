@@ -1,11 +1,10 @@
-package gui
+package igopher
 
 import (
 	"encoding/json"
 
 	"github.com/asticode/go-astilectron"
 	"github.com/go-playground/validator/v10"
-	"github.com/hbollon/igopher"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,7 +16,7 @@ const (
 )
 
 var (
-	config   igopher.BotConfigYaml
+	config   BotConfigYaml
 	validate = validator.New()
 )
 
@@ -35,7 +34,7 @@ type MessageIn struct {
 }
 
 func handleMessages(w *astilectron.Window) {
-	config = igopher.ImportConfig()
+	config = ImportConfig()
 	w.OnMessage(func(m *astilectron.EventMessage) interface{} {
 		// Unmarshal
 		var i MessageIn
@@ -68,6 +67,9 @@ func handleMessages(w *astilectron.Window) {
 		case "dmUserScrappingSettingsForm":
 			return i.dmScrapperFormCallback()
 
+		case "dmUserScrappingSettingsForm":
+			return i.launchBotCallback()
+
 		default:
 			logrus.Error("Unexpected message received.")
 			return MessageOut{Status: ERROR}
@@ -76,14 +78,14 @@ func handleMessages(w *astilectron.Window) {
 }
 
 func (m *MessageIn) resetGlobalSettingsCallback() MessageOut {
-	config = igopher.ResetBotConfig()
-	igopher.ExportConfig(config)
+	config = ResetBotConfig()
+	ExportConfig(config)
 	return MessageOut{Status: SUCCESS, Msg: "Global configuration was successfully reseted!"}
 }
 
 func (m *MessageIn) credentialsFormCallback() MessageOut {
 	var err error
-	var credentialsConfig igopher.AccountYaml
+	var credentialsConfig AccountYaml
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &credentialsConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
@@ -97,13 +99,13 @@ func (m *MessageIn) credentialsFormCallback() MessageOut {
 	}
 
 	config.Account = credentialsConfig
-	igopher.ExportConfig(config)
+	ExportConfig(config)
 	return MessageOut{Status: SUCCESS, Msg: "Credentials settings successfully updated!"}
 }
 
 func (m *MessageIn) quotasFormCallback() MessageOut {
 	var err error
-	var quotasConfig igopher.QuotasYaml
+	var quotasConfig QuotasYaml
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &quotasConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
@@ -117,13 +119,13 @@ func (m *MessageIn) quotasFormCallback() MessageOut {
 	}
 
 	config.Quotas = quotasConfig
-	igopher.ExportConfig(config)
+	ExportConfig(config)
 	return MessageOut{Status: SUCCESS, Msg: "Quotas settings successfully updated!"}
 }
 
 func (m *MessageIn) schedulerCallback() MessageOut {
 	var err error
-	var schedulerConfig igopher.ScheduleYaml
+	var schedulerConfig ScheduleYaml
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &schedulerConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
@@ -137,13 +139,13 @@ func (m *MessageIn) schedulerCallback() MessageOut {
 	}
 
 	config.Schedule = schedulerConfig
-	igopher.ExportConfig(config)
+	ExportConfig(config)
 	return MessageOut{Status: SUCCESS, Msg: "Scheduler settings successfully updated!"}
 }
 
 func (m *MessageIn) blacklistFormCallback() MessageOut {
 	var err error
-	var blacklistConfig igopher.BlacklistYaml
+	var blacklistConfig BlacklistYaml
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &blacklistConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
@@ -157,13 +159,13 @@ func (m *MessageIn) blacklistFormCallback() MessageOut {
 	}
 
 	config.Blacklist = blacklistConfig
-	igopher.ExportConfig(config)
+	ExportConfig(config)
 	return MessageOut{Status: SUCCESS, Msg: "Blacklist settings successfully updated!"}
 }
 
 func (m *MessageIn) dmBotFormCallback() MessageOut {
 	var err error
-	var dmConfig igopher.AutoDmYaml
+	var dmConfig AutoDmYaml
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &dmConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
@@ -177,13 +179,13 @@ func (m *MessageIn) dmBotFormCallback() MessageOut {
 	}
 
 	config.AutoDm = dmConfig
-	igopher.ExportConfig(config)
+	ExportConfig(config)
 	return MessageOut{Status: SUCCESS, Msg: "Dm bot settings successfully updated!"}
 }
 
 func (m *MessageIn) dmScrapperFormCallback() MessageOut {
 	var err error
-	var scrapperConfig igopher.ScrapperYaml
+	var scrapperConfig ScrapperYaml
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &scrapperConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
@@ -197,6 +199,12 @@ func (m *MessageIn) dmScrapperFormCallback() MessageOut {
 	}
 
 	config.SrcUsers = scrapperConfig
-	igopher.ExportConfig(config)
+	ExportConfig(config)
+	return MessageOut{Status: SUCCESS, Msg: "Scrapper settings successfully updated!"}
+}
+
+func (m *MessageIn) launchBotCallback() MessageOut {
+	var err error
+
 	return MessageOut{Status: SUCCESS, Msg: "Scrapper settings successfully updated!"}
 }

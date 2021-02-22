@@ -48,6 +48,7 @@ type IGopher struct {
 	Scheduler SchedulerManager `yaml:"schedule"`
 	// Interracted users blacklist
 	Blacklist BlacklistManager `yaml:"blacklist"`
+	Running   bool
 }
 
 // ClientConfig struct centralize all client configuration and flags.
@@ -129,8 +130,8 @@ type GreetingYaml struct {
 
 // QuotasYaml is the yaml quotas module configuration representation
 type QuotasYaml struct {
-	DmDay     int  `json:"dmDay,string" yaml:"dm_per_day" validate:"numeric"`
-	DmHour    int  `json:"dmHour,string" yaml:"dm_per_hour" validate:"numeric"`
+	DmDay     int  `json:"dmDay,string" yaml:"dm_per_day" validate:"numeric,min=1"`
+	DmHour    int  `json:"dmHour,string" yaml:"dm_per_hour" validate:"numeric,min=1"`
 	Activated bool `json:"quotasActivation,string" yaml:"activated"`
 }
 

@@ -1,4 +1,4 @@
-package gui
+package igopher
 
 import (
 	"fmt"
@@ -29,7 +29,7 @@ func InitGui() {
 
 	// New window
 	var w *astilectron.Window
-	if w, err = a.NewWindow("./internal/gui/src/dashboard.html", &astilectron.WindowOptions{
+	if w, err = a.NewWindow("./gui/dashboard.html", &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
 		Width:  astikit.IntPtr(1400),
 		Height: astikit.IntPtr(1000),
@@ -42,6 +42,7 @@ func InitGui() {
 		log.Fatal(fmt.Errorf("main: creating window failed: %w", err))
 	}
 	handleMessages(w)
+	w.OpenDevTools()
 
 	// Blocking pattern
 	a.Wait()
