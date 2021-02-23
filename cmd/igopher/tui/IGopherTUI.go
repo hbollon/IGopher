@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -91,6 +92,17 @@ func initClientConfig() *igopher.ClientConfig {
 }
 
 func main() {
+	// Change terminal current working directory with executable location one
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		err = os.Chdir(dir)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	// Initialize environment
 	igopher.CheckEnvironment()
 
