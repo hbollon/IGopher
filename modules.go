@@ -132,7 +132,16 @@ func (s *SchedulerManager) CheckTime() error {
 			if err != nil {
 				return err
 			}
-			time.Sleep(3600)
+			if BotStruct.exitCh != nil {
+				select {
+				case <-BotStruct.exitCh:
+					logrus.Info("Bot process successfully stopped.")
+					return errStopBot
+				default:
+					break
+				}
+			}
+			time.Sleep(10 * time.Second)
 		}
 		logrus.Info("Back to work!")
 	}

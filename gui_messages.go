@@ -3,6 +3,7 @@ package igopher
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/asticode/go-astilectron"
 	"github.com/go-playground/validator/v10"
@@ -17,12 +18,11 @@ const (
 )
 
 var (
-	config      BotConfigYaml
-	validate    = validator.New()
-	reloadCh    = make(chan bool)
-	hotReloadCh = make(chan bool)
-	ctx         context.Context
-	cancel      context.CancelFunc
+	config                          BotConfigYaml
+	validate                        = validator.New()
+	reloadCh, hotReloadCh, exitedCh chan bool
+	ctx                             context.Context
+	cancel                          context.CancelFunc
 )
 
 // MessageOut represents a message for electron (going out)
@@ -222,11 +222,18 @@ func (m *MessageIn) dmScrapperFormCallback() MessageOut {
 
 func (m *MessageIn) launchDmBotCallback() MessageOut {
 	ctx, cancel = context.WithCancel(context.Background())
-	go launchDmBot(ctx, hotReloadCh, reloadCh)
+	go launchDmBot(ctx)
 	return MessageOut{Status: SUCCESS, Msg: "Dm bot successfully launched!"}
 }
 
 func (m *MessageIn) stopDmBotCallback() MessageOut {
-	cancel()
-	return MessageOut{Status: SUCCESS, Msg: "Dm bot successfully stopped!"}
+	if exitedCh != nil {
+		cancel()
+		res := <-exitedCh
+		if res {
+			return MessageOut{Status: SUCCESS, Msg: "Dm bot successfully stopped!"}
+		}
+		return MessageOut{Status: ERROR, Msg: "Error during bot stopping! Please restart IGopher"}
+	}
+	return MessageOut{Status: ERROR, Msg: "Bot is in the initialization phase, please wait before trying to stop it."}
 }

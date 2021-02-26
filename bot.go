@@ -2,6 +2,7 @@ package igopher
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -49,6 +50,9 @@ var flags = struct {
 	PortFlag:               flag.Int("port", 8080, "Specify custom communication port"),
 }
 
+// errStopBot is used to trigger bot stopping from some function
+var errStopBot = errors.New("Bot stop proccess triggered")
+
 func init() {
 	// Add formatter to logrus in order to display line and function with messages
 	formatter := logRuntime.Formatter{ChildFormatter: &log.TextFormatter{
@@ -62,7 +66,7 @@ func init() {
 	if _, err := os.Stat("./logs/"); os.IsNotExist(err) {
 		os.Mkdir("./logs/", os.ModePerm)
 	}
-	logFile, err := os.OpenFile("./logs/igopher.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, err := os.OpenFile("./logs/igopher.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatalf("Can't initialize logger: %v", err)
 	}
@@ -150,7 +154,7 @@ func LaunchBotTui() {
 
 // Initialize client and bot configs, download dependencies,
 // launch Selenium instance and finally run dm bot routine
-func launchDmBot(ctx context.Context, hotReloadCh, reloadCh chan bool) {
+func launchDmBot(ctx context.Context) {
 	// Initialize client configuration
 	clientConfig := initClientConfig()
 	BotStruct = ReadBotConfigYaml()
@@ -166,14 +170,21 @@ func launchDmBot(ctx context.Context, hotReloadCh, reloadCh chan bool) {
 	defer BotStruct.SeleniumStruct.CloseSelenium()
 
 	// Creation of needed communication channels and deferring their closing
-	infoCh := make(chan string)
-	defer close(infoCh)
-	errCh := make(chan string)
-	defer close(errCh)
-	crashCh := make(chan error)
-	defer close(crashCh)
-	exitCh := make(chan bool)
-	defer close(exitCh)
+	exitedCh = make(chan bool)
+	defer close(exitedCh)
+	hotReloadCh = make(chan bool)
+	defer close(hotReloadCh)
+	reloadCh = make(chan bool)
+	defer close(reloadCh)
+
+	BotStruct.infoCh = make(chan string)
+	defer close(BotStruct.infoCh)
+	BotStruct.errCh = make(chan string)
+	defer close(BotStruct.errCh)
+	BotStruct.crashCh = make(chan error)
+	defer close(BotStruct.crashCh)
+	BotStruct.exitCh = make(chan bool)
+	defer close(BotStruct.exitCh)
 	reloadCallback := make(chan bool)
 	defer close(reloadCallback)
 	hotReloadCallback := make(chan bool)
@@ -187,8 +198,8 @@ func launchDmBot(ctx context.Context, hotReloadCh, reloadCh chan bool) {
 			for {
 				users, err := BotStruct.FetchUsersFromUserFollowers()
 				if err != nil {
-					crashCh <- err
-					BotStruct.SeleniumStruct.Fatal("Failed users fetching: ", err)
+					BotStruct.crashCh <- err
+					BotStruct.SeleniumStruct.Fatal("Failed usersDm bot successfully stopped! fetching: ", err)
 				}
 				for _, username := range users {
 					select {
@@ -198,34 +209,37 @@ func launchDmBot(ctx context.Context, hotReloadCh, reloadCh chan bool) {
 					case <-reloadCallback:
 						fmt.Println("reloadCallback")
 						break
-					case <-exitCh:
-						logrus.Infof("Bot process successfully stopped.")
+					case <-BotStruct.exitCh:
+						logrus.Info("Bot process successfully stopped.")
 						return
 					default:
 						break
 					}
 					res, err := BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
 					if !res || err != nil {
-						errCh <- fmt.Sprintf("Error during message sending: %v", err)
+						BotStruct.errCh <- fmt.Sprintf("Error during message sending: %v", err)
 						log.Errorf("Error during message sending: %v", err)
 					}
 				}
 			}
 		} else {
-			crashCh <- err
+			if err == errStopBot {
+				return
+			}
+			BotStruct.crashCh <- err
 			BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
 		}
 	}()
 	var msg string
 	for {
 		select {
-		case msg = <-infoCh:
+		case msg = <-BotStruct.infoCh:
 			fmt.Printf("infoCh: %s", msg)
 			break
-		case msg = <-errCh:
+		case msg = <-BotStruct.errCh:
 			fmt.Printf("errCh: %s", msg)
 			break
-		case err := <-crashCh:
+		case err := <-BotStruct.crashCh:
 			fmt.Printf("crashCh: %v", err)
 			return
 		case <-hotReloadCh:
@@ -235,7 +249,8 @@ func launchDmBot(ctx context.Context, hotReloadCh, reloadCh chan bool) {
 			reloadCallback <- true
 			return
 		case <-ctx.Done():
-			exitCh <- true
+			BotStruct.exitCh <- true
+			exitedCh <- true
 			return
 		default:
 			break

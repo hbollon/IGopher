@@ -48,7 +48,11 @@ type IGopher struct {
 	Scheduler SchedulerManager `yaml:"schedule"`
 	// Interracted users blacklist
 	Blacklist BlacklistManager `yaml:"blacklist"`
-	Running   bool
+	// Channels
+	infoCh  chan string
+	errCh   chan string
+	crashCh chan error
+	exitCh  chan bool
 }
 
 // ClientConfig struct centralize all client configuration and flags.
