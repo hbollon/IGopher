@@ -58,11 +58,19 @@ func init() {
 	formatter.Line = true
 	log.SetFormatter(&formatter)
 
-	// Output to stderr
+	// Output to stderr and log file
+	if _, err := os.Stat("./logs/"); os.IsNotExist(err) {
+		os.Mkdir("./logs/", os.ModePerm)
+	}
+	logFile, err := os.OpenFile("./logs/igopher.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("Can't initialize logger: %v", err)
+	}
+	mw := io.MultiWriter(os.Stdout, logFile)
 	if runtime.GOOS == "windows" {
-		log.SetOutput(ansicolor.NewAnsiColorWriter(os.Stderr))
+		log.SetOutput(ansicolor.NewAnsiColorWriter(mw))
 	} else {
-		log.SetOutput(os.Stderr)
+		log.SetOutput(mw)
 	}
 
 	flag.Parse()
