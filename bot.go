@@ -51,7 +51,7 @@ var flags = struct {
 }
 
 // errStopBot is used to trigger bot stopping from some function
-var errStopBot = errors.New("Bot stop proccess triggered")
+var errStopBot = errors.New("Bot stop process triggered")
 
 func init() {
 	// Add formatter to logrus in order to display line and function with messages

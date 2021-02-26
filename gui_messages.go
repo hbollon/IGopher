@@ -3,7 +3,6 @@ package igopher
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/asticode/go-astilectron"
 	"github.com/go-playground/validator/v10"
