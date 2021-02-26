@@ -1,6 +1,7 @@
 package igopher
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/asticode/go-astilectron"
@@ -16,24 +17,35 @@ const (
 )
 
 var (
-	config   BotConfigYaml
-	validate = validator.New()
+	config      BotConfigYaml
+	validate    = validator.New()
+	reloadCh    = make(chan bool)
+	hotReloadCh = make(chan bool)
+	ctx         context.Context
+	cancel      context.CancelFunc
 )
 
-// MessageOut represents a message going out
+// MessageOut represents a message for electron (going out)
 type MessageOut struct {
 	Status  SucessState `json:"status"`
 	Msg     string      `json:"msg"`
 	Payload interface{} `json:"payload,omitempty"`
 }
 
-// MessageIn represents a message going in
+// MessageIn represents a message from electron (going in)
 type MessageIn struct {
 	Msg     string          `json:"msg"`
 	Payload json.RawMessage `json:"payload,omitempty"`
 }
 
-func handleMessages(w *astilectron.Window) {
+// This will send a message to Electron Gui and execute a callback
+// Callback function is optional
+func sendMessageToElectron(msg MessageOut, callback func(m *astilectron.EventMessage)) {
+	w.SendMessage(msg, callback)
+}
+
+// Handling function for incoming messages
+func handleMessages() {
 	config = ImportConfig()
 	w.OnMessage(func(m *astilectron.EventMessage) interface{} {
 		// Unmarshal
@@ -67,8 +79,11 @@ func handleMessages(w *astilectron.Window) {
 		case "dmUserScrappingSettingsForm":
 			return i.dmScrapperFormCallback()
 
-		case "dmUserScrappingSettingsForm":
-			return i.launchBotCallback()
+		case "launchDmBot":
+			return i.launchDmBotCallback()
+
+		case "stopDmBot":
+			return i.stopDmBotCallback()
 
 		default:
 			logrus.Error("Unexpected message received.")
@@ -76,6 +91,8 @@ func handleMessages(w *astilectron.Window) {
 		}
 	})
 }
+
+/* Callback functiosn to handle electron messages */
 
 func (m *MessageIn) resetGlobalSettingsCallback() MessageOut {
 	config = ResetBotConfig()
@@ -203,8 +220,13 @@ func (m *MessageIn) dmScrapperFormCallback() MessageOut {
 	return MessageOut{Status: SUCCESS, Msg: "Scrapper settings successfully updated!"}
 }
 
-func (m *MessageIn) launchBotCallback() MessageOut {
-	var err error
+func (m *MessageIn) launchDmBotCallback() MessageOut {
+	ctx, cancel = context.WithCancel(context.Background())
+	go launchDmBot(ctx, hotReloadCh, reloadCh)
+	return MessageOut{Status: SUCCESS, Msg: "Dm bot successfully launched!"}
+}
 
-	return MessageOut{Status: SUCCESS, Msg: "Scrapper settings successfully updated!"}
+func (m *MessageIn) stopDmBotCallback() MessageOut {
+	cancel()
+	return MessageOut{Status: SUCCESS, Msg: "Dm bot successfully stopped!"}
 }

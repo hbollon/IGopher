@@ -8,6 +8,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var w *astilectron.Window
+
 func InitGui() {
 	// Create astilectron
 	a, err := astilectron.New(log.StandardLogger(), astilectron.Options{
@@ -28,7 +30,6 @@ func InitGui() {
 	}
 
 	// New window
-	var w *astilectron.Window
 	if w, err = a.NewWindow("./gui/dashboard.html", &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
 		Width:  astikit.IntPtr(1400),
@@ -41,7 +42,7 @@ func InitGui() {
 	if err = w.Create(); err != nil {
 		log.Fatal(fmt.Errorf("main: creating window failed: %w", err))
 	}
-	handleMessages(w)
+	handleMessages()
 	w.OpenDevTools()
 
 	// Blocking pattern

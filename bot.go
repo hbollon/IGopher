@@ -1,7 +1,10 @@
 package igopher
 
 import (
+	"context"
 	"flag"
+	"fmt"
+	"io"
 	"math"
 	"math/rand"
 	"os"
@@ -10,6 +13,7 @@ import (
 
 	logRuntime "github.com/banzaicloud/logrus-runtime-formatter"
 	"github.com/shiena/ansicolor"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -88,6 +92,7 @@ func initClientConfig() *ClientConfig {
 	return clientConfig
 }
 
+// LaunchGui initialize environment needed by IGopher and run it with his Gui
 func LaunchGui() {
 	// Initialize environment
 	CheckEnvironment()
@@ -96,7 +101,9 @@ func LaunchGui() {
 	InitGui()
 }
 
-func launchBot() error {
+// Initialize client and bot configs, download dependencies,
+// launch Selenium instance and finally run dm bot routine
+func launchDmBot(ctx context.Context, hotReloadCh, reloadCh chan bool) {
 	// Initialize client configuration
 	clientConfig := initClientConfig()
 	BotStruct = ReadBotConfigYaml()
@@ -111,20 +118,80 @@ func launchBot() error {
 	BotStruct.SeleniumStruct.InitChromeWebDriver()
 	defer BotStruct.SeleniumStruct.CloseSelenium()
 
-	rand.Seed(time.Now().Unix())
-	if err := BotStruct.Scheduler.CheckTime(); err == nil {
-		BotStruct.ConnectToInstagram()
-		users, err := BotStruct.FetchUsersFromUserFollowers()
-		if err != nil {
-			log.Error(err)
-		}
-		for _, username := range users {
-			res, err := BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
-			if !res || err != nil {
-				log.Errorf("Error during message sending: %v", err)
+	// Creation of needed communication channels and deferring their closing
+	infoCh := make(chan string)
+	defer close(infoCh)
+	errCh := make(chan string)
+	defer close(errCh)
+	crashCh := make(chan error)
+	defer close(crashCh)
+	exitCh := make(chan bool)
+	defer close(exitCh)
+	reloadCallback := make(chan bool)
+	defer close(reloadCallback)
+	hotReloadCallback := make(chan bool)
+	defer close(hotReloadCallback)
+
+	// Start bot routine
+	go func() {
+		for {
+			rand.Seed(time.Now().Unix())
+			if err := BotStruct.Scheduler.CheckTime(); err == nil {
+				BotStruct.ConnectToInstagram()
+				users, err := BotStruct.FetchUsersFromUserFollowers()
+				if err != nil {
+					crashCh <- err
+					BotStruct.SeleniumStruct.Fatal("Failed users fetching: ", err)
+				}
+				for _, username := range users {
+					select {
+					case <-hotReloadCallback:
+						fmt.Println("hotReloadCallback")
+						break
+					case <-reloadCallback:
+						fmt.Println("reloadCallback")
+						break
+					case <-exitCh:
+						logrus.Infof("Bot process successfully stopped.")
+						return
+					default:
+						break
+					}
+					res, err := BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
+					if !res || err != nil {
+						errCh <- fmt.Sprintf("Error during message sending: %v", err)
+						log.Errorf("Error during message sending: %v", err)
+					}
+				}
+			} else {
+				crashCh <- err
+				BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
 			}
 		}
-	} else {
-		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
+	}()
+	var msg string
+	for {
+		select {
+		case msg = <-infoCh:
+			fmt.Printf("infoCh: %s", msg)
+			break
+		case msg = <-errCh:
+			fmt.Printf("errCh: %s", msg)
+			break
+		case err := <-crashCh:
+			fmt.Printf("crashCh: %v", err)
+			return
+		case <-hotReloadCh:
+			hotReloadCallback <- true
+			return
+		case <-reloadCh:
+			reloadCallback <- true
+			return
+		case <-ctx.Done():
+			exitCh <- true
+			return
+		default:
+			break
+		}
 	}
 }
