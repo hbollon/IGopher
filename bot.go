@@ -109,6 +109,45 @@ func LaunchGui() {
 	InitGui()
 }
 
+// LaunchBotTui start dm bot on main goroutine
+func LaunchBotTui() {
+	// Initialize client configuration
+	clientConfig := initClientConfig()
+	BotStruct = ReadBotConfigYaml()
+
+	// Download dependencies
+	if !clientConfig.IgnoreDependencies {
+		DownloadDependencies(true, true, clientConfig.ForceDependenciesDl)
+	}
+
+	// Initialize Selenium and WebDriver and defer their closing
+	BotStruct.SeleniumStruct.InitializeSelenium(clientConfig)
+	BotStruct.SeleniumStruct.InitChromeWebDriver()
+	defer BotStruct.SeleniumStruct.CloseSelenium()
+
+	var err error
+	rand.Seed(time.Now().Unix())
+	if err = BotStruct.Scheduler.CheckTime(); err == nil {
+		BotStruct.ConnectToInstagram()
+		for {
+			var users []string
+			users, err = BotStruct.FetchUsersFromUserFollowers()
+			if err != nil {
+				log.Error(err)
+			}
+			for _, username := range users {
+				var res bool
+				res, err = BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
+				if !res || err != nil {
+					log.Errorf("Error during message sending: %v", err)
+				}
+			}
+		}
+	} else {
+		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
+	}
+}
+
 // Initialize client and bot configs, download dependencies,
 // launch Selenium instance and finally run dm bot routine
 func launchDmBot(ctx context.Context, hotReloadCh, reloadCh chan bool) {
@@ -142,10 +181,10 @@ func launchDmBot(ctx context.Context, hotReloadCh, reloadCh chan bool) {
 
 	// Start bot routine
 	go func() {
-		for {
-			rand.Seed(time.Now().Unix())
-			if err := BotStruct.Scheduler.CheckTime(); err == nil {
-				BotStruct.ConnectToInstagram()
+		rand.Seed(time.Now().Unix())
+		if err := BotStruct.Scheduler.CheckTime(); err == nil {
+			BotStruct.ConnectToInstagram()
+			for {
 				users, err := BotStruct.FetchUsersFromUserFollowers()
 				if err != nil {
 					crashCh <- err
@@ -171,10 +210,10 @@ func launchDmBot(ctx context.Context, hotReloadCh, reloadCh chan bool) {
 						log.Errorf("Error during message sending: %v", err)
 					}
 				}
-			} else {
-				crashCh <- err
-				BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
 			}
+		} else {
+			crashCh <- err
+			BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
 		}
 	}()
 	var msg string
