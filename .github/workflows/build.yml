@@ -24,5 +24,5 @@ jobs:
 
       - name: Builds
         run: |
-          go build -v ./cmd/igopher
           go build -v ./cmd/igopher/tui
+          go build -v ./cmd/igopher/gui
