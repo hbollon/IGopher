@@ -128,9 +128,9 @@ func (s *SchedulerManager) CheckTime() error {
 			return nil
 		}
 		logrus.Info("Reached end of service. Sleeping...")
-		for res, err := s.isWorkingTime(); !res; {
-			if err != nil {
-				return err
+		for {
+			if res, _ = s.isWorkingTime(); res {
+				break
 			}
 			if BotStruct.exitCh != nil {
 				select {
