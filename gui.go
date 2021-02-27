@@ -5,6 +5,7 @@ import (
 
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,6 +24,20 @@ func InitGui() {
 
 	// Handle signals
 	a.HandleSignals()
+
+	// Add a listener on Astilectron crash event for selenium cleaning
+	a.On(astilectron.EventNameAppCrash, func(e astilectron.Event) (deleteListener bool) {
+		logrus.Error("Electron app has crashed!")
+		BotStruct.SeleniumStruct.CloseSelenium()
+		return
+	})
+
+	// Add a listener on Astilectron close event for selenium cleaning
+	a.On(astilectron.EventNameAppClose, func(e astilectron.Event) (deleteListener bool) {
+		logrus.Debug("Electron app was closed")
+		BotStruct.SeleniumStruct.CloseSelenium()
+		return
+	})
 
 	// Start
 	if err = a.Start(); err != nil {
