@@ -134,6 +134,15 @@ func (s *SchedulerManager) CheckTime() error {
 			}
 			if BotStruct.exitCh != nil {
 				select {
+				case <-BotStruct.hotReloadCallback:
+					if err = BotStruct.HotReload(); err != nil {
+						logrus.Errorf("Bot hot reload failed: %v", err)
+						BotStruct.hotReloadCallback <- false
+					} else {
+						logrus.Info("Bot hot reload successfully.")
+						BotStruct.hotReloadCallback <- true
+					}
+					break
 				case <-BotStruct.exitCh:
 					logrus.Info("Bot process successfully stopped.")
 					return errStopBot

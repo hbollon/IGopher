@@ -84,6 +84,9 @@ func handleMessages() {
 		case "stopDmBot":
 			return i.stopDmBotCallback()
 
+		case "hotReloadBot":
+			return i.hotReloadCallback()
+
 		default:
 			logrus.Error("Unexpected message received.")
 			return MessageOut{Status: ERROR}
@@ -235,4 +238,19 @@ func (m *MessageIn) stopDmBotCallback() MessageOut {
 		return MessageOut{Status: ERROR, Msg: "Error during bot stopping! Please restart IGopher"}
 	}
 	return MessageOut{Status: ERROR, Msg: "Bot is in the initialization phase, please wait before trying to stop it."}
+}
+
+func (m *MessageIn) hotReloadCallback() MessageOut {
+	if BotStruct.running {
+		if hotReloadCh != nil {
+			hotReloadCh <- true
+			res := <-hotReloadCh
+			if res {
+				return MessageOut{Status: SUCCESS, Msg: "Bot hot reload successfully!"}
+			}
+			return MessageOut{Status: ERROR, Msg: "Error during bot hot reload! Please restart the bot"}
+		}
+		return MessageOut{Status: ERROR, Msg: "Bot is in the initialization phase, please wait before trying to hot reload it."}
+	}
+	return MessageOut{Status: ERROR, Msg: "Bot isn't running yet."}
 }

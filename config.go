@@ -49,10 +49,14 @@ type IGopher struct {
 	// Interracted users blacklist
 	Blacklist BlacklistManager `yaml:"blacklist"`
 	// Channels
-	infoCh  chan string
-	errCh   chan string
-	crashCh chan error
-	exitCh  chan bool
+	infoCh            chan string
+	errCh             chan string
+	crashCh           chan error
+	exitCh            chan bool
+	hotReloadCallback chan bool
+	reloadCallback    chan bool
+	// Running state
+	running bool
 }
 
 // ClientConfig struct centralize all client configuration and flags.
@@ -200,7 +204,7 @@ func CheckConfigValidity() error {
 }
 
 // ReadBotConfigYaml read config yml file and initialize it for use with bot
-func ReadBotConfigYaml() IGopher {
+func ReadBotConfigYaml() (IGopher, error) {
 	var c IGopher
 	file, err := ioutil.ReadFile(filepath.FromSlash("./config/config.yaml"))
 	if err != nil {
@@ -216,13 +220,15 @@ func ReadBotConfigYaml() IGopher {
 	err = c.Scheduler.InitializeScheduler()
 	if err != nil {
 		logrus.Errorf("Failed to initialize scheduler: %v", err)
+		return c, err
 	}
 	err = c.Blacklist.InitializeBlacklist()
 	if err != nil {
 		logrus.Errorf("Failed to initialize blacklist: %v", err)
+		return c, err
 	}
 	logrus.Debugf("config.yaml: %+v\n\n", c)
-	return c
+	return c, nil
 }
 
 // ImportConfig read config.yaml, parse it in BotConfigYaml instance and finally return it
