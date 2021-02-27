@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -34,10 +36,11 @@ func init() {
 
 // Selenium instance and opts
 type Selenium struct {
-	Instance  *selenium.Service
-	Config    *ClientConfig
-	Opts      []selenium.ServiceOption
-	WebDriver selenium.WebDriver
+	Instance           *selenium.Service
+	Config             *ClientConfig
+	Opts               []selenium.ServiceOption
+	WebDriver          selenium.WebDriver
+	SigTermRoutineExit chan bool
 }
 
 // InitializeSelenium start a Selenium WebDriver server instance
@@ -65,6 +68,10 @@ func (s *Selenium) InitializeSelenium(clientConfig *ClientConfig) {
 	s.Instance, err = selenium.NewSeleniumService(seleniumPath, int(s.Config.Port), s.Opts...)
 	if err != nil {
 		log.Fatal(err) // Fatal error, exit if webdriver can't be initialize.
+	}
+
+	if s.SigTermRoutineExit == nil {
+		s.SigTermCleaning()
 	}
 }
 
@@ -105,7 +112,30 @@ func (s *Selenium) CloseSelenium() {
 	if s.WebDriver != nil {
 		s.WebDriver.Quit()
 	}
-	s.Instance.Stop()
+	if s.Instance != nil {
+		s.Instance.Stop()
+	}
+}
+
+// SigTermCleaning launch a gouroutine to handle SigTerm signal and trigger Selenium and Webdriver close if it raised
+func (s *Selenium) SigTermCleaning() {
+	sig := make(chan os.Signal)
+	s.SigTermRoutineExit = make(chan bool)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		for {
+			select {
+			case <-sig:
+				s.CloseSelenium()
+				os.Exit(1)
+			case <-s.SigTermRoutineExit:
+				s.SigTermRoutineExit = nil
+				return
+			default:
+				break
+			}
+		}
+	}()
 }
 
 /* Browser methods */
