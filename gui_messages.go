@@ -3,6 +3,7 @@ package igopher
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/asticode/go-astilectron"
 	"github.com/go-playground/validator/v10"
@@ -60,6 +61,9 @@ func handleMessages() {
 		case "resetGlobalDefaultSettings":
 			return i.resetGlobalSettingsCallback()
 
+		case "clearAllData":
+			return i.clearDataCallback()
+
 		case "igCredentialsForm":
 			return i.credentialsFormCallback()
 
@@ -100,6 +104,13 @@ func (m *MessageIn) resetGlobalSettingsCallback() MessageOut {
 	config = ResetBotConfig()
 	ExportConfig(config)
 	return MessageOut{Status: SUCCESS, Msg: "Global configuration was successfully reseted!"}
+}
+
+func (m *MessageIn) clearDataCallback() MessageOut {
+	if err := ClearData(); err != nil {
+		return MessageOut{Status: ERROR, Msg: fmt.Sprintf("IGopher data clearing failed! Error: %v", err)}
+	}
+	return MessageOut{Status: SUCCESS, Msg: "IGopher data successfully cleared!"}
 }
 
 func (m *MessageIn) credentialsFormCallback() MessageOut {

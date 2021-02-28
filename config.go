@@ -205,6 +205,21 @@ func CheckConfigValidity() error {
 	return nil
 }
 
+// ClearData remove all IGopher data/lib sub-folder and their content.
+// It will recreate the necessary environment at the end no matter if an error has occurred or not.
+func ClearData() error {
+	defer CheckEnvironment()
+	var err error
+	dirs := []string{"./logs", "./config", "./lib", "./data"}
+	for _, dir := range dirs {
+		err = os.RemoveAll(dir)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // ReadBotConfigYaml read config yml file and initialize it for use with bot
 func ReadBotConfigYaml() (IGopher, error) {
 	var c IGopher
