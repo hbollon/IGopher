@@ -69,6 +69,8 @@ type ClientConfig struct {
 	ForceDependenciesDl bool
 	// Debug set selenium debug mode and display its logging to stderr
 	Debug bool
+	//DevTools launch Electron gui with devtools openned
+	DevTools bool
 	// IgnoreDependencies disable dependencies manager on startup
 	IgnoreDependencies bool
 	// Headless execute Selenium webdriver in headless mode

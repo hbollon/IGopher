@@ -45,7 +45,7 @@ func InitGui() {
 	}
 
 	// New window
-	if w, err = a.NewWindow("./gui/dashboard.html", &astilectron.WindowOptions{
+	if w, err = a.NewWindow("./gui/dm_automation.html", &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
 		Width:  astikit.IntPtr(1400),
 		Height: astikit.IntPtr(1000),
@@ -58,7 +58,11 @@ func InitGui() {
 		log.Fatal(fmt.Errorf("main: creating window failed: %w", err))
 	}
 	handleMessages()
-	w.OpenDevTools()
+
+	// Open dev tools panel if flag is set
+	if *flags.DevToolsFlag {
+		w.OpenDevTools()
+	}
 
 	// Blocking pattern
 	a.Wait()
