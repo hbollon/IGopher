@@ -223,9 +223,13 @@ func (m *MessageIn) dmScrapperFormCallback() MessageOut {
 }
 
 func (m *MessageIn) launchDmBotCallback() MessageOut {
-	ctx, cancel = context.WithCancel(context.Background())
-	go launchDmBot(ctx)
-	return MessageOut{Status: SUCCESS, Msg: "Dm bot successfully launched!"}
+	var err error
+	if err = CheckConfigValidity(); err == nil {
+		ctx, cancel = context.WithCancel(context.Background())
+		go launchDmBot(ctx)
+		return MessageOut{Status: SUCCESS, Msg: "Dm bot successfully launched!"}
+	}
+	return MessageOut{Status: ERROR, Msg: err.Error()}
 }
 
 func (m *MessageIn) stopDmBotCallback() MessageOut {
