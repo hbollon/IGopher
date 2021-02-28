@@ -205,12 +205,13 @@ func CheckConfigValidity() error {
 	return nil
 }
 
-// ClearData remove all IGopher data/lib sub-folder and their content.
+// ClearData remove all IGopher data sub-folder and their content.
 // It will recreate the necessary environment at the end no matter if an error has occurred or not.
 func ClearData() error {
 	defer CheckEnvironment()
+	defer setLoggerOutput()
 	var err error
-	dirs := []string{"./logs", "./config", "./lib", "./data"}
+	dirs := []string{"./logs", "./config", "./data"}
 	for _, dir := range dirs {
 		err = os.RemoveAll(dir)
 		if err != nil {
