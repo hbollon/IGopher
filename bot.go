@@ -5,15 +5,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"math"
 	"math/rand"
-	"os"
-	"runtime"
 	"time"
 
-	logRuntime "github.com/banzaicloud/logrus-runtime-formatter"
-	"github.com/shiena/ansicolor"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -56,40 +51,6 @@ var flags = struct {
 
 // errStopBot is used to trigger bot stopping from some function
 var errStopBot = errors.New("Bot stop process triggered")
-
-func init() {
-	// Add formatter to logrus in order to display line and function with messages
-	formatter := logRuntime.Formatter{ChildFormatter: &log.TextFormatter{
-		FullTimestamp: false,
-		ForceColors:   true,
-	}}
-	formatter.Line = true
-	log.SetFormatter(&formatter)
-
-	// Output to stderr and log file
-	if _, err := os.Stat("./logs/"); os.IsNotExist(err) {
-		os.Mkdir("./logs/", os.ModePerm)
-	}
-	logFile, err := os.OpenFile("./logs/igopher.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		log.Fatalf("Can't initialize logger: %v", err)
-	}
-	mw := io.MultiWriter(os.Stdout, logFile)
-	if runtime.GOOS == "windows" {
-		log.SetOutput(ansicolor.NewAnsiColorWriter(mw))
-	} else {
-		log.SetOutput(mw)
-	}
-
-	flag.Parse()
-	level, err := log.ParseLevel(*flags.LogLevelFlag)
-	if err == nil {
-		log.SetLevel(level)
-	} else {
-		log.SetLevel(log.InfoLevel)
-		log.Warnf("Invalid log level '%s', use default one.", *flags.LogLevelFlag)
-	}
-}
 
 func initClientConfig() *ClientConfig {
 	clientConfig := CreateClientConfig()
