@@ -1,6 +1,7 @@
 package igopher
 
 import (
+	"bufio"
 	"flag"
 	"os"
 	"runtime"
@@ -11,6 +12,8 @@ import (
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
+
+const logFilePath = "./logs/logs.log"
 
 func init() {
 	setLoggerOutput()
@@ -48,14 +51,36 @@ func setLoggerOutput() {
 	// Add hook to logrus to also redirect logs to files with custom formatter
 	log.AddHook(lfshook.NewHook(
 		lfshook.PathMap{
-			logrus.InfoLevel:  "./logs/igopher.log",
-			logrus.WarnLevel:  "./logs/igopher.log",
-			logrus.ErrorLevel: "./logs/igopher.log",
-			logrus.FatalLevel: "./logs/igopher.log",
+			logrus.InfoLevel:  logFilePath,
+			logrus.WarnLevel:  logFilePath,
+			logrus.ErrorLevel: logFilePath,
+			logrus.FatalLevel: logFilePath,
 		},
-		&log.TextFormatter{
-			FullTimestamp: false,
-			DisableColors: true,
-		},
+		&logrus.JSONFormatter{},
 	))
+}
+
+// Read and parse log file to json array string
+func parseLogsToString() (string, error) {
+	// Open log file
+	file, err := os.Open(logFilePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	out := `[`
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	scanner.Scan()
+	for {
+		out += scanner.Text()
+		if !scanner.Scan() {
+			break
+		}
+		out += `,`
+	}
+	out += `]`
+
+	return out, nil
 }

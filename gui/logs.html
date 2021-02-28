@@ -76,7 +76,7 @@
                                             </select>&nbsp;</label></div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="text-md-right dataTables_filter" id="dataTable_filter"><label><input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search"></label></div>
+                                    <div class="text-md-right dataTables_filter" id="dataTable_filter"><label></label></div>
                                 </div>
                             </div>
                             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
@@ -88,13 +88,7 @@
                                             <th>Date</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Info</td>
-                                            <td>Invalid autodm module configuration! Please check your settings</td>
-                                            <td>2008/11/28 16:25</td>
-                                        </tr>
-                                    </tbody>
+                                    <tbody id="logsList"></tbody>
                                     <tfoot>
                                         <tr>
                                             <td><strong>Level</strong></td>
@@ -138,6 +132,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="assets/js/script.min.js"></script>
+    <script src="assets/js/logs.min.js"></script>
 </body>
 
 </html>

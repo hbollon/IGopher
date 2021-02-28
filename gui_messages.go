@@ -91,6 +91,9 @@ func handleMessages() {
 		case "hotReloadBot":
 			return i.hotReloadCallback()
 
+		case "getLogs":
+			return i.getLogsCallback()
+
 		default:
 			logrus.Error("Unexpected message received.")
 			return MessageOut{Status: ERROR}
@@ -268,4 +271,14 @@ func (m *MessageIn) hotReloadCallback() MessageOut {
 		return MessageOut{Status: ERROR, Msg: "Bot is in the initialization phase, please wait before trying to hot reload it."}
 	}
 	return MessageOut{Status: ERROR, Msg: "Bot isn't running yet."}
+}
+
+func (m *MessageIn) getLogsCallback() MessageOut {
+	logs, err := parseLogsToString()
+	if err != nil {
+		logrus.Errorf("Can't parse logs: %v", err)
+		return MessageOut{Status: ERROR, Msg: fmt.Sprintf("Can't parse logs: %v", err)}
+	}
+	fmt.Println(logs)
+	return MessageOut{Status: SUCCESS, Msg: logs}
 }
