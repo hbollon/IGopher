@@ -148,12 +148,13 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		targetDriverPath           string
 	)
 
+	const chromedriverzip = "chromedriver.zip"
 	if runtime.GOOS == windowsOs {
 		prefixOS = "Win_x64"
 		lastChangeFile = "Win_x64/LAST_CHANGE"
 		chromeFilename = "chrome-win.zip"
 		chromeDriverFilename = "chromedriver_win32.zip"
-		chromeDriverTargetFilename = "chromedriver.zip"
+		chromeDriverTargetFilename = chromedriverzip
 		downloadDriverPath = filepath.FromSlash("chromedriver_win32/chromedriver.exe")
 		targetDriverPath = "chromedriver.exe"
 	} else if runtime.GOOS == macOs {
@@ -161,7 +162,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		lastChangeFile = "Mac/LAST_CHANGE"
 		chromeFilename = "chrome-mac.zip"
 		chromeDriverFilename = "chromedriver_mac64.zip"
-		chromeDriverTargetFilename = "chromedriver.zip"
+		chromeDriverTargetFilename = chromedriverzip
 		downloadDriverPath = filepath.FromSlash("chromedriver_mac64/chromedriver")
 		targetDriverPath = "chromedriver"
 	} else {
@@ -169,7 +170,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		lastChangeFile = "Linux_x64/LAST_CHANGE"
 		chromeFilename = "chrome-linux.zip"
 		chromeDriverFilename = "chromedriver_linux64.zip"
-		chromeDriverTargetFilename = "chromedriver.zip"
+		chromeDriverTargetFilename = chromedriverzip
 		downloadDriverPath = filepath.FromSlash("chromedriver_linux64/chromedriver")
 		targetDriverPath = "chromedriver"
 	}
@@ -291,10 +292,7 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 			}
 			addFirefox(firefoxVersion)
 		}
-
-		if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar", "htmlunit-driver.jar", false); err != nil {
-			log.Errorf("Unable to find the latest HTMLUnit Driver: %s", err)
-		}
+	}
 
 	if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar",
 		"htmlunit-driver.jar", false); err != nil {

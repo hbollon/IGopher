@@ -1,6 +1,10 @@
 package main
 
 import (
+	"log"
+	"os"
+	"path/filepath"
+
 	"github.com/hbollon/igopher"
 	tui "github.com/hbollon/igopher/internal/tui"
 )

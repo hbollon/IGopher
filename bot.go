@@ -170,7 +170,8 @@ func launchDmBot(ctx context.Context) {
 		if err = BotStruct.Scheduler.CheckTime(); err == nil {
 			BotStruct.ConnectToInstagram()
 			for {
-				users, err := BotStruct.FetchUsersFromUserFollowers()
+				var users []string
+				users, err = BotStruct.FetchUsersFromUserFollowers()
 				if err != nil {
 					BotStruct.crashCh <- err
 					BotStruct.SeleniumStruct.Fatal("Failed usersDm bot successfully stopped! fetching: ", err)
@@ -195,7 +196,9 @@ func launchDmBot(ctx context.Context) {
 					default:
 						break
 					}
-					res, err := BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
+
+					var res bool
+					res, err = BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
 					if !res || err != nil {
 						BotStruct.errCh <- fmt.Sprintf("Error during message sending: %v", err)
 						log.Errorf("Error during message sending: %v", err)
