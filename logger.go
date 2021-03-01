@@ -69,13 +69,19 @@ func parseLogsToString() (string, error) {
 	}
 	defer file.Close()
 
-	out := `[`
+	// Parse logs to string array
+	var logs []string
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
-	scanner.Scan()
-	for {
-		out += scanner.Text()
-		if !scanner.Scan() {
+	for scanner.Scan() {
+		logs = append(logs, scanner.Text())
+	}
+
+	// Build json array string with logs from newer to older
+	out := `[`
+	for i := len(logs) - 1; i > 0; i-- {
+		out += logs[i]
+		if i == 1 {
 			break
 		}
 		out += `,`
