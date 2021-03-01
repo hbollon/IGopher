@@ -14,8 +14,9 @@ var w *astilectron.Window
 func InitGui() {
 	// Create astilectron
 	a, err := astilectron.New(log.StandardLogger(), astilectron.Options{
-		AppName:           "IGopher",
-		BaseDirectoryPath: "./lib/electron",
+		AppName:            "IGopher",
+		BaseDirectoryPath:  "lib/electron",
+		AppIconDefaultPath: "assets/favicon.ico",
 	})
 	if err != nil {
 		log.Fatal(fmt.Errorf("main: creating astilectron failed: %w", err))
@@ -45,7 +46,7 @@ func InitGui() {
 	}
 
 	// New window
-	if w, err = a.NewWindow("./gui/dm_automation.html", &astilectron.WindowOptions{
+	if w, err = a.NewWindow("resources/dm_automation.html", &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
 		Width:  astikit.IntPtr(1400),
 		Height: astikit.IntPtr(1000),

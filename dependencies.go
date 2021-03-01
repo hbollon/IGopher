@@ -278,7 +278,7 @@ func addFirefox(desiredVersion string) {
 func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 	log.Info("Downloading and installing dependencies...")
 	ctx := context.Background()
-	if len(files) == 3 || files == nil {
+	if len(files) <= 4 || files == nil {
 		if downloadBrowsers {
 			chromeBuild := desiredChromeBuild
 			firefoxVersion := desiredFirefoxVersion
