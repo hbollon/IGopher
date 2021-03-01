@@ -1,10 +1,12 @@
 package igopher
 
 import (
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
@@ -15,6 +17,19 @@ import (
 var (
 	requiredDirectories = [...]string{"./lib", "./config"}
 )
+
+// SplitStringSlice is a custom string slice type used to define a custom json unmarshal rule
+type SplitStringSlice []string
+
+// UnmarshalJSON custom rule for unmarshal string array from string by splitting it by ';'
+func (strSlice *SplitStringSlice) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*strSlice = strings.Split(s, ";")
+	return nil
+}
 
 // IGopher struct store all bot and ig related configuration and modules instances.
 // Settings are readed from Yaml config files.
@@ -33,6 +48,15 @@ type IGopher struct {
 	Scheduler SchedulerManager `yaml:"schedule"`
 	// Interracted users blacklist
 	Blacklist BlacklistManager `yaml:"blacklist"`
+	// Channels
+	infoCh            chan string
+	errCh             chan string
+	crashCh           chan error
+	exitCh            chan bool
+	hotReloadCallback chan bool
+	reloadCallback    chan bool
+	// Running state
+	running bool
 }
 
 // ClientConfig struct centralize all client configuration and flags.
@@ -45,6 +69,8 @@ type ClientConfig struct {
 	ForceDependenciesDl bool
 	// Debug set selenium debug mode and display its logging to stderr
 	Debug bool
+	//DevTools launch Electron gui with devtools openned
+	DevTools bool
 	// IgnoreDependencies disable dependencies manager on startup
 	IgnoreDependencies bool
 	// Headless execute Selenium webdriver in headless mode
@@ -55,24 +81,24 @@ type ClientConfig struct {
 
 // Account store personnal credentials
 type Account struct {
-	Username string `yaml:"username" validate:"required,min=1,max=30"`
-	Password string `yaml:"password" validate:"required,min=1"`
+	Username string `json:"username" yaml:"username" validate:"required,min=1,max=30"`
+	Password string `json:"password" yaml:"password" validate:"required,min=1"`
 }
 
 // AutoDM store messaging module configuration
 type AutoDM struct {
-	Activated bool `yaml:"activated"`
+	Activated bool `json:"dmActivated" yaml:"activated"`
 	// List of all availlables message templates
-	DmTemplates []string `yaml:"dm_templates" validate:"required"`
+	DmTemplates []string `json:"dmTemplates" yaml:"dm_templates" validate:"required"`
 	// Greeting module add a customized DM header with recipient username
 	Greeting GreetingConfig `yaml:"greeting"`
 }
 
 // GreetingConfig store greeting configuration for AutoDM module
 type GreetingConfig struct {
-	Activated bool `yaml:"activated"`
+	Activated bool `json:"greetingActivated" yaml:"activated"`
 	// Add a string before the username
-	Template string `yaml:"template"`
+	Template string `json:"greetingTemplate" yaml:"template" validate:"required"`
 }
 
 /* Yaml */
@@ -89,46 +115,46 @@ type BotConfigYaml struct {
 
 // AccountYaml is the yaml account configuration representation
 type AccountYaml struct {
-	Username string `yaml:"username" validate:"required,min=1,max=30"`
-	Password string `yaml:"password" validate:"required"`
+	Username string `json:"username" yaml:"username" validate:"required,min=1,max=30"`
+	Password string `json:"password" yaml:"password" validate:"required"`
 }
 
 // ScrapperYaml is the yaml user scrapping configuration representation
 type ScrapperYaml struct {
-	Accounts []string `yaml:"src_accounts" validate:"required"`
-	Quantity int      `yaml:"fetch_quantity" validate:"numeric,min=1"`
+	Accounts SplitStringSlice `json:"srcUsers" yaml:"src_accounts" validate:"required"`
+	Quantity int              `json:"scrappingQuantity,string" yaml:"fetch_quantity" validate:"numeric,min=1"`
 }
 
 // AutoDmYaml is the yaml autodm module configuration representation
 type AutoDmYaml struct {
-	DmTemplates []string     `yaml:"dm_templates" validate:"required"`
-	Greeting    GreetingYaml `yaml:"greeting"`
-	Activated   bool         `yaml:"activated"`
+	DmTemplates SplitStringSlice `json:"dmTemplates" yaml:"dm_templates" validate:"required"`
+	Greeting    GreetingYaml     `yaml:"greeting"`
+	Activated   bool             `json:"dmActivation,string" yaml:"activated"`
 }
 
 // GreetingYaml is the yaml dm greeting configuration representation
 type GreetingYaml struct {
-	Template  string `yaml:"template"`
-	Activated bool   `yaml:"activated"`
+	Template  string `json:"greetingTemplate" yaml:"template"`
+	Activated bool   `json:"greetingActivation,string" yaml:"activated"`
 }
 
 // QuotasYaml is the yaml quotas module configuration representation
 type QuotasYaml struct {
-	DmDay     int  `yaml:"dm_per_day" validate:"numeric"`
-	DmHour    int  `yaml:"dm_per_hour" validate:"numeric"`
-	Activated bool `yaml:"activated"`
+	DmDay     int  `json:"dmDay,string" yaml:"dm_per_day" validate:"numeric,min=1"`
+	DmHour    int  `json:"dmHour,string" yaml:"dm_per_hour" validate:"numeric,min=1"`
+	Activated bool `json:"quotasActivation,string" yaml:"activated"`
 }
 
 // ScheduleYaml is the yaml scheduler module configuration representation
 type ScheduleYaml struct {
-	BeginAt   string `yaml:"begin_at" validate:"contains=:"`
-	EndAt     string `yaml:"end_at" validate:"contains=:"`
-	Activated bool   `yaml:"activated"`
+	BeginAt   string `json:"beginAt" yaml:"begin_at" validate:"contains=:"`
+	EndAt     string `json:"endAt" yaml:"end_at" validate:"contains=:"`
+	Activated bool   `json:"scheduleActivation,string" yaml:"activated"`
 }
 
 // BlacklistYaml is the yaml blacklist module configuration representation
 type BlacklistYaml struct {
-	Activated bool `yaml:"activated"`
+	Activated bool `json:"blacklistActivation,string" yaml:"activated"`
 }
 
 // CreateClientConfig create default ClientConfig instance and return a pointer on it
@@ -180,8 +206,24 @@ func CheckConfigValidity() error {
 	return nil
 }
 
+// ClearData remove all IGopher data sub-folder and their content.
+// It will recreate the necessary environment at the end no matter if an error has occurred or not.
+func ClearData() error {
+	defer CheckEnvironment()
+	defer setLoggerOutput()
+	var err error
+	dirs := []string{"./logs", "./config", "./data"}
+	for _, dir := range dirs {
+		err = os.RemoveAll(dir)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // ReadBotConfigYaml read config yml file and initialize it for use with bot
-func ReadBotConfigYaml() IGopher {
+func ReadBotConfigYaml() (IGopher, error) {
 	var c IGopher
 	file, err := ioutil.ReadFile(filepath.FromSlash("./config/config.yaml"))
 	if err != nil {
@@ -197,13 +239,15 @@ func ReadBotConfigYaml() IGopher {
 	err = c.Scheduler.InitializeScheduler()
 	if err != nil {
 		logrus.Errorf("Failed to initialize scheduler: %v", err)
+		return c, err
 	}
 	err = c.Blacklist.InitializeBlacklist()
 	if err != nil {
 		logrus.Errorf("Failed to initialize blacklist: %v", err)
+		return c, err
 	}
 	logrus.Debugf("config.yaml: %+v\n\n", c)
-	return c
+	return c, nil
 }
 
 // ImportConfig read config.yaml, parse it in BotConfigYaml instance and finally return it

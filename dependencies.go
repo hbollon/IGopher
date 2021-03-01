@@ -277,19 +277,24 @@ func addFirefox(desiredVersion string) {
 func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 	log.Info("Downloading and installing dependencies...")
 	ctx := context.Background()
-	if downloadBrowsers {
-		chromeBuild := desiredChromeBuild
-		firefoxVersion := desiredFirefoxVersion
-		if downloadLatest {
-			chromeBuild = ""
-			firefoxVersion = ""
+	if len(files) == 3 || files == nil {
+		if downloadBrowsers {
+			chromeBuild := desiredChromeBuild
+			firefoxVersion := desiredFirefoxVersion
+			if downloadLatest {
+				chromeBuild = ""
+				firefoxVersion = ""
+			}
+
+			if err := addChrome(ctx, chromeBuild); err != nil {
+				log.Errorf("Unable to download Google Chrome browser: %v", err)
+			}
+			addFirefox(firefoxVersion)
 		}
 
-		if err := addChrome(ctx, chromeBuild); err != nil {
-			log.Errorf("Unable to download Google Chrome browser: %v", err)
+		if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar", "htmlunit-driver.jar", false); err != nil {
+			log.Errorf("Unable to find the latest HTMLUnit Driver: %s", err)
 		}
-		addFirefox(firefoxVersion)
-	}
 
 	if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar",
 		"htmlunit-driver.jar", false); err != nil {

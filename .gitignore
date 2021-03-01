@@ -30,3 +30,6 @@ config/*.yaml
 
 # Editor/IDE files
 .vscode/
+
+# Log folder
+logs/

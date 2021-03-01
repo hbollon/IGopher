@@ -128,11 +128,29 @@ func (s *SchedulerManager) CheckTime() error {
 			return nil
 		}
 		logrus.Info("Reached end of service. Sleeping...")
-		for res, err := s.isWorkingTime(); !res; {
-			if err != nil {
-				return err
+		for {
+			if res, _ = s.isWorkingTime(); res {
+				break
 			}
-			time.Sleep(3600)
+			if BotStruct.exitCh != nil {
+				select {
+				case <-BotStruct.hotReloadCallback:
+					if err = BotStruct.HotReload(); err != nil {
+						logrus.Errorf("Bot hot reload failed: %v", err)
+						BotStruct.hotReloadCallback <- false
+					} else {
+						logrus.Info("Bot hot reload successfully.")
+						BotStruct.hotReloadCallback <- true
+					}
+					break
+				case <-BotStruct.exitCh:
+					logrus.Info("Bot process successfully stopped.")
+					return errStopBot
+				default:
+					break
+				}
+			}
+			time.Sleep(10 * time.Second)
 		}
 		logrus.Info("Back to work!")
 	}

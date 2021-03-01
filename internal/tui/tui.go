@@ -162,8 +162,7 @@ func getAccountSettings() inputs {
 
 func getUsersScrappingSettings() inputs {
 	inp := inputs{
-		title: fmt.Sprintf("\nPlease enter the list of %s you would like to use for %s (separated by a comma) :\n\n",
-			keyword("accounts"), keyword("users scraping")),
+		title: fmt.Sprintf("\nPlease enter the list of %s you would like to use for %s (separated by ';') :\n\n", keyword("accounts"), keyword("users scraping")),
 		input: []textinput.Model{
 			textinput.NewModel(),
 			textinput.NewModel(),

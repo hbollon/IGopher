@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Settings - IGopher</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-robot"></i></div>
+                    <div class="sidebar-brand-text mx-3"><span>Igopher</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"></li>
+                    <li class="nav-item"></li>
+                    <li class="nav-item"><a class="nav-link" href="dm_automation.html"><i class="fa fa-envelope"></i><span>DM Automation&nbsp;</span></a></li>
+                    <li class="nav-item"></li>
+                    <li class="nav-item"><a class="nav-link active" href="settings.html"><i class="fa fa-gears"></i><span>Settings</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="logs.html"><i class="fa fa-list-alt"></i><span>Logs</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <ul class="navbar-nav flex-nowrap ml-auto">
+                            <li class="nav-item dropdown d-sm-none no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-toggle="dropdown" href="#"><i class="fas fa-search"></i></a>
+                                <div class="dropdown-menu dropdown-menu-right p-3 animated--grow-in" aria-labelledby="searchDropdown">
+                                    <form class="form-inline mr-auto navbar-search w-100">
+                                        <div class="input-group"><input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
+                                            <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown no-arrow mx-1">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-toggle="dropdown" href="#"><i class="fas fa-bell fa-fw"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in">
+                                        <h6 class="dropdown-header">alerts center</h6><a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div style="margin: auto;">
+                                                <p>No notification yet!</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <h3 class="text-dark mb-1">Settings</h3>
+                    <div class="row">
+                        <div class="col-lg-6 col-xl-6">
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-primary font-weight-bold m-0">Interactions quotas</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-center">This module manages and limits the number of interactions performed per hour and per day, in order to respect the limits set. The default settings are those recommended to protect your Instagram account from restrictions.<br>This module is recommended.</p>
+                                    <hr>
+                                    <form id="quotasForm">
+                                        <div class="form-group"><label>Activation:&nbsp;</label>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" value="true" name="quotasActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-6" value="false" name="quotasActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
+                                        </div>
+                                        <hr>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Likes per day</span></div><input class="form-control" type="number" name="likesPerDay" required="" value="100">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Likes per hour</span></div><input class="form-control" type="number" name="likesPerHour" required="" value="10">
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Follows per day</span></div><input class="form-control" type="number" name="followsPerDay" required="" value="80">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Follows per hour</span></div><input class="form-control" type="number" name="followsPerHour" required="" value="8">
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Unfollows per day</span></div><input class="form-control" type="number" name="unfollowsPerDay" required="" value="60">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Unfollows per hour</span></div><input class="form-control" type="number" name="unfolllowsPerHour" required="" value="6">
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per day</span></div><input class="form-control" type="number" name="dmDay" required="" value="40">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Direct messages per hour</span></div><input class="form-control" type="number" name="dmHour" required="" value="4">
+                                            </div>
+                                        </div>
+                                        <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-xl-6">
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-primary font-weight-bold m-0">Scheduler</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-center">This module defines and manages the bot's operating hours.<br>It is recommended to activate it and leave a period of inactivity.</p>
+                                    <hr>
+                                    <form id="schedulerForm">
+                                        <div class="form-group"><label>Activation:&nbsp;</label>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" value="true" name="scheduleActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-2" value="false" name="scheduleActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
+                                        </div>
+                                        <hr>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Start time</span></div><input class="form-control" type="time" name="beginAt" required="" value="08:00">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">End time</span></div><input class="form-control" type="time" name="endAt" required="" value="18:00">
+                                            </div>
+                                        </div>
+                                        <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-primary font-weight-bold m-0">Users blacklist</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-center">This module maintains a blacklist where are added the users with whom we have already interacted in order to avoid duplicates and spam.</p>
+                                    <hr>
+                                    <form id="blacklistForm">
+                                        <div class="form-group"><label>Activation:&nbsp;</label>
+                                            <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" value="true" name="blacklistActivation" required="" checked=""><label class="form-check-label" for="formCheck-1">Enabled</label></div>
+                                            <div class="form-check disabled"><input class="form-check-input" type="radio" id="formCheck-4" value="false" name="blacklistActivation" required=""><label class="form-check-label" for="formCheck-2">Disabled</label></div>
+                                        </div>
+                                        <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6 col-xl-6">
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-danger font-weight-bold m-0">Danger Zone</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-center">Be careful with following settings!<br>Some changes cannot be undone!</p>
+                                    <hr>
+                                    <form id="igCredentialsForm" method="post">
+                                        <p>Instagram credentials:</p>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Username</span></div><input class="form-control" type="text" name="username" required="">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend"><span class="input-group-text">Password</span></div><input class="form-control" type="password" name="password" required="">
+                                            </div>
+                                        </div>
+                                        <div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
+                                    </form>
+                                    <hr>
+                                    <div class="text-center" style="margin-right: 15px;margin-left: 15px;">
+                                        <div class="row d-xl-flex justify-content-center justify-content-xl-center align-items-xl-center" style="margin-bottom: 15px;">
+                                            <div class="col"><button class="btn btn-danger" id="resetGlobalDefaultSettingsBtn" type="button">Reset default settings</button></div>
+                                        </div>
+                                        <div class="row d-xl-flex justify-content-center justify-content-xl-center align-items-xl-center" style="margin-bottom: 15px;">
+                                            <div class="col"><button class="btn btn-danger" id="clearBotDataBtn" type="button">Clear cache &amp; data</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © IGopher 2021</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="assets/js/script.min.js"></script>
+</body>
+
+</html>
