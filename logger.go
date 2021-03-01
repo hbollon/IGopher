@@ -79,9 +79,9 @@ func parseLogsToString() (string, error) {
 
 	// Build json array string with logs from newer to older
 	out := `[`
-	for i := len(logs) - 1; i > 0; i-- {
+	for i := len(logs) - 1; i >= 0; i-- {
 		out += logs[i]
-		if i == 1 {
+		if i == 0 {
 			break
 		}
 		out += `,`
