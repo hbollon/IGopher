@@ -16,10 +16,13 @@ func InitGui() {
 	a, err := astilectron.New(log.StandardLogger(), astilectron.Options{
 		AppName:            "IGopher",
 		BaseDirectoryPath:  "lib/electron",
-		AppIconDefaultPath: "assets/favicon.ico",
+		AppIconDefaultPath: "../../assets/favicon.png",
+		AppIconDarwinPath:  "../../assets/favicon.icns",
+		VersionAstilectron: "0.44.0",
+		VersionElectron:    "11.1.0",
 	})
 	if err != nil {
-		log.Fatal(fmt.Errorf("main: creating astilectron failed: %w", err))
+		log.Fatal("creating astilectron failed: %w", err)
 	}
 	defer a.Close()
 
