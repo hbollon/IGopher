@@ -279,6 +279,6 @@ func (m *MessageIn) getLogsCallback() MessageOut {
 		logrus.Errorf("Can't parse logs: %v", err)
 		return MessageOut{Status: ERROR, Msg: fmt.Sprintf("Can't parse logs: %v", err)}
 	}
-	fmt.Println(logs)
+	logrus.Debug("Logs fetched successfully!")
 	return MessageOut{Status: SUCCESS, Msg: logs}
 }
