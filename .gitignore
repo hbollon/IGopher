@@ -11,11 +11,13 @@
 
 # Binaries for programs and plugins
 bin/
+output/
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+*.syso
 
 # Test binary, built with `go test -c`
 *.test

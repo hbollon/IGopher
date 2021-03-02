@@ -21,6 +21,8 @@ func InitGui() {
 	CheckEnvironment()
 
 	if err := bootstrap.Run(bootstrap.Options{
+		Asset:    Asset,
+		AssetDir: AssetDir,
 		AstilectronOptions: astilectron.Options{
 			AppName:            AppName,
 			AppIconDarwinPath:  filepath.FromSlash("resources/favicon.icns"),
@@ -59,6 +61,7 @@ func InitGui() {
 
 			return nil
 		},
+		RestoreAssets: RestoreAssets,
 		ResourcesPath: filepath.FromSlash("resources/"),
 		Windows: []*bootstrap.Window{{
 			Homepage: filepath.FromSlash("resources/dm_automation.html"),

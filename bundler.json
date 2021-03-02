@@ -1,0 +1,30 @@
+{
+    "app_name": "IGopher",
+    "icon_path_darwin": "cmd/igopher/gui/resources/favicon.icns",
+    "icon_path_linux": "cmd/igopher/gui/resources/favicon.png",
+    "icon_path_windows": "cmd/igopher/gui/resources/favicon.ico",
+    "input_path": "cmd/igopher/gui/",
+    "bind": {
+        "output_path": "./",
+        "package": "igopher"
+    },
+    "environments": [
+        {
+            "arch": "amd64",
+            "os": "darwin"
+        },
+        {
+            "arch": "amd64",
+            "os": "linux"
+        },
+        {
+            "arch": "amd64",
+            "os": "windows",
+            "env": {
+                "CC": "x86_64-w64-mingw32-gcc",
+                "CXX": "x86_64-w64-mingw32-g++",
+                "CGO_ENABLED": "1"
+            }
+        }
+    ]
+}
