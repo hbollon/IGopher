@@ -46,7 +46,6 @@ func sendMessageToElectron(msg MessageOut, callback func(m *astilectron.EventMes
 
 // Handling function for incoming messages
 func handleMessages() {
-	config = ImportConfig()
 	w.OnMessage(func(m *astilectron.EventMessage) interface{} {
 		// Unmarshal
 		var i MessageIn
@@ -57,6 +56,7 @@ func handleMessages() {
 		}
 
 		// Process message
+		config = ImportConfig()
 		switch i.Msg {
 		case "resetGlobalDefaultSettings":
 			return i.resetGlobalSettingsCallback()

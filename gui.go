@@ -1,73 +1,75 @@
 package igopher
 
 import (
-	"fmt"
+	"path/filepath"
 
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
+	bootstrap "github.com/asticode/go-astilectron-bootstrap"
 	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
+)
+
+const (
+	AppName            = "IGopher"
+	VersionAstilectron = "0.44.0"
+	VersionElectron    = "11.1.0"
 )
 
 var w *astilectron.Window
 
 func InitGui() {
-	// Create astilectron
-	a, err := astilectron.New(log.StandardLogger(), astilectron.Options{
-		AppName:            "IGopher",
-		BaseDirectoryPath:  "lib/electron",
-		AppIconDefaultPath: "../../assets/favicon.png",
-		AppIconDarwinPath:  "../../assets/favicon.icns",
-		VersionAstilectron: "0.44.0",
-		VersionElectron:    "11.1.0",
-	})
-	if err != nil {
-		log.Fatal("creating astilectron failed: %w", err)
-	}
-	defer a.Close()
+	CheckEnvironment()
 
-	// Handle signals
-	a.HandleSignals()
+	if err := bootstrap.Run(bootstrap.Options{
+		AstilectronOptions: astilectron.Options{
+			AppName:            AppName,
+			AppIconDarwinPath:  filepath.FromSlash("resources/favicon.icns"),
+			AppIconDefaultPath: filepath.FromSlash("resources/favicon.png"),
+			SingleInstance:     true,
+			VersionAstilectron: VersionAstilectron,
+			VersionElectron:    VersionElectron,
+		},
+		Debug:       *flags.DebugFlag,
+		Logger:      logrus.StandardLogger(),
+		MenuOptions: []*astilectron.MenuItemOptions{},
+		OnWait: func(a *astilectron.Astilectron, ws []*astilectron.Window, _ *astilectron.Menu, _ *astilectron.Tray, _ *astilectron.Menu) error {
+			w = ws[0]
 
-	// Add a listener on Astilectron crash event for selenium cleaning
-	a.On(astilectron.EventNameAppCrash, func(e astilectron.Event) (deleteListener bool) {
-		logrus.Error("Electron app has crashed!")
-		BotStruct.SeleniumStruct.CloseSelenium()
-		return
-	})
+			// Add message handler
+			handleMessages()
 
-	// Add a listener on Astilectron close event for selenium cleaning
-	a.On(astilectron.EventNameAppClose, func(e astilectron.Event) (deleteListener bool) {
-		logrus.Debug("Electron app was closed")
-		BotStruct.SeleniumStruct.CloseSelenium()
-		return
-	})
+			// Add a listener on Astilectron crash event for selenium cleaning
+			a.On(astilectron.EventNameAppCrash, func(e astilectron.Event) (deleteListener bool) {
+				logrus.Error("Electron app has crashed!")
+				BotStruct.SeleniumStruct.CloseSelenium()
+				return
+			})
 
-	// Start
-	if err = a.Start(); err != nil {
-		log.Fatal(fmt.Errorf("main: starting astilectron failed: %w", err))
-	}
+			// Add a listener on Astilectron close event for selenium cleaning
+			a.On(astilectron.EventNameAppClose, func(e astilectron.Event) (deleteListener bool) {
+				logrus.Debug("Electron app was closed")
+				BotStruct.SeleniumStruct.CloseSelenium()
+				return
+			})
 
-	// New window
-	if w, err = a.NewWindow("resources/dm_automation.html", &astilectron.WindowOptions{
-		Center: astikit.BoolPtr(true),
-		Width:  astikit.IntPtr(1400),
-		Height: astikit.IntPtr(1000),
+			// Open devtools if flag is set
+			if *flags.DebugFlag {
+				w.OpenDevTools()
+			}
+
+			return nil
+		},
+		ResourcesPath: filepath.FromSlash("resources/"),
+		Windows: []*bootstrap.Window{{
+			Homepage: filepath.FromSlash("resources/dm_automation.html"),
+			Options: &astilectron.WindowOptions{
+				BackgroundColor: astikit.StrPtr("#333"),
+				Center:          astikit.BoolPtr(true),
+				Width:           astikit.IntPtr(1400),
+				Height:          astikit.IntPtr(1000),
+			},
+		}},
 	}); err != nil {
-		log.Fatal(fmt.Errorf("main: new window failed: %w", err))
+		logrus.Fatalf("running bootstrap failed: %v", err)
 	}
-
-	// Create windows
-	if err = w.Create(); err != nil {
-		log.Fatal(fmt.Errorf("main: creating window failed: %w", err))
-	}
-	handleMessages()
-
-	// Open dev tools panel if flag is set
-	if *flags.DevToolsFlag {
-		w.OpenDevTools()
-	}
-
-	// Blocking pattern
-	a.Wait()
 }
