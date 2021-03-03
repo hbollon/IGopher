@@ -4,10 +4,6 @@
     "icon_path_linux": "cmd/igopher/gui/resources/favicon.png",
     "icon_path_windows": "cmd/igopher/gui/resources/favicon.ico",
     "input_path": "cmd/igopher/gui/",
-    "bind": {
-        "output_path": "./",
-        "package": "igopher"
-    },
     "environments": [
         {
             "arch": "amd64",

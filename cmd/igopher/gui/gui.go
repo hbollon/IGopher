@@ -1,4 +1,4 @@
-package igopher
+package main
 
 import (
 	"path/filepath"
@@ -6,6 +6,7 @@ import (
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
 	bootstrap "github.com/asticode/go-astilectron-bootstrap"
+	"github.com/hbollon/igopher"
 	"github.com/sirupsen/logrus"
 )
 
@@ -15,10 +16,8 @@ const (
 	VersionElectron    = "11.1.0"
 )
 
-var w *astilectron.Window
-
-func InitGui() {
-	CheckEnvironment()
+func main() {
+	igopher.CheckEnvironment()
 
 	if err := bootstrap.Run(bootstrap.Options{
 		Asset:    Asset,
@@ -31,33 +30,31 @@ func InitGui() {
 			VersionAstilectron: VersionAstilectron,
 			VersionElectron:    VersionElectron,
 		},
-		Debug:       *flags.DebugFlag,
+		Debug:       false,
 		Logger:      logrus.StandardLogger(),
 		MenuOptions: []*astilectron.MenuItemOptions{},
 		OnWait: func(a *astilectron.Astilectron, ws []*astilectron.Window, _ *astilectron.Menu, _ *astilectron.Tray, _ *astilectron.Menu) error {
-			w = ws[0]
-
 			// Add message handler
-			handleMessages()
+			igopher.HandleMessages(ws[0])
 
 			// Add a listener on Astilectron crash event for selenium cleaning
 			a.On(astilectron.EventNameAppCrash, func(e astilectron.Event) (deleteListener bool) {
 				logrus.Error("Electron app has crashed!")
-				BotStruct.SeleniumStruct.CloseSelenium()
+				igopher.BotStruct.SeleniumStruct.CloseSelenium()
 				return
 			})
 
 			// Add a listener on Astilectron close event for selenium cleaning
 			a.On(astilectron.EventNameAppClose, func(e astilectron.Event) (deleteListener bool) {
 				logrus.Debug("Electron app was closed")
-				BotStruct.SeleniumStruct.CloseSelenium()
+				igopher.BotStruct.SeleniumStruct.CloseSelenium()
 				return
 			})
 
 			// Open devtools if flag is set
-			if *flags.DebugFlag {
-				w.OpenDevTools()
-			}
+			// if *flags.DebugFlag {
+			// 	ws[0].OpenDevTools()
+			// }
 
 			return nil
 		},

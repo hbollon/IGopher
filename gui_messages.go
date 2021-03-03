@@ -38,14 +38,14 @@ type MessageIn struct {
 	Payload json.RawMessage `json:"payload,omitempty"`
 }
 
-// This will send a message to Electron Gui and execute a callback
+// SendMessageToElectron will send a message to Electron Gui and execute a callback
 // Callback function is optional
-func sendMessageToElectron(msg MessageOut, callback func(m *astilectron.EventMessage)) {
+func SendMessageToElectron(w *astilectron.Window, msg MessageOut, callback func(m *astilectron.EventMessage)) {
 	w.SendMessage(msg, callback)
 }
 
-// Handling function for incoming messages
-func handleMessages() {
+// HandleMessages is handling function for incoming messages
+func HandleMessages(w *astilectron.Window) {
 	w.OnMessage(func(m *astilectron.EventMessage) interface{} {
 		// Unmarshal
 		var i MessageIn

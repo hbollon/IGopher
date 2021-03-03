@@ -70,15 +70,6 @@ func initClientConfig() *ClientConfig {
 	return clientConfig
 }
 
-// LaunchGui initialize environment needed by IGopher and run it with his Gui
-func LaunchGui() {
-	// Initialize environment
-	CheckEnvironment()
-
-	// Launch GUI
-	InitGui()
-}
-
 // LaunchBotTui start dm bot on main goroutine
 func LaunchBotTui() {
 	// Initialize client configuration

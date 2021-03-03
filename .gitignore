@@ -19,6 +19,9 @@ output/
 *.dylib
 *.syso
 
+# Bundler
+bind_*.go
+
 # Test binary, built with `go test -c`
 *.test
 
