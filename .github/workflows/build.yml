@@ -26,3 +26,4 @@ jobs:
         run: |
           go build -v -o ./IGopherTUI ./cmd/igopher/tui
           go build -v -o ./IGopherGUI ./cmd/igopher/gui
+          go build -v -o ./IGopherGUI-Bundler ./cmd/igopher/gui-bundler
