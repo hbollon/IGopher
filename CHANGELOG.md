@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2021-03-04
+### Added
+- Electron GUI with: 
+  - DM Automation config screen with launch/stop/hot-reload actions
+  - Global settings view
+  - Logs explorer
+- Logrus dual output on stdout with curom formatter and log file with json formatter
+- Bundler github workflow
+### Changed
+- Parallelization of bot execution on several goroutines (once for engine and once for communication with main goroutine) with context/channels
+- IGopher architecture refactor
+
+### Fixed
+- Fix project environment location issue #3
+- Linters related issues
 ## [0.1.3] - 2021-02-21
 ### Added
 - Useful repository files including:
@@ -47,7 +62,8 @@ In addition, you can activate certain modules such as:
 - A scheduler
 - The use of a blacklist to avoid duplicates interactions
 
-[Unreleased]: https://github.com/hbollon/igopher/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/hbollon/igopher/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/hbollon/igopher/compare/v0.1.3...v0.2.0
 [0.1.3]: https://github.com/hbollon/igopher/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/hbollon/igopher/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/hbollon/igopher/compare/v0.1.0...v0.1.1
