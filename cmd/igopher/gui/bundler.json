@@ -1,11 +1,9 @@
 {
     "app_name": "IGopher",
-    "icon_path_darwin": "cmd/igopher/gui/resources/favicon.icns",
-    "icon_path_linux": "cmd/igopher/gui/resources/favicon.png",
-    "icon_path_windows": "cmd/igopher/gui/resources/favicon.ico",
-    "input_path": "cmd/igopher/gui/",
-    "environments": [
-        {
+    "icon_path_darwin": "resources/favicon.icns",
+    "icon_path_linux": "resources/favicon.png",
+    "icon_path_windows": "resources/favicon.ico",
+    "environments": [{
             "arch": "amd64",
             "os": "darwin"
         },

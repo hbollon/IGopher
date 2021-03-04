@@ -59,9 +59,8 @@ func main() {
 			return nil
 		},
 		RestoreAssets: RestoreAssets,
-		ResourcesPath: filepath.FromSlash("resources/"),
 		Windows: []*bootstrap.Window{{
-			Homepage: filepath.FromSlash("resources/dm_automation.html"),
+			Homepage: "dm_automation.html",
 			Options: &astilectron.WindowOptions{
 				BackgroundColor: astikit.StrPtr("#333"),
 				Center:          astikit.BoolPtr(true),
