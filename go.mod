@@ -5,7 +5,7 @@ go 1.15
 require (
 	cloud.google.com/go v0.41.0
 	github.com/akavel/rsrc v0.10.1 // indirect
-	github.com/asticode/go-astikit v0.17.0
+	github.com/asticode/go-astikit v0.18.0
 	github.com/asticode/go-astilectron v0.22.3
 	github.com/asticode/go-astilectron-bootstrap v0.4.10 // indirect
 	github.com/asticode/go-astilectron-bundler v0.7.8 // indirect

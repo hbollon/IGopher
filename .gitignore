@@ -29,7 +29,7 @@ bind_*.go
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
 
 # Config and generated files
 config/*.yaml
