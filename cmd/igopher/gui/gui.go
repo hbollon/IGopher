@@ -9,6 +9,7 @@ For release purpose use gui-bundler package
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
@@ -28,8 +29,13 @@ func main() {
 	var w *astilectron.Window
 	// Create astilectron
 	a, err := astilectron.New(log.StandardLogger(), astilectron.Options{
-		AppName:           "IGopher",
-		BaseDirectoryPath: "./lib/electron",
+		AppName:            "IGopher",
+		AppIconDarwinPath:  filepath.FromSlash("resources/favicon.icns"),
+		AppIconDefaultPath: filepath.FromSlash("resources/favicon.png"),
+		BaseDirectoryPath:  "./lib/electron",
+		SingleInstance:     true,
+		VersionAstilectron: VersionAstilectron,
+		VersionElectron:    VersionElectron,
 	})
 	if err != nil {
 		log.Fatal(fmt.Errorf("main: creating astilectron failed: %w", err))
