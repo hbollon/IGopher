@@ -164,7 +164,8 @@ func launchDmBot(ctx context.Context) {
 				var users []string
 				users, err = BotStruct.FetchUsersFromUserFollowers()
 				if err != nil {
-					BotStruct.crashCh <- fmt.Errorf("Failed users fetching: %v", err)
+					BotStruct.crashCh <- fmt.Errorf("Failed users fetching: %v. Check logs tab for more details", err)
+					return
 				}
 				for _, username := range users {
 					select {
@@ -220,7 +221,6 @@ func launchDmBot(ctx context.Context) {
 					Msg:     "bot crash",
 					Payload: err.Error(),
 				},
-				nil,
 			)
 			BotStruct.running = false
 			return

@@ -35,6 +35,7 @@ vendor/
 config/*.yaml
 
 # Editor/IDE files
+.idea/
 .vscode/
 
 # Log folder

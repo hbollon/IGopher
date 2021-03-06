@@ -41,13 +41,12 @@ type MessageIn struct {
 
 // SendMessageToElectron will send a message to Electron Gui and execute a callback
 // Callback function is optional
-func SendMessageToElectron(msg MessageOut, callback func(m *astilectron.EventMessage)) {
-	window.SendMessage(msg, callback)
+func SendMessageToElectron(msg MessageOut, callbacks ...astilectron.CallbackMessage) {
+	window.SendMessage(msg, callbacks...)
 }
 
 // HandleMessages is handling function for incoming messages
 func HandleMessages(w *astilectron.Window) {
-	window = w
 	w.OnMessage(func(m *astilectron.EventMessage) interface{} {
 		// Unmarshal
 		var i MessageIn
@@ -101,6 +100,7 @@ func HandleMessages(w *astilectron.Window) {
 			return MessageOut{Status: ERROR}
 		}
 	})
+	window = w
 }
 
 /* Callback functiosn to handle electron messages */
