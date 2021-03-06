@@ -75,32 +75,42 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 				// Scroll to the end of the list to gather more followers from ig
 				_, err = sc.SeleniumStruct.WebDriver.ExecuteScript("window.scrollTo(0, document.body.scrollHeight);", nil)
 				if err != nil {
+					logrus.Warnf(
+						"Error during followers dialog box scroll for '%s' user. The user certainly did not have enough followers for the request",
+						srcUsername,
+					)
 					userBar.Abort(true)
-					totalBar.Abort(true)
-					return nil, errors.New("Error during followers dialog box scroll")
+					break
 				}
 			}
 			randomSleepCustom(3, 4)
 			scrappedUsers, err = sc.SeleniumStruct.GetElements("//*/li/div/div/div/div/a", "xpath")
 			if err != nil {
+				logrus.Errorf(
+					"Error during users scrapping from followers dialog box for '%s' user",
+					srcUsername,
+				)
 				userBar.Abort(true)
-				totalBar.Abort(true)
-				logrus.Error(err)
-				return nil, errors.New("Error during users scrapping from followers dialog box")
+				break
 			}
 			scrappedUsers = sc.Blacklist.FilterScrappedUsers(scrappedUsers)
 			userBar.SetCurrent(int64(len(scrappedUsers)))
 			logrus.Debugf("Users count finded: %d", len(scrappedUsers))
 		}
 
-		for _, user := range scrappedUsers {
-			username, err := user.Text()
-			if err == nil {
-				igUsers = append(igUsers, username)
+		if len(scrappedUsers) != 0 {
+			for _, user := range scrappedUsers {
+				username, err := user.Text()
+				if err == nil {
+					igUsers = append(igUsers, username)
+				}
 			}
 		}
 
 		logrus.Debugf("Scrapped users: %v\n", igUsers)
+		if !userBar.Completed() {
+			userBar.Abort(true)
+		}
 		totalBar.IncrBy(1)
 	}
 	p.Wait()
