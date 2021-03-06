@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/chrome"
@@ -120,17 +121,22 @@ func (s *Selenium) InitChromeWebDriver() {
 	}
 }
 
-// CloseSelenium close webdriver and selenium instance
+// CloseSelenium close webdriver and selenium instances
 func (s *Selenium) CloseSelenium() {
 	if s.WebDriver != nil {
+		s.WebDriver.Close()
 		s.WebDriver.Quit()
+		s.WebDriver = nil
+		logrus.Debug("Closed webdriver")
 	}
 	if s.Instance != nil {
 		s.Instance.Stop()
+		s.Instance = nil
+		logrus.Debug("Closed selenium instance")
 	}
 }
 
-// SigTermCleaning launch a gouroutine to handle SigTerm signal and trigger Selenium and Webdriver close if it raised
+// SigTermCleaning launch a gouroutine to handle SigTerm signal and trigger Selenium and Webdriver closing if it raised
 func (s *Selenium) SigTermCleaning() {
 	sig := make(chan os.Signal)
 	s.SigTermRoutineExit = make(chan bool)

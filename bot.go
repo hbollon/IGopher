@@ -237,7 +237,6 @@ func launchDmBot(ctx context.Context) {
 			return
 		case <-ctx.Done():
 			BotStruct.exitCh <- true
-			BotStruct.SeleniumStruct.CloseSelenium()
 			exitedCh <- true
 			BotStruct.running = false
 			return
