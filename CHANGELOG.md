@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2021-03-06
+### Added
+- [GUI] Information notification on bot stop/hot-reload
+### Changed
+- Improve selenium closing routine
+- [Gui] Notification triggering on bot crash and bot running state reset
+- Set icons, single instance and version options to astilectron in gui development package
+- Replace custom scripts min by full ones for easier contributions
+- Allow bot exit before ig connection and scrapping process
+
+### Fixed
+- Duplicate CloseSelenium call on bot stop
+- Scrapper issue if src user doesn't exist
+- Scrapper issue if src user is private
+- Scrapper issue if src user hasn't enough followers than requested
+- Abort blocking mpb progress bar on user fetching error
+- Clean go.mod
 ## [0.2.0] - 2021-03-04
 ### Added
 - Electron GUI with: 
@@ -62,7 +79,8 @@ In addition, you can activate certain modules such as:
 - A scheduler
 - The use of a blacklist to avoid duplicates interactions
 
-[Unreleased]: https://github.com/hbollon/igopher/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/hbollon/igopher/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/hbollon/igopher/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/hbollon/igopher/compare/v0.1.3...v0.2.0
 [0.1.3]: https://github.com/hbollon/igopher/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/hbollon/igopher/compare/v0.1.1...v0.1.2
