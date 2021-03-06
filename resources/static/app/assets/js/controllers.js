@@ -69,6 +69,7 @@ $(document).ready(function(){
                 });
             } else {
                 $('#dmBotLaunchIcon').addClass('fa-spinner').addClass('fa-spin').removeClass('fa-skull-crossbones');
+                toastr.info("Stop procedure launched, the bot will stop once the current action is finished.")
                 astilectron.sendMessage({"msg":"stopDmBot"}, function(message) {
                     if(message.status === SUCCESS) {
                         toastr.success(message.msg);
@@ -87,6 +88,7 @@ $(document).ready(function(){
         
         $("#dmBotHotReloadBtn").on("click", function(){
             $('#dmBotHotReloadIcn').addClass('fa-spinner').addClass('fa-spin').removeClass('fa-fire');
+            toastr.info("Hot reload launched, the bot will update once the current action is finished.")
             astilectron.sendMessage({"msg":"hotReloadBot"}, function(message) {
                 if(message.status === SUCCESS) {
                     toastr.success(message.msg);

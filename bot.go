@@ -112,6 +112,30 @@ func LaunchBotTui() {
 	}
 }
 
+func checkBotChannels() bool {
+	select {
+	case <-BotStruct.hotReloadCallback:
+		if err := BotStruct.HotReload(); err != nil {
+			logrus.Errorf("Bot hot reload failed: %v", err)
+			BotStruct.hotReloadCallback <- false
+		} else {
+			logrus.Info("Bot hot reload successfully.")
+			BotStruct.hotReloadCallback <- true
+		}
+		break
+	case <-BotStruct.reloadCallback:
+		logrus.Info("Bot reload successfully.")
+		break
+	case <-BotStruct.exitCh:
+		logrus.Info("Bot process successfully stopped.")
+		return true
+	default:
+		break
+	}
+
+	return false
+}
+
 // Initialize client and bot configs, download dependencies,
 // launch Selenium instance and finally run dm bot routine
 func launchDmBot(ctx context.Context) {
@@ -159,35 +183,24 @@ func launchDmBot(ctx context.Context) {
 	go func() {
 		rand.Seed(time.Now().Unix())
 		if err = BotStruct.Scheduler.CheckTime(); err == nil {
+			if exit := checkBotChannels(); exit {
+				return
+			}
 			BotStruct.ConnectToInstagram()
 			for {
 				var users []string
+				if exit := checkBotChannels(); exit {
+					return
+				}
 				users, err = BotStruct.FetchUsersFromUserFollowers()
 				if err != nil {
 					BotStruct.crashCh <- fmt.Errorf("Failed users fetching: %v. Check logs tab for more details", err)
 					return
 				}
 				for _, username := range users {
-					select {
-					case <-BotStruct.hotReloadCallback:
-						if err = BotStruct.HotReload(); err != nil {
-							logrus.Errorf("Bot hot reload failed: %v", err)
-							BotStruct.hotReloadCallback <- false
-						} else {
-							logrus.Info("Bot hot reload successfully.")
-							BotStruct.hotReloadCallback <- true
-						}
-						break
-					case <-BotStruct.reloadCallback:
-						logrus.Info("Bot reload successfully.")
-						break
-					case <-BotStruct.exitCh:
-						logrus.Info("Bot process successfully stopped.")
+					if exit := checkBotChannels(); exit {
 						return
-					default:
-						break
 					}
-
 					var res bool
 					res, err = BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
 					if !res || err != nil {
