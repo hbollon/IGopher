@@ -97,7 +97,7 @@ func LaunchBotTui() {
 			var users []string
 			users, err = BotStruct.FetchUsersFromUserFollowers()
 			if err != nil {
-				log.Error(err)
+				BotStruct.SeleniumStruct.Fatal("Failed users fetching: ", err)
 			}
 			for _, username := range users {
 				var res bool
@@ -164,8 +164,7 @@ func launchDmBot(ctx context.Context) {
 				var users []string
 				users, err = BotStruct.FetchUsersFromUserFollowers()
 				if err != nil {
-					BotStruct.crashCh <- err
-					BotStruct.SeleniumStruct.Fatal("Failed usersDm bot successfully stopped! fetching: ", err)
+					BotStruct.crashCh <- fmt.Errorf("Failed users fetching: %v", err)
 				}
 				for _, username := range users {
 					select {
@@ -208,13 +207,21 @@ func launchDmBot(ctx context.Context) {
 	for {
 		select {
 		case msg = <-BotStruct.infoCh:
-			fmt.Printf("infoCh: %s", msg)
+			log.Infof("infoCh: %s", msg)
 			break
 		case msg = <-BotStruct.errCh:
-			fmt.Printf("errCh: %s", msg)
+			log.Errorf("errCh: %s", msg)
 			break
 		case err := <-BotStruct.crashCh:
-			fmt.Printf("crashCh: %v", err)
+			log.Errorf("crashCh: %v", err)
+			SendMessageToElectron(
+				MessageOut{
+					Status:  ERROR,
+					Msg:     "bot crash",
+					Payload: err.Error(),
+				},
+				nil,
+			)
 			BotStruct.running = false
 			return
 		case <-hotReloadCh:

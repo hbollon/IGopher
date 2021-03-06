@@ -51,11 +51,7 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 	for _, srcUsername := range sc.ScrapperManager.SrcAccounts {
 		logrus.Debugf("Fetch from '%s' user", srcUsername)
 		finded, err := sc.navigateUserFollowersList(srcUsername)
-		if err != nil {
-			totalBar.Abort(true)
-			return nil, err
-		}
-		if !finded {
+		if !finded || err != nil {
 			totalBar.IncrBy(1)
 			continue
 		}
@@ -119,7 +115,7 @@ func (sc *IGopher) navigateUserFollowersList(srcUsername string) (bool, error) {
 	// Navigate to Instagram user page
 	if err := sc.SeleniumStruct.WebDriver.Get(fmt.Sprintf("https://www.instagram.com/%s/?hl=en", srcUsername)); err != nil {
 		logrus.Warnf("Requested user '%s' doesn't exist, skip it", srcUsername)
-		return false, nil
+		return false, errors.New("Error during access to requested user")
 	}
 	randomSleepCustom(1, 3)
 	// Access to followers list view
