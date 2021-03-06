@@ -11,7 +11,7 @@ if [ $(basename "$PWD") != "gui-bundler" ]; then
 fi
 
 # Download and install go-astilectron-bundler
-go get -u github.com/asticode/go-astilectron-bundler/...
+go get github.com/asticode/go-astilectron-bundler/...
 go install github.com/asticode/go-astilectron-bundler/astilectron-bundler
 
 # Rename default bind.go to tmp file 

@@ -1,5 +1,7 @@
 {
     "app_name": "IGopher",
+    "version_astilectron": "0.44.0",
+    "version_electron": "11.1.0",
     "icon_path_darwin": "resources/favicon.icns",
     "icon_path_linux": "resources/favicon.png",
     "icon_path_windows": "resources/favicon.ico",

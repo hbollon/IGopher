@@ -24,7 +24,7 @@ jobs:
 
       - name: Download and install go-astilectron-bundler
         run: |
-          go get -u github.com/asticode/go-astilectron-bundler/...
+          go get github.com/asticode/go-astilectron-bundler/...
           go install github.com/asticode/go-astilectron-bundler/astilectron-bundler
 
       - name: Bundle
