@@ -126,8 +126,11 @@ func (s *Selenium) InitChromeWebDriver() {
 	if s.Proxy.Enabled {
 		logrus.Debug("Proxy activated.")
 		caps.AddProxy(selenium.Proxy{
-			Type: selenium.Manual,
-			HTTP: fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
+			Type:    selenium.Manual,
+			HTTP:    fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
+			FTP:     fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
+			SSL:     fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
+			NoProxy: nil,
 		})
 	}
 
