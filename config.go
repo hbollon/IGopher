@@ -35,7 +35,7 @@ func (strSlice *SplitStringSlice) UnmarshalJSON(data []byte) error {
 // Settings are readed from Yaml config files.
 type IGopher struct {
 	// SeleniumStruct contain all selenium stuff and config
-	SeleniumStruct Selenium
+	SeleniumStruct Selenium `yaml:"webdriver"`
 	// User credentials
 	UserAccount Account `yaml:"account"`
 	// Automatic messages sending module

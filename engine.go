@@ -45,11 +45,20 @@ func init() {
 	}
 }
 
+type ProxyConfig struct {
+	IP       string `yaml:"ip"`
+	Port     int    `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Enabled  bool   `yaml:"activated"`
+}
+
 // Selenium instance and opts
 type Selenium struct {
 	Instance           *selenium.Service
 	Config             *ClientConfig
 	Opts               []selenium.ServiceOption
+	Proxy              ProxyConfig `yaml:"proxy"`
 	WebDriver          selenium.WebDriver
 	SigTermRoutineExit chan bool
 }
@@ -114,6 +123,13 @@ func (s *Selenium) InitChromeWebDriver() {
 		},
 	}
 	caps.AddChrome(chromeCaps)
+	if s.Proxy.Enabled {
+		logrus.Debug("Proxy activated.")
+		caps.AddProxy(selenium.Proxy{
+			Type: selenium.Manual,
+			HTTP: fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
+		})
+	}
 
 	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", s.Config.Port))
 	if err != nil {
