@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hbollon/selenium"
 	"github.com/sirupsen/logrus"
-	"github.com/tebeka/selenium"
 )
 
 const (

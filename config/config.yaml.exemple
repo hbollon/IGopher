@@ -28,3 +28,12 @@ schedule: # 24h format
   activated: true
 blacklist: 
   activated: true
+
+# WebDriver config
+webdriver:
+  proxy:
+    ip: "51.178.42.90"
+    port: 3128
+    username: "igopher"
+    password: "password"
+    activated: true

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hbollon/selenium"
 	"github.com/sirupsen/logrus"
-	"github.com/tebeka/selenium"
 	"github.com/vbauerster/mpb/v6"
 	"github.com/vbauerster/mpb/v6/decor"
 )

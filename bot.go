@@ -92,20 +92,23 @@ func LaunchBotTui() {
 
 	rand.Seed(time.Now().Unix())
 	if err = BotStruct.Scheduler.CheckTime(); err == nil {
-		BotStruct.ConnectToInstagram()
-		for {
-			var users []string
-			users, err = BotStruct.FetchUsersFromUserFollowers()
-			if err != nil {
-				BotStruct.SeleniumStruct.Fatal("Failed users fetching: ", err)
-			}
-			for _, username := range users {
-				var res bool
-				res, err = BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
-				if !res || err != nil {
-					log.Errorf("Error during message sending: %v", err)
+		if err = BotStruct.ConnectToInstagram(); err == nil {
+			for {
+				var users []string
+				users, err = BotStruct.FetchUsersFromUserFollowers()
+				if err != nil {
+					BotStruct.SeleniumStruct.Fatal("Failed users fetching: ", err)
+				}
+				for _, username := range users {
+					var res bool
+					res, err = BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
+					if !res || err != nil {
+						log.Errorf("Error during message sending: %v", err)
+					}
 				}
 			}
+		} else {
+			BotStruct.SeleniumStruct.Fatal("Error during Instagram connection: ", err)
 		}
 	} else {
 		BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
@@ -186,35 +189,41 @@ func launchDmBot(ctx context.Context) {
 			if exit := checkBotChannels(); exit {
 				return
 			}
-			BotStruct.ConnectToInstagram()
-			for {
-				var users []string
-				if exit := checkBotChannels(); exit {
-					return
-				}
-				users, err = BotStruct.FetchUsersFromUserFollowers()
-				if err != nil {
-					BotStruct.crashCh <- fmt.Errorf("Failed users fetching: %v. Check logs tab for more details", err)
-					return
-				}
-				for _, username := range users {
+			if err = BotStruct.ConnectToInstagram(); err == nil {
+				for {
+					var users []string
 					if exit := checkBotChannels(); exit {
 						return
 					}
-					var res bool
-					res, err = BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
-					if !res || err != nil {
-						BotStruct.errCh <- fmt.Sprintf("Error during message sending: %v", err)
-						log.Errorf("Error during message sending: %v", err)
+					users, err = BotStruct.FetchUsersFromUserFollowers()
+					if err != nil {
+						BotStruct.crashCh <- fmt.Errorf("Failed users fetching: %v. Check logs tab for more details", err)
+						return
+					}
+					for _, username := range users {
+						if exit := checkBotChannels(); exit {
+							return
+						}
+						var res bool
+						res, err = BotStruct.SendMessage(username, BotStruct.DmModule.DmTemplates[rand.Intn(len(BotStruct.DmModule.DmTemplates))])
+						if !res || err != nil {
+							BotStruct.errCh <- fmt.Sprintf("Error during message sending: %v", err)
+							log.Errorf("Error during message sending: %v", err)
+						}
 					}
 				}
+			} else {
+				BotStruct.crashCh <- err
+				log.Errorf("Error during Instagram connection: %v", err)
+				return
 			}
 		} else {
 			if err == errStopBot {
 				return
 			}
 			BotStruct.crashCh <- err
-			BotStruct.SeleniumStruct.Fatal("Error on bot launch: ", err)
+			log.Errorf("Error on bot launch: %v", err)
+			return
 		}
 	}()
 	var msg string

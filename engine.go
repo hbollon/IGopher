@@ -11,10 +11,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hbollon/igopher/internal/proxy"
+	"github.com/hbollon/selenium"
+	"github.com/hbollon/selenium/chrome"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
-	"github.com/tebeka/selenium"
-	"github.com/tebeka/selenium/chrome"
 )
 
 const (
@@ -45,20 +46,12 @@ func init() {
 	}
 }
 
-type ProxyConfig struct {
-	IP       string `yaml:"ip"`
-	Port     int    `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	Enabled  bool   `yaml:"activated"`
-}
-
 // Selenium instance and opts
 type Selenium struct {
 	Instance           *selenium.Service
 	Config             *ClientConfig
 	Opts               []selenium.ServiceOption
-	Proxy              ProxyConfig `yaml:"proxy"`
+	Proxy              proxy.ProxyConfig `yaml:"proxy"`
 	WebDriver          selenium.WebDriver
 	SigTermRoutineExit chan bool
 }
@@ -118,6 +111,7 @@ func (s *Selenium) InitChromeWebDriver() {
 			"--no-sandbox",
 			"--window-size=360,640",
 		},
+		ExcludeSwitches: []string{"enable-automation"},
 		MobileEmulation: &chrome.MobileEmulation{
 			DeviceName: "Nexus 5",
 		},
@@ -125,13 +119,17 @@ func (s *Selenium) InitChromeWebDriver() {
 	caps.AddChrome(chromeCaps)
 	if s.Proxy.Enabled {
 		logrus.Debug("Proxy activated.")
-		caps.AddProxy(selenium.Proxy{
-			Type:    selenium.Manual,
-			HTTP:    fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
-			FTP:     fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
-			SSL:     fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
-			NoProxy: nil,
-		})
+		if err = proxy.LaunchForwardingProxy(8880, s.Proxy); err == nil {
+			caps.AddProxy(selenium.Proxy{
+				Type:    selenium.Manual,
+				HTTP:    fmt.Sprintf("localhost:%d", 8880),
+				FTP:     fmt.Sprintf("localhost:%d", 8880),
+				SSL:     fmt.Sprintf("localhost:%d", 8880),
+				NoProxy: nil,
+			})
+		} else {
+			log.Errorf("Failed to initialize proxy forwarder: %v", err)
+		}
 	}
 
 	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", s.Config.Port))

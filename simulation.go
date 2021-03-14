@@ -1,8 +1,8 @@
 package igopher
 
 import (
+	"github.com/hbollon/selenium"
 	"github.com/sirupsen/logrus"
-	"github.com/tebeka/selenium"
 )
 
 // SimulateHandWriting simulate human writing by typing input string character by character with random interruptions

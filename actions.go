@@ -2,23 +2,33 @@ package igopher
 
 import (
 	"errors"
+	"fmt"
 
+	"github.com/hbollon/selenium"
 	log "github.com/sirupsen/logrus"
-	"github.com/tebeka/selenium"
 )
 
 // ConnectToInstagram get ig login webpage and connect user account
-func (bot *IGopher) ConnectToInstagram() {
-	bot.connectToInstagramWebDriver()
+func (bot *IGopher) ConnectToInstagram() error {
+	return bot.connectToInstagramWebDriver()
 }
 
-func (bot *IGopher) connectToInstagramWebDriver() {
+func (bot *IGopher) connectToInstagramWebDriver() error {
 	log.Info("Connecting to Instagram account...")
 	// Access Instagram url
 	if err := bot.SeleniumStruct.WebDriver.Get("https://instagram.com/?hl=en"); err != nil {
-		bot.SeleniumStruct.Fatal("Can't access to Instagram. ", err)
+		return fmt.Errorf("Can't access to Instagram: %v", err)
 	}
 	randomSleep()
+
+	// // Proxy authentification process (if enabled)
+	// if bot.SeleniumStruct.Proxy.Enabled {
+	// 	if err := bot.ProxyLogIn(); err != nil {
+	// 		return fmt.Errorf("Proxy authentifiacation failed: %v", err)
+	// 	}
+	// 	randomSleep()
+	// }
+
 	// Accept cookies if requested
 	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Accept']", "xpath", 10); err == nil && find {
 		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Accept']", "xpath")
@@ -43,30 +53,52 @@ func (bot *IGopher) connectToInstagramWebDriver() {
 		elem.SendKeys(bot.UserAccount.Username)
 		log.Debug("Username injection done!")
 	} else {
-		bot.SeleniumStruct.Fatal("Exception during username inject: ", err)
+		return fmt.Errorf("Exception during username inject: %v", err)
 	}
 	if find, err := bot.SeleniumStruct.WaitForElement("password", "name", 10); err == nil && find {
 		elem, _ := bot.SeleniumStruct.GetElement("password", "name")
 		elem.SendKeys(bot.UserAccount.Password)
 		log.Debug("Password injection done!")
 	} else {
-		bot.SeleniumStruct.Fatal("Exception during password inject: ", err)
+		return fmt.Errorf("Exception during password inject: %v", err)
 	}
 	if find, err := bot.SeleniumStruct.WaitForElement("//button/*[text()='Log In']", "xpath", 10); err == nil && find {
 		elem, _ := bot.SeleniumStruct.GetElement("//button/*[text()='Log In']", "xpath")
 		elem.Click()
 		log.Debug("Sent login request")
 	} else {
-		bot.SeleniumStruct.Fatal("Log in button not found: ", err)
+		return fmt.Errorf("Log in button not found: %v", err)
 	}
 	randomSleepCustom(10, 15)
 	// Check if login was successful
 	if bot.SeleniumStruct.IsElementPresent(selenium.ByXPATH,
 		"//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {
-		log.Info("Login Successful!")
+		log.Info("Login successful!")
 	} else {
-		log.Warnf("Instagram does not ask for informations saving, the login process may have failed.")
+		log.Warn("Instagram doesn't ask for informations saving, the login process may have failed.")
 	}
+
+	return nil
+}
+
+func (bot *IGopher) ProxyLogIn() error {
+	var err error
+	log.Info("Proxy authentification...")
+	// credentials := fmt.Sprintf(
+	// 	`{"username":"%s","password":"%s"}`,
+	// 	bot.SeleniumStruct.Proxy.Username,
+	// 	bot.SeleniumStruct.Proxy.Password,
+	// )
+	// log.Debug(credentials)
+	// if err = bot.SeleniumStruct.WebDriver.SetAlertText(credentials); err != nil {
+	// 	return err
+	// }
+	// log.Debug("Proxy credentials injection done.")
+	if err = bot.SeleniumStruct.WebDriver.AcceptAlert(); err != nil {
+		return err
+	}
+	log.Debug("Proxy alert acceptation done.")
+	return nil
 }
 
 // SendMessage navigate to Instagram direct message interface and send one to specified user

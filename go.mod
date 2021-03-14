@@ -13,6 +13,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.12.2
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/google/go-github/v27 v27.0.4
+	github.com/hbollon/selenium v0.9.10 // indirect
 	github.com/lucasb-eyer/go-colorful v1.0.3
 	github.com/magefile/mage v1.11.0 // indirect
 	github.com/muesli/reflow v0.2.0
