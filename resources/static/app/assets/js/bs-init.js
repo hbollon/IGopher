@@ -1,7 +1,8 @@
-$(document).ready(function(){
+document.addEventListener('DOMContentLoaded', function() {
 
-	$('[data-bss-chart]').each(function(index, elem) {
-		this.chart = new Chart($(elem), $(elem).data('bss-chart'));
-	});
+	var charts = document.querySelectorAll('[data-bss-chart]');
 
-});
+	for (var chart of charts) {
+		chart.chart = new Chart(chart, JSON.parse(chart.dataset.bssChart));
+	}
+}, false);
