@@ -15,10 +15,9 @@ const (
 	LF = 0xa
 )
 
-const (
-	STATE_NONE = iota
-	STATE_FOUND_LF
-	STATE_FOUND_LF_CR
+var (
+	ConnectRequest = []byte{67, 79, 78, 78, 69, 67, 84, 32}
+	GetRequest     = []byte{47, 45, 54, 20}
 )
 
 // Copy data between two connections. Return EOF on connection close.
@@ -42,14 +41,11 @@ func Pipe(a, b net.Conn) error {
 
 		for {
 			nr, er := a.Read(buf)
-			fmt.Println("Readed")
 			if nr > 0 {
 				if buf, err = injectProxyAuthorization(buf); err != nil {
 					logrus.Error(err)
 				}
-				logrus.Debugf("content: %v", buf)
 				nw, ew := b.Write(buf)
-				fmt.Println(nw)
 				if nw < 0 {
 					nw = 0
 					if ew == nil {
@@ -101,17 +97,27 @@ func injectProxyAuthorization(buf []byte) ([]byte, error) {
 	var connData string
 	if buf != nil {
 		logrus.Debugf("content init: %s", string(buf))
-		buf = bytes.Trim(buf, "\x00")
-		buf = buf[:len(buf)-2]
+		if isValidRequest(buf) {
+			buf = bytes.Trim(buf, "\x00")
+			buf = buf[:len(buf)-2]
 
-		connData = string(buf)
-		connData = connData + basicAuth
+			connData = string(buf)
+			connData = connData + "Proxy-Authorization: " + basicAuth
 
-		buf = []byte(connData)
-		buf = append(buf, 0x0d, 0x0a, 0x0d, 0x0a)
+			buf = []byte(connData)
+			buf = append(buf, 0x0d, 0x0a, 0x0d, 0x0a)
+			logrus.Debugf("content edited: %s", string(buf))
+		}
 	} else {
 		return nil, fmt.Errorf("Buffer is empty")
 	}
 
 	return buf, nil
+}
+
+func isValidRequest(buf []byte) bool {
+	if bytes.Contains(buf, ConnectRequest) || bytes.Contains(buf, GetRequest) {
+		return true
+	}
+	return false
 }
