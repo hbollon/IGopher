@@ -21,14 +21,6 @@ func (bot *IGopher) connectToInstagramWebDriver() error {
 	}
 	randomSleep()
 
-	// // Proxy authentification process (if enabled)
-	// if bot.SeleniumStruct.Proxy.Enabled {
-	// 	if err := bot.ProxyLogIn(); err != nil {
-	// 		return fmt.Errorf("Proxy authentifiacation failed: %v", err)
-	// 	}
-	// 	randomSleep()
-	// }
-
 	// Accept cookies if requested
 	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Accept']", "xpath", 10); err == nil && find {
 		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Accept']", "xpath")
@@ -78,26 +70,6 @@ func (bot *IGopher) connectToInstagramWebDriver() error {
 		log.Warn("Instagram doesn't ask for informations saving, the login process may have failed.")
 	}
 
-	return nil
-}
-
-func (bot *IGopher) ProxyLogIn() error {
-	var err error
-	log.Info("Proxy authentification...")
-	// credentials := fmt.Sprintf(
-	// 	`{"username":"%s","password":"%s"}`,
-	// 	bot.SeleniumStruct.Proxy.Username,
-	// 	bot.SeleniumStruct.Proxy.Password,
-	// )
-	// log.Debug(credentials)
-	// if err = bot.SeleniumStruct.WebDriver.SetAlertText(credentials); err != nil {
-	// 	return err
-	// }
-	// log.Debug("Proxy credentials injection done.")
-	if err = bot.SeleniumStruct.WebDriver.AcceptAlert(); err != nil {
-		return err
-	}
-	log.Debug("Proxy alert acceptation done.")
 	return nil
 }
 

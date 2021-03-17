@@ -51,7 +51,7 @@ type Selenium struct {
 	Instance           *selenium.Service
 	Config             *ClientConfig
 	Opts               []selenium.ServiceOption
-	Proxy              proxy.ProxyConfig `yaml:"proxy"`
+	Proxy              proxy.Proxy `yaml:"proxy"`
 	WebDriver          selenium.WebDriver
 	SigTermRoutineExit chan bool
 }
@@ -119,7 +119,7 @@ func (s *Selenium) InitChromeWebDriver() {
 	caps.AddChrome(chromeCaps)
 	if s.Proxy.Enabled {
 		logrus.Debug("Proxy activated.")
-		if err = proxy.LaunchForwardingProxy(8880, s.Proxy); err == nil {
+		if err = proxy.InitForwardingProxy(8880, s.Proxy); err == nil {
 			caps.AddProxy(selenium.Proxy{
 				Type:    selenium.Manual,
 				HTTP:    fmt.Sprintf("localhost:%d", 8880),
@@ -130,6 +130,13 @@ func (s *Selenium) InitChromeWebDriver() {
 		} else {
 			log.Errorf("Failed to initialize proxy forwarder: %v", err)
 		}
+		// caps.AddProxy(selenium.Proxy{
+		// 	Type:    selenium.Manual,
+		// 	HTTP:    fmt.Sprintf("localhost:%d", 8880),
+		// 	FTP:     fmt.Sprintf("localhost:%d", 8880),
+		// 	SSL:     fmt.Sprintf("localhost:%d", 8880),
+		// 	NoProxy: nil,
+		// })
 	}
 
 	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", s.Config.Port))
