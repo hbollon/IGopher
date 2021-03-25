@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hbollon/igopher/internal/proxy"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
@@ -45,20 +46,12 @@ func init() {
 	}
 }
 
-type ProxyConfig struct {
-	IP       string `yaml:"ip"`
-	Port     int    `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	Enabled  bool   `yaml:"activated"`
-}
-
 // Selenium instance and opts
 type Selenium struct {
 	Instance           *selenium.Service
 	Config             *ClientConfig
 	Opts               []selenium.ServiceOption
-	Proxy              ProxyConfig `yaml:"proxy"`
+	Proxy              proxy.Proxy `yaml:"proxy"`
 	WebDriver          selenium.WebDriver
 	SigTermRoutineExit chan bool
 }
@@ -125,13 +118,23 @@ func (s *Selenium) InitChromeWebDriver() {
 	caps.AddChrome(chromeCaps)
 	if s.Proxy.Enabled {
 		logrus.Debug("Proxy activated.")
-		caps.AddProxy(selenium.Proxy{
-			Type:    selenium.Manual,
-			HTTP:    fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
-			FTP:     fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
-			SSL:     fmt.Sprintf("%s:%d", s.Proxy.IP, s.Proxy.Port),
-			NoProxy: nil,
-		})
+		if s.Proxy.WithAuth {
+			caps.AddProxy(selenium.Proxy{
+				Type:    selenium.Manual,
+				HTTP:    "127.0.0.1;8880",
+				FTP:     "127.0.0.1;8880",
+				SSL:     "127.0.0.1;8880",
+				NoProxy: nil,
+			})
+		} else {
+			caps.AddProxy(selenium.Proxy{
+				Type:    selenium.Manual,
+				HTTP:    fmt.Sprintf("%s:%d", s.Proxy.RemoteIP, s.Proxy.RemotePort),
+				FTP:     fmt.Sprintf("%s:%d", s.Proxy.RemoteIP, s.Proxy.RemotePort),
+				SSL:     fmt.Sprintf("%s:%d", s.Proxy.RemoteIP, s.Proxy.RemotePort),
+				NoProxy: nil,
+			})
+		}
 	}
 
 	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", s.Config.Port))
