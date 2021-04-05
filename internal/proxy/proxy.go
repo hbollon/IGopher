@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"runtime"
 	"syscall"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -43,21 +44,6 @@ func (p *Proxy) LaunchLocalForwarder() error {
 		p.RemotePassword,
 	}
 
-	// cmd := exec.Command(executable, options...)
-	// // Attach to the standard out to read what the command might print
-	// var stdBuffer bytes.Buffer
-	// mw := io.MultiWriter(os.Stdout, &stdBuffer)
-
-	// cmd.Stdout = mw
-	// cmd.Stderr = mw
-
-	// // Execute the command
-	// if err := cmd.Run(); err != nil {
-	// 	log.Panic(err)
-	// }
-
-	// log.Println(stdBuffer.String())
-
 	stopProxyForwarderChan := make(chan bool)
 	go func() {
 		defer close(stopProxyForwarderChan)
@@ -90,6 +76,7 @@ func (p *Proxy) LaunchLocalForwarder() error {
 			}
 		}
 	}()
+	time.Sleep(5 * time.Second)
 
 	return nil
 }

@@ -122,9 +122,9 @@ func (s *Selenium) InitChromeWebDriver() {
 			s.Proxy.LaunchLocalForwarder()
 			caps.AddProxy(selenium.Proxy{
 				Type:    selenium.Manual,
-				HTTP:    "127.0.0.1;8880",
-				FTP:     "127.0.0.1;8880",
-				SSL:     "127.0.0.1;8880",
+				HTTP:    "127.0.0.1:8880",
+				FTP:     "127.0.0.1:8880",
+				SSL:     "127.0.0.1:8880",
 				NoProxy: nil,
 			})
 		} else {
