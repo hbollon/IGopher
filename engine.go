@@ -119,6 +119,7 @@ func (s *Selenium) InitChromeWebDriver() {
 	if s.Proxy.Enabled {
 		logrus.Debug("Proxy activated.")
 		if s.Proxy.WithAuth {
+			s.Proxy.LaunchLocalForwarder()
 			caps.AddProxy(selenium.Proxy{
 				Type:    selenium.Manual,
 				HTTP:    "127.0.0.1;8880",

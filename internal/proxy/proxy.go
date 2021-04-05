@@ -5,6 +5,8 @@ import (
 	"os/exec"
 	"runtime"
 	"syscall"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Proxy store all remote proxy configuration
@@ -27,19 +29,67 @@ func (p *Proxy) LaunchLocalForwarder() error {
 	}
 
 	options := []string{
-		"-local_host 127.0.0.1",
-		"-local_port 8880",
-		fmt.Sprintf("-remote_host %s", p.RemoteIP),
-		fmt.Sprintf("-remote_port %d", p.RemotePort),
-		fmt.Sprintf("-usr %s", p.RemoteUsername),
-		fmt.Sprintf("-pwd %s", p.RemotePassword),
+		"-local_host",
+		"127.0.0.1",
+		"-local_port",
+		"8880",
+		"-remote_host",
+		p.RemoteIP,
+		"-remote_port",
+		fmt.Sprintf("%d", p.RemotePort),
+		"-usr",
+		p.RemoteUsername,
+		"-pwd",
+		p.RemotePassword,
 	}
 
-	cmd := exec.Command(executable, options...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Pdeathsig: syscall.SIGKILL,
-	}
-	cmd.Start()
+	// cmd := exec.Command(executable, options...)
+	// // Attach to the standard out to read what the command might print
+	// var stdBuffer bytes.Buffer
+	// mw := io.MultiWriter(os.Stdout, &stdBuffer)
+
+	// cmd.Stdout = mw
+	// cmd.Stderr = mw
+
+	// // Execute the command
+	// if err := cmd.Run(); err != nil {
+	// 	log.Panic(err)
+	// }
+
+	// log.Println(stdBuffer.String())
+
+	stopProxyForwarderChan := make(chan bool)
+	go func() {
+		defer close(stopProxyForwarderChan)
+		cmd := exec.Command(executable, options...)
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			Pdeathsig: syscall.SIGKILL,
+		}
+		if err := cmd.Start(); err != nil {
+			logrus.Errorf("Failed to launch local proxy-login-automator server: %v", err)
+		}
+		logrus.Debug("proxy-login-automator server successfully launched ! ")
+
+		errorProxyForwarderChan := make(chan error)
+		defer close(errorProxyForwarderChan)
+		go func() {
+			errorProxyForwarderChan <- cmd.Wait()
+		}()
+
+		for {
+			select {
+			case <-stopProxyForwarderChan:
+				cmd.Process.Kill()
+				logrus.Debug("Successfully stopped proxy-login-automator server.")
+				return
+			case err := <-errorProxyForwarderChan:
+				logrus.Error(err)
+				return
+			default:
+				break
+			}
+		}
+	}()
 
 	return nil
 }
