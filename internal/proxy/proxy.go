@@ -24,6 +24,9 @@ type Proxy struct {
 	errorProxyForwarderChan chan error
 }
 
+// LaunchLocalForwarder launch an instance of proxy-login-automator (https://github.com/hbollon/proxy-login-automator) which starts
+// a local forwarder proxy server in order to be able to automatically inject the "Proxy-Authorization" header
+// to all outgoing Selenium requests and forward them to the remote proxy configured by the user.
 func (p *Proxy) LaunchLocalForwarder() error {
 	var executable string
 	if runtime.GOOS == "windows" {
@@ -73,6 +76,7 @@ func (p *Proxy) LaunchLocalForwarder() error {
 			select {
 			case <-p.stopProxyForwarderChan:
 				cmd.Process.Kill()
+				<-p.errorProxyForwarderChan // ignore cmd.Wait() output
 				logrus.Debug("Successfully stopped proxy-login-automator server.")
 				p.running = false
 				return
@@ -90,6 +94,7 @@ func (p *Proxy) LaunchLocalForwarder() error {
 	return nil
 }
 
+// RestartForwarderProxy check for running instance of proxy-login-automator, stop it if exist and finally start a new one
 func (p *Proxy) RestartForwarderProxy() error {
 	logrus.Debug("Restarting proxy-login-automator...")
 	if p.running && p.stopProxyForwarderChan != nil {
@@ -103,6 +108,7 @@ func (p *Proxy) RestartForwarderProxy() error {
 	return nil
 }
 
+// StopForwarderProxy stop current running instance of proxy-login-automator
 func (p *Proxy) StopForwarderProxy() {
 	logrus.Debug("Stopping proxy-login-automator...")
 	if p.running && p.stopProxyForwarderChan != nil {
