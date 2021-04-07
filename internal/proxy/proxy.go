@@ -19,9 +19,9 @@ type Proxy struct {
 	WithAuth bool `yaml:"auth"`
 	Enabled  bool `yaml:"activated"`
 
-	errorProxyForwarderChan chan error
-	stopProxyForwarderChan  chan bool
 	running                 bool
+	stopProxyForwarderChan  chan bool
+	errorProxyForwarderChan chan error
 }
 
 func (p *Proxy) LaunchLocalForwarder() error {
@@ -51,9 +51,12 @@ func (p *Proxy) LaunchLocalForwarder() error {
 	go func() {
 		defer close(p.stopProxyForwarderChan)
 		cmd := exec.Command(executable, options...)
+
+		// Removed atm due to its incompatibility with OS other than Linux
 		// cmd.SysProcAttr = &syscall.SysProcAttr{
 		// 	Pdeathsig: syscall.SIGKILL,
 		// }
+
 		if err := cmd.Start(); err != nil {
 			logrus.Errorf("Failed to launch local proxy-login-automator server: %v", err)
 		}
@@ -85,4 +88,26 @@ func (p *Proxy) LaunchLocalForwarder() error {
 	time.Sleep(5 * time.Second)
 
 	return nil
+}
+
+func (p *Proxy) RestartForwarderProxy() error {
+	logrus.Debug("Restarting proxy-login-automator...")
+	if p.running && p.stopProxyForwarderChan != nil {
+		logrus.Debug("-> Stopping current proxy instance...")
+		p.stopProxyForwarderChan <- true
+	}
+	if err := p.LaunchLocalForwarder(); err != nil {
+		return err
+	}
+	logrus.Debug("Successfully restarted proxy-login-automator.")
+	return nil
+}
+
+func (p *Proxy) StopForwarderProxy() {
+	logrus.Debug("Stopping proxy-login-automator...")
+	if p.running && p.stopProxyForwarderChan != nil {
+		p.stopProxyForwarderChan <- true
+	} else {
+		logrus.Debug("proxy-login-automator isn't running.")
+	}
 }

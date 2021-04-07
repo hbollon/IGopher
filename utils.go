@@ -57,6 +57,7 @@ func randomMillisecondDuration(min, max float64) time.Duration {
 // Fatal closes all selenium stuff and call logrus fatal with error printing
 func (s *Selenium) Fatal(msg string, err error) {
 	s.CloseSelenium()
+	s.Proxy.StopForwarderProxy()
 	logrus.Fatal(msg, err)
 }
 

@@ -41,6 +41,7 @@ func main() {
 			a.On(astilectron.EventNameAppCrash, func(e astilectron.Event) (deleteListener bool) {
 				logrus.Error("Electron app has crashed!")
 				igopher.BotStruct.SeleniumStruct.CloseSelenium()
+				igopher.BotStruct.SeleniumStruct.Proxy.StopForwarderProxy()
 				return
 			})
 
@@ -48,6 +49,7 @@ func main() {
 			a.On(astilectron.EventNameAppClose, func(e astilectron.Event) (deleteListener bool) {
 				logrus.Debug("Electron app was closed")
 				igopher.BotStruct.SeleniumStruct.CloseSelenium()
+				igopher.BotStruct.SeleniumStruct.Proxy.StopForwarderProxy()
 				return
 			})
 

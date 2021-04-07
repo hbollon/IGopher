@@ -169,6 +169,7 @@ func (s *Selenium) SigTermCleaning() {
 			select {
 			case <-sig:
 				s.CloseSelenium()
+				s.Proxy.StopForwarderProxy()
 				os.Exit(1)
 			case <-s.SigTermRoutineExit:
 				s.SigTermRoutineExit = nil
