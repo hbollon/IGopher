@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
-	"syscall"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -19,6 +18,10 @@ type Proxy struct {
 
 	WithAuth bool `yaml:"auth"`
 	Enabled  bool `yaml:"activated"`
+
+	errorProxyForwarderChan chan error
+	stopProxyForwarderChan  chan bool
+	running                 bool
 }
 
 func (p *Proxy) LaunchLocalForwarder() error {
@@ -44,32 +47,35 @@ func (p *Proxy) LaunchLocalForwarder() error {
 		p.RemotePassword,
 	}
 
-	stopProxyForwarderChan := make(chan bool)
+	p.stopProxyForwarderChan = make(chan bool)
 	go func() {
-		defer close(stopProxyForwarderChan)
+		defer close(p.stopProxyForwarderChan)
 		cmd := exec.Command(executable, options...)
-		cmd.SysProcAttr = &syscall.SysProcAttr{
-			Pdeathsig: syscall.SIGKILL,
-		}
+		// cmd.SysProcAttr = &syscall.SysProcAttr{
+		// 	Pdeathsig: syscall.SIGKILL,
+		// }
 		if err := cmd.Start(); err != nil {
 			logrus.Errorf("Failed to launch local proxy-login-automator server: %v", err)
 		}
 		logrus.Debug("proxy-login-automator server successfully launched ! ")
+		p.running = true
 
-		errorProxyForwarderChan := make(chan error)
-		defer close(errorProxyForwarderChan)
+		p.errorProxyForwarderChan = make(chan error)
+		defer close(p.errorProxyForwarderChan)
 		go func() {
-			errorProxyForwarderChan <- cmd.Wait()
+			p.errorProxyForwarderChan <- cmd.Wait()
 		}()
 
 		for {
 			select {
-			case <-stopProxyForwarderChan:
+			case <-p.stopProxyForwarderChan:
 				cmd.Process.Kill()
 				logrus.Debug("Successfully stopped proxy-login-automator server.")
+				p.running = false
 				return
-			case err := <-errorProxyForwarderChan:
+			case err := <-p.errorProxyForwarderChan:
 				logrus.Error(err)
+				p.running = false
 				return
 			default:
 				break
