@@ -168,8 +168,7 @@ func (s *Selenium) SigTermCleaning() {
 		for {
 			select {
 			case <-sig:
-				s.CloseSelenium()
-				s.Proxy.StopForwarderProxy()
+				s.CleanUp()
 				os.Exit(1)
 			case <-s.SigTermRoutineExit:
 				s.SigTermRoutineExit = nil
@@ -179,6 +178,13 @@ func (s *Selenium) SigTermCleaning() {
 			}
 		}
 	}()
+}
+
+// CleanUp clean app ressources including Selenium stuff and proxy-login-automator instance (if exist)
+func (s *Selenium) CleanUp() {
+	s.CloseSelenium()
+	s.Proxy.StopForwarderProxy()
+	logrus.Info("IGopher's ressources successfully cleared!")
 }
 
 /* Browser methods */
