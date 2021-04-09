@@ -7,6 +7,22 @@ ready(() => {
         let dmBotHotReloadBtn = document.querySelector('#dmBotHotReloadBtn')
         let dmBotHotReloadIcn = document.querySelector('#dmBotHotReloadIcn')
 
+        // Dynamics buttons inits
+        var dmBotRunning = sessionStorage.getItem("botState");
+        if (dmBotRunning === "false" || dmBotRunning === null) {
+            dmBotLaunchBtn.classList.add('btn-success');
+            dmBotLaunchBtn.classList.remove('btn-danger');
+            dmBotLaunchIcon.classList.add('fa-rocket');
+            dmBotLaunchIcon.classList.remove('fa-spinner', 'fa-spin');
+            dmBotLaunchSpan.innerHTML = 'Launch !';
+        } else {
+            dmBotLaunchBtn.classList.add('btn-danger');
+            dmBotLaunchBtn.classList.remove('btn-success');
+            dmBotLaunchIcon.classList.add('fa-skull-crossbones');
+            dmBotLaunchIcon.classList.remove('fa-rocket');
+            dmBotLaunchSpan.innerHTML = 'Stop !';
+        }
+
         /// Buttons
         dmBotLaunchBtn.addEventListener("click", function() {
             if (dmBotRunning === "false" || dmBotRunning === false || dmBotRunning === null) {
@@ -18,7 +34,7 @@ ready(() => {
                         dmBotLaunchBtn.classList.remove('btn-success');
                         dmBotLaunchIcon.classList.add('fa-skull-crossbones');
                         dmBotLaunchIcon.classList.remove('fa-rocket');
-                        dmBotLaunchSpan.innerHTML('Stop !');
+                        dmBotLaunchSpan.innerHTML = 'Stop !';
                         sessionStorage.setItem("botState", true)
                     } else {
                         toastr.error(message.msg);
@@ -36,7 +52,7 @@ ready(() => {
                         dmBotLaunchBtn.classList.remove('btn-danger');
                         dmBotLaunchIcon.classList.add('fa-rocket');
                         dmBotLaunchIcon.classList.remove('fa-spinner', 'fa-spin');
-                        dmBotLaunchSpan.innerHTML('Launch !');
+                        dmBotLaunchSpan.innerHTML = 'Launch !';
                         sessionStorage.setItem("botState", false)
                     } else {
                         dmBotLaunchIcon.classList.add('fa-skull-crossbones');

@@ -1,4 +1,4 @@
-$(document).ready(function() {
+ready(() => {
     document.addEventListener('astilectron-ready', function() {
         var pager = {};
         pagerInit();
@@ -12,7 +12,7 @@ $(document).ready(function() {
                 } else {
                     toastr.error(message.msg)
                 }
-                $('#refreshLogsIcon').removeClass('fa-spin');
+                document.querySelector('#refreshLogsIcon').classList.remove('fa-spin');
             });
         }
 
@@ -93,19 +93,19 @@ $(document).ready(function() {
 
         // Controllers
         /// Buttons
-        $("#refreshLogsBtn").on("click", function() {
-            $('#refreshLogsIcon').addClass('fa-spin');
+        document.querySelector("#refreshLogsBtn").addEventListener("click", function() {
+            document.querySelector('#refreshLogsIcon').classList.add('fa-spin');
             refreshLogs();
         });
-        $("#prevPageBtn").on("click", function() {
+        document.querySelector("#prevPageBtn").addEventListener("click", function() {
             prevPage();
         });
-        $("#nextPageBtn").on("click", function() {
+        document.querySelector("#nextPageBtn").addEventListener("click", function() {
             nextPage();
         });
 
         /// Select
-        $("#elementsPerPageSelect").on("change", function() {
+        document.querySelector("#elementsPerPageSelect").addEventListener("change", function() {
             setPagination(this.value);
         });
     });
