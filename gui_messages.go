@@ -200,7 +200,12 @@ func (m *MessageIn) blacklistFormCallback() MessageOut {
 
 func (m *MessageIn) dmBotFormCallback() MessageOut {
 	var err error
-	var dmConfig AutoDmYaml
+	var dmConfig struct {
+		DmTemplates       SplitStringSlice `json:"dmTemplates" validate:"required"`
+		GreetingTemplate  string           `json:"greetingTemplate"`
+		GreetingActivated bool             `json:"greetingActivation,string"`
+		Activated         bool             `json:"dmActivation,string"`
+	}
 	// Unmarshal payload
 	if err = json.Unmarshal([]byte(m.Payload), &dmConfig); err != nil {
 		logrus.Errorf("Failed to unmarshal message payload: %v", err)
@@ -213,7 +218,10 @@ func (m *MessageIn) dmBotFormCallback() MessageOut {
 		return MessageOut{Status: ERROR, Msg: "Validation issue on dm tool form, please check given informations."}
 	}
 
-	config.AutoDm = dmConfig
+	config.AutoDm.DmTemplates = dmConfig.DmTemplates
+	config.AutoDm.Greeting.Template = dmConfig.GreetingTemplate
+	config.AutoDm.Greeting.Activated = dmConfig.GreetingActivated
+	config.AutoDm.Activated = dmConfig.Activated
 	ExportConfig(config)
 	return MessageOut{Status: SUCCESS, Msg: "Dm bot settings successfully updated!"}
 }
