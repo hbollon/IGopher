@@ -89,7 +89,7 @@ ready(() => {
             form.classList.add('was-validated')
         });
 
-        document.querySelector('#dmUserScrappingSettingsForm').addEventListener("click", function(e) {
+        document.querySelector('#dmUserScrappingSettingsFormBtn').addEventListener("click", function(e) {
             let message = { "msg": "dmUserScrappingSettingsForm" };
             let form = document.querySelector('#dmUserScrappingSettingsForm');
             if (!form.checkValidity()) {

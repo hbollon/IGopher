@@ -22,80 +22,108 @@ ready(() => {
             });
         });
 
-        document.querySelector("#reinstallDependenciesBtn").addEventListener("click", function() {
-            astilectron.sendMessage({ "msg": "reinstallDependencies" }, function(message) {
-                if (message.status === SUCCESS) {
-                    toastr.success(message.msg);
-                } else {
-                    toastr.error('Unknown error during dependencies reinstallation');
-                }
-            });
-        });
+        // document.querySelector("#reinstallDependenciesBtn").addEventListener("click", function() {
+        //     astilectron.sendMessage({ "msg": "reinstallDependencies" }, function(message) {
+        //         if (message.status === SUCCESS) {
+        //             toastr.success(message.msg);
+        //         } else {
+        //             toastr.error('Unknown error during dependencies reinstallation');
+        //         }
+        //     });
+        // });
 
         /// Forms
         // Settings view
-        document.querySelector('#igCredentialsForm').addEventListener("click", function() {
+        document.querySelector('#igCredentialsFormBtn').addEventListener("click", function(e) {
             let message = { "msg": "igCredentialsForm" };
-            let content = document.querySelector('#igCredentialsForm').serializeObject();
-            if (typeof content !== "undefined") {
-                message.payload = content;
-            }
-            astilectron.sendMessage(message, function(message) {
-                if (message.status === SUCCESS) {
-                    toastr.success(message.msg);
-                } else {
-                    toastr.error(message.msg, "Error during settings saving!");
+            let form = document.querySelector('#igCredentialsForm');
+            if (!form.checkValidity()) {
+                e.preventDefault()
+                e.stopPropagation()
+            } else {
+                if (typeof content !== "undefined") {
+                    let formData = new FormData(form);
+                    message.payload = serialize(formData);
                 }
-            });
-            return false; // avoid page reload
+                astilectron.sendMessage(message, function(message) {
+                    if (message.status === SUCCESS) {
+                        toastr.success(message.msg);
+                    } else {
+                        toastr.error(message.msg, "Error during settings saving!");
+                    }
+                });
+            }
+
+            form.classList.add('was-validated')
         });
 
-        document.querySelector('#quotasForm').addEventListener("click", function() {
+        document.querySelector('#quotasFormBtn').addEventListener("click", function(e) {
             let message = { "msg": "quotasForm" };
-            let content = document.querySelector('#quotasForm').serializeObject();
-            if (typeof content !== "undefined") {
-                message.payload = content;
-            }
-            astilectron.sendMessage(message, function(message) {
-                if (message.status === SUCCESS) {
-                    toastr.success(message.msg);
-                } else {
-                    toastr.error(message.msg, "Error during settings saving!");
+            let form = document.querySelector('#quotasForm');
+            if (!form.checkValidity()) {
+                e.preventDefault()
+                e.stopPropagation()
+            } else {
+                if (typeof content !== "undefined") {
+                    let formData = new FormData(form);
+                    message.payload = serialize(formData);
                 }
-            });
-            return false; // avoid page reload
+                astilectron.sendMessage(message, function(message) {
+                    if (message.status === SUCCESS) {
+                        toastr.success(message.msg);
+                    } else {
+                        toastr.error(message.msg, "Error during settings saving!");
+                    }
+                });
+            }
+
+            form.classList.add('was-validated')
         });
 
-        document.querySelector('#schedulerForm').addEventListener("click", function(e) {
+        document.querySelector('#schedulerFormBtn').addEventListener("click", function(e) {
             let message = { "msg": "schedulerForm" };
-            let content = document.querySelector('#schedulerForm').serializeObject();
-            if (typeof content !== "undefined") {
-                message.payload = content;
-            }
-            astilectron.sendMessage(message, function(message) {
-                if (message.status === SUCCESS) {
-                    toastr.success(message.msg);
-                } else {
-                    toastr.error(message.msg, "Error during settings saving!");
+            let form = document.querySelector('#schedulerForm');
+            if (!form.checkValidity()) {
+                e.preventDefault()
+                e.stopPropagation()
+            } else {
+                if (typeof content !== "undefined") {
+                    let formData = new FormData(form);
+                    message.payload = serialize(formData);
                 }
-            });
-            return false; // avoid page reload
+                astilectron.sendMessage(message, function(message) {
+                    if (message.status === SUCCESS) {
+                        toastr.success(message.msg);
+                    } else {
+                        toastr.error(message.msg, "Error during settings saving!");
+                    }
+                });
+            }
+
+            form.classList.add('was-validated')
         });
 
-        document.querySelector('#blacklistForm').addEventListener("click", function() {
+        document.querySelector('#blacklistFormBtn').addEventListener("click", function(e) {
             let message = { "msg": "blacklistForm" };
-            let content = document.querySelector('#blacklistForm').serializeObject();
-            if (typeof content !== "undefined") {
-                message.payload = content;
-            }
-            astilectron.sendMessage(message, function(message) {
-                if (message.status === SUCCESS) {
-                    toastr.success(message.msg);
-                } else {
-                    toastr.error(message.msg, "Error during settings saving!");
+            let form = document.querySelector('#blacklistForm');
+            if (!form.checkValidity()) {
+                e.preventDefault()
+                e.stopPropagation()
+            } else {
+                if (typeof content !== "undefined") {
+                    let formData = new FormData(form);
+                    message.payload = serialize(formData);
                 }
-            });
-            return false; // avoid page reload
+                astilectron.sendMessage(message, function(message) {
+                    if (message.status === SUCCESS) {
+                        toastr.success(message.msg);
+                    } else {
+                        toastr.error(message.msg, "Error during settings saving!");
+                    }
+                });
+            }
+
+            form.classList.add('was-validated')
         });
     });
 });
