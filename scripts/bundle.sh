@@ -3,7 +3,7 @@
 
 # Check if pwd is located inside the SkillsList folder
 if [ $(basename "$PWD") != "gui-bundler" ]; then
-    cd cmd/igopher/gui-bundler
+    cd "${0%/*}/../cmd/igopher/gui-bundler"
     if [ $(basename "$PWD") != "gui-bundler" ]; then
         echo "Invalid current directory! Please cd to the IGopher directory and re-run this script."
         exit 1

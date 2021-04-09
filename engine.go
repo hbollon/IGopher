@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hbollon/igopher/internal/proxy"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
@@ -50,6 +51,7 @@ type Selenium struct {
 	Instance           *selenium.Service
 	Config             *ClientConfig
 	Opts               []selenium.ServiceOption
+	Proxy              proxy.Proxy `yaml:"proxy"`
 	WebDriver          selenium.WebDriver
 	SigTermRoutineExit chan bool
 }
@@ -114,6 +116,27 @@ func (s *Selenium) InitChromeWebDriver() {
 		},
 	}
 	caps.AddChrome(chromeCaps)
+	if s.Proxy.Enabled {
+		logrus.Debug("Proxy activated.")
+		if s.Proxy.WithAuth {
+			s.Proxy.LaunchLocalForwarder()
+			caps.AddProxy(selenium.Proxy{
+				Type:    selenium.Manual,
+				HTTP:    "127.0.0.1:8880",
+				FTP:     "127.0.0.1:8880",
+				SSL:     "127.0.0.1:8880",
+				NoProxy: nil,
+			})
+		} else {
+			caps.AddProxy(selenium.Proxy{
+				Type:    selenium.Manual,
+				HTTP:    fmt.Sprintf("%s:%d", s.Proxy.RemoteIP, s.Proxy.RemotePort),
+				FTP:     fmt.Sprintf("%s:%d", s.Proxy.RemoteIP, s.Proxy.RemotePort),
+				SSL:     fmt.Sprintf("%s:%d", s.Proxy.RemoteIP, s.Proxy.RemotePort),
+				NoProxy: nil,
+			})
+		}
+	}
 
 	s.WebDriver, err = selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", s.Config.Port))
 	if err != nil {
@@ -145,7 +168,7 @@ func (s *Selenium) SigTermCleaning() {
 		for {
 			select {
 			case <-sig:
-				s.CloseSelenium()
+				s.CleanUp()
 				os.Exit(1)
 			case <-s.SigTermRoutineExit:
 				s.SigTermRoutineExit = nil
@@ -155,6 +178,13 @@ func (s *Selenium) SigTermCleaning() {
 			}
 		}
 	}()
+}
+
+// CleanUp clean app ressources including Selenium stuff and proxy-login-automator instance (if exist)
+func (s *Selenium) CleanUp() {
+	s.CloseSelenium()
+	s.Proxy.StopForwarderProxy()
+	logrus.Info("IGopher's ressources successfully cleared!")
 }
 
 /* Browser methods */

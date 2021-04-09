@@ -157,6 +157,7 @@ func launchDmBot(ctx context.Context) {
 	BotStruct.SeleniumStruct.InitializeSelenium(clientConfig)
 	BotStruct.SeleniumStruct.InitChromeWebDriver()
 	defer BotStruct.SeleniumStruct.CloseSelenium()
+	defer BotStruct.SeleniumStruct.Proxy.StopForwarderProxy()
 
 	// Creation of needed communication channels and deferring their closing
 	exitedCh = make(chan bool)

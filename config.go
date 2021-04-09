@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/hbollon/igopher/internal/proxy"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -35,7 +36,7 @@ func (strSlice *SplitStringSlice) UnmarshalJSON(data []byte) error {
 // Settings are readed from Yaml config files.
 type IGopher struct {
 	// SeleniumStruct contain all selenium stuff and config
-	SeleniumStruct Selenium
+	SeleniumStruct Selenium `yaml:"webdriver"`
 	// User credentials
 	UserAccount Account `yaml:"account"`
 	// Automatic messages sending module
@@ -111,6 +112,7 @@ type BotConfigYaml struct {
 	Quotas    QuotasYaml    `yaml:"quotas"`
 	Schedule  ScheduleYaml  `yaml:"schedule"`
 	Blacklist BlacklistYaml `yaml:"blacklist"`
+	Selenium  SeleniumYaml  `yaml:"webdriver"`
 }
 
 // AccountYaml is the yaml account configuration representation
@@ -155,6 +157,12 @@ type ScheduleYaml struct {
 // BlacklistYaml is the yaml blacklist module configuration representation
 type BlacklistYaml struct {
 	Activated bool `json:"blacklistActivation,string" yaml:"activated"`
+}
+
+// SeleniumYaml is the yaml selenium configuration representation
+
+type SeleniumYaml struct {
+	Proxy proxy.Proxy `json:"proxy" yaml:"proxy"`
 }
 
 // CreateClientConfig create default ClientConfig instance and return a pointer on it
@@ -310,6 +318,16 @@ func ResetBotConfig() BotConfigYaml {
 		},
 		Blacklist: BlacklistYaml{
 			Activated: true,
+		},
+		Selenium: SeleniumYaml{
+			Proxy: proxy.Proxy{
+				RemoteIP:       "",
+				RemotePort:     8080,
+				RemoteUsername: "",
+				RemotePassword: "",
+				WithAuth:       false,
+				Enabled:        false,
+			},
 		},
 	}
 }

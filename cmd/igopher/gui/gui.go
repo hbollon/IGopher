@@ -25,6 +25,7 @@ const (
 
 func main() {
 	igopher.CheckEnvironment()
+	defer igopher.BotStruct.SeleniumStruct.CleanUp()
 
 	var w *astilectron.Window
 	// Create astilectron
@@ -44,20 +45,6 @@ func main() {
 
 	// Handle signals
 	a.HandleSignals()
-
-	// Add a listener on Astilectron crash event for selenium cleaning
-	a.On(astilectron.EventNameAppCrash, func(e astilectron.Event) (deleteListener bool) {
-		log.Error("Electron app has crashed!")
-		igopher.BotStruct.SeleniumStruct.CloseSelenium()
-		return
-	})
-
-	// Add a listener on Astilectron close event for selenium cleaning
-	a.On(astilectron.EventNameAppClose, func(e astilectron.Event) (deleteListener bool) {
-		log.Debug("Electron app was closed")
-		igopher.BotStruct.SeleniumStruct.CloseSelenium()
-		return
-	})
 
 	// Start
 	if err = a.Start(); err != nil {
