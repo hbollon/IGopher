@@ -68,7 +68,7 @@ func main() {
 
 	// Open dev tools panel if flag is set
 	// if *flags.DevToolsFlag {
-	w.OpenDevTools()
+	// w.OpenDevTools()
 	// }
 
 	// Blocking pattern

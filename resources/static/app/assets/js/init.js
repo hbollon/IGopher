@@ -1,8 +1,8 @@
 // iziToast configuration for notification system
 iziToast.settings({
-    timeout: 5000,
+    timeout: 8000,
+    closeOnClick: true,
     resetOnHover: false,
-    icon: 'material-icons',
     transitionIn: 'flipInX',
     transitionOut: 'flipOutX',
 });
