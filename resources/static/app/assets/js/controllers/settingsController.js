@@ -5,9 +5,13 @@ ready(() => {
         document.querySelector("#resetGlobalDefaultSettingsBtn").addEventListener("click", function() {
             astilectron.sendMessage({ "msg": "resetGlobalDefaultSettings" }, function(message) {
                 if (message.status === SUCCESS) {
-                    toastr.success(message.msg);
+                    iziToast.success({
+                        message: message.msg,
+                    });
                 } else {
-                    toastr.error('Unknown error during global settings reset');
+                    iziToast.error({
+                        message: "Unknown error during global settings reset",
+                    });
                 }
             });
         });
@@ -15,9 +19,13 @@ ready(() => {
         document.querySelector("#clearBotDataBtn").addEventListener("click", function() {
             astilectron.sendMessage({ "msg": "clearAllData" }, function(message) {
                 if (message.status === SUCCESS) {
-                    toastr.success(message.msg);
+                    iziToast.success({
+                        message: message.msg,
+                    });
                 } else {
-                    toastr.error(message.msg);
+                    iziToast.error({
+                        message: message.msg,
+                    });
                 }
             });
         });
@@ -25,7 +33,9 @@ ready(() => {
         // document.querySelector("#reinstallDependenciesBtn").addEventListener("click", function() {
         //     astilectron.sendMessage({ "msg": "reinstallDependencies" }, function(message) {
         //         if (message.status === SUCCESS) {
-        //             toastr.success(message.msg);
+        //             iziToast.success({
+        //     message: message.msg,
+        // });
         //         } else {
         //             toastr.error('Unknown error during dependencies reinstallation');
         //         }
@@ -47,9 +57,14 @@ ready(() => {
                 }
                 astilectron.sendMessage(message, function(message) {
                     if (message.status === SUCCESS) {
-                        toastr.success(message.msg);
+                        iziToast.success({
+                            message: message.msg,
+                        });
                     } else {
-                        toastr.error(message.msg, "Error during settings saving!");
+                        iziToast.error({
+                            title: "Error during settings saving!",
+                            message: message.msg,
+                        });
                     }
                 });
             }
@@ -70,9 +85,14 @@ ready(() => {
                 }
                 astilectron.sendMessage(message, function(message) {
                     if (message.status === SUCCESS) {
-                        toastr.success(message.msg);
+                        iziToast.success({
+                            message: message.msg,
+                        });
                     } else {
-                        toastr.error(message.msg, "Error during settings saving!");
+                        iziToast.error({    
+                            title: "Error during settings saving!",
+                            message: message.msg,
+                        });
                     }
                 });
             }
@@ -93,9 +113,14 @@ ready(() => {
                 }
                 astilectron.sendMessage(message, function(message) {
                     if (message.status === SUCCESS) {
-                        toastr.success(message.msg);
+                        iziToast.success({
+                            message: message.msg,
+                        });
                     } else {
-                        toastr.error(message.msg, "Error during settings saving!");
+                        iziToast.error({
+                            title: "Error during settings saving!",
+                            message: message.msg,
+                        });
                     }
                 });
             }
@@ -116,9 +141,14 @@ ready(() => {
                 }
                 astilectron.sendMessage(message, function(message) {
                     if (message.status === SUCCESS) {
-                        toastr.success(message.msg);
+                        iziToast.success({
+                            message: message.msg,
+                        });
                     } else {
-                        toastr.error(message.msg, "Error during settings saving!");
+                        iziToast.error({
+                            title: "Error during settings saving!",
+                            message: message.msg,
+                        });
                     }
                 });
             }

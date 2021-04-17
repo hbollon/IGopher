@@ -1,21 +1,11 @@
-// Toastr configuration for notification system
-toastr.options = {
-    "closeButton": true,
-    "debug": false,
-    "newestOnTop": true,
-    "progressBar": false,
-    "positionClass": "toast-top-right",
-    "preventDuplicates": false,
-    "onclick": null,
-    "showDuration": "300",
-    "hideDuration": "1000",
-    "timeOut": "5000",
-    "extendedTimeOut": "1000",
-    "showEasing": "swing",
-    "hideEasing": "linear",
-    "showMethod": "fadeIn",
-    "hideMethod": "fadeOut"
-}
+// iziToast configuration for notification system
+iziToast.settings({
+    timeout: 5000,
+    resetOnHover: false,
+    icon: 'material-icons',
+    transitionIn: 'flipInX',
+    transitionOut: 'flipOutX',
+});
 
 // Wait for the astilectron namespace to be ready
 document.addEventListener('astilectron-ready', function() {
@@ -33,7 +23,9 @@ document.addEventListener('astilectron-ready', function() {
                 dmBotLaunchIcon.classList.add('fa-rocket');
                 dmBotLaunchIcon.classList.remove('fa-spinner', 'fa-spin');
                 dmBotLaunchSpan.innerHTML = 'Launch !';
-                toastr.error(message.payload)
+                iziToast.error({
+                    message: message.payload,
+                });
             }
         }
     });

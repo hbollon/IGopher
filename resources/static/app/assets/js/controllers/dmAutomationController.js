@@ -28,7 +28,10 @@ ready(() => {
             if (dmBotRunning === "false" || dmBotRunning === false || dmBotRunning === null) {
                 astilectron.sendMessage({ "msg": "launchDmBot" }, function(message) {
                     if (message.status === SUCCESS) {
-                        toastr.success(message.msg);
+                        iziToast.success({
+                            message: message.msg,
+                        });
+
                         dmBotRunning = true
                         dmBotLaunchBtn.classList.add('btn-danger');
                         dmBotLaunchBtn.classList.remove('btn-success');
@@ -37,16 +40,22 @@ ready(() => {
                         dmBotLaunchSpan.innerHTML = 'Stop !';
                         sessionStorage.setItem("botState", true)
                     } else {
-                        toastr.error(message.msg);
+                        iziToast.error({
+                            message: message.msg,
+                        });
                     }
                 });
             } else {
                 dmBotLaunchIcon.classList.add('fa-spinner', 'fa-spin');
                 dmBotLaunchIcon.classList.remove('fa-skull-crossbones');
-                toastr.info("Stop procedure launched, the bot will stop once the current action is finished.")
+                iziToast.info({
+                    message: "Stop procedure launched, the bot will stop once the current action is finished.",
+                });
                 astilectron.sendMessage({ "msg": "stopDmBot" }, function(message) {
                     if (message.status === SUCCESS) {
-                        toastr.success(message.msg);
+                        iziToast.success({
+                            message: message.msg,
+                        });
                         dmBotRunning = false
                         dmBotLaunchBtn.classList.add('btn-success');
                         dmBotLaunchBtn.classList.remove('btn-danger');
@@ -57,7 +66,9 @@ ready(() => {
                     } else {
                         dmBotLaunchIcon.classList.add('fa-skull-crossbones');
                         dmBotLaunchIcon.classList.remove('fa-spinner', 'fa-spin');
-                        toastr.error(message.msg);
+                        iziToast.error({
+                            message: message.msg,
+                        });
                     }
                 });
             }
@@ -66,14 +77,20 @@ ready(() => {
         dmBotHotReloadBtn.addEventListener("click", function() {
             dmBotHotReloadIcn.classList.add('fa-spinner', 'fa-spin');
             dmBotHotReloadIcn.classList.remove('fa-fire');
-            toastr.info("Hot reload launched, the bot will update once the current action is finished.")
+            iziToast.info({
+                message: "Hot reload launched, the bot will update once the current action is finished.",
+            });
             astilectron.sendMessage({ "msg": "hotReloadBot" }, function(message) {
                 if (message.status === SUCCESS) {
-                    toastr.success(message.msg);
+                    iziToast.success({
+                        message: message.msg,
+                    });
                     dmBotHotReloadIcn.classList.add('fa-fire');
                     dmBotHotReloadIcn.classList.remove('fa-spinner', 'fa-spin');
                 } else {
-                    toastr.error(message.msg);
+                    iziToast.error({
+                        message: message.msg,
+                    });
                     dmBotHotReloadIcn.classList.add('fa-fire');
                     dmBotHotReloadIcn.classList.remove('fa-spinner', 'fa-spin');
                 }
@@ -95,9 +112,14 @@ ready(() => {
                 }
                 astilectron.sendMessage(message, function(message) {
                     if (message.status === SUCCESS) {
-                        toastr.success(message.msg);
+                        iziToast.success({
+                            message: message.msg,
+                        });
                     } else {
-                        toastr.error(message.msg, "Error during settings saving!");
+                        iziToast.error({
+                            title: "Error during settings saving!",
+                            message: message.msg,
+                        });
                     }
                 });
             }
@@ -118,9 +140,14 @@ ready(() => {
                 }
                 astilectron.sendMessage(message, function(message) {
                     if (message.status === SUCCESS) {
-                        toastr.success(message.msg);
+                        iziToast.success({
+                            message: message.msg,
+                        });
                     } else {
-                        toastr.error(message.msg, "Error during settings saving!");
+                        iziToast.error({
+                            title: "Error during settings saving!",
+                            message: message.msg,
+                        });
                     }
                 });
             }
