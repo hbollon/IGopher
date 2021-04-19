@@ -1,5 +1,6 @@
 // iziToast configuration for notification system
 iziToast.settings({
+    position: 'topRight',
     timeout: 8000,
     closeOnClick: true,
     resetOnHover: false,
