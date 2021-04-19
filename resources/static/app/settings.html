@@ -127,6 +127,33 @@
                         <div class="col-lg-6 col-xl-6">
                             <div class="card shadow mb-4">
                                 <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-primary fw-bold m-0">Proxy</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-start" style="margin-right: 15px;margin-left: 15px;">
+                                        <form id="proxyForm" novalidate="">
+                                            <div class="form-group mb-3"><div class="input-group"><span class="input-group-text">IP Adress</span><input type="text" class="form-control" name="ip" required /><div class="invalid-feedback">Invalid input!</div></div></div>
+                                            <div class="form-group mb-3"><div class="input-group"><span class="input-group-text">Port</span><input type="number" class="form-control" name="port" required /><div class="invalid-feedback">Invalid input!</div></div></div>
+                                            <hr>
+                                            <div class="row" style="margin-bottom: 12px;">
+                                                <div class="col d-flex d-xxl-flex justify-content-center align-items-center">
+                                                    <p style="margin-bottom: 0px;">Authentication:</p>
+                                                </div>
+                                                <div class="col d-flex d-xxl-flex justify-content-center align-items-center justify-content-xxl-center align-items-xxl-center"><input type="checkbox" id="proxyAuthCheck"></div>
+                                            </div>
+                                            <div class="d-none" id="proxyAuthInputs">
+                                                <div class="form-group mb-3"><div class="input-group"><span class="input-group-text">Username</span><input type="text" class="form-control auth-proxy" name="username" /><div class="invalid-feedback">Invalid input!</div></div></div>
+                                                <div class="form-group mb-3"><div class="input-group"><span class="input-group-text">Password</span><input type="password" class="form-control auth-proxy" name="password" /><div class="invalid-feedback">Invalid input!</div></div></div>
+                                            </div>
+                                            <hr>
+                                            <div class="form-group mb-3"><label class="form-label">Activation:&nbsp;</label><div class="form-check disabled"><input type="radio" class="form-check-input" id="proxyCheck-1" value="true" name="proxyActivation" required /><label class="form-check-label" for="proxyCheck-1">Enabled</label></div><div class="form-check"><input type="radio" class="form-check-input" id="proxyCheck-2" value="false" name="proxyActivation" required checked/><label class="form-check-label" for="proxyCheck-2">Disabled</label><div class="invalid-feedback">Invalid input!</div></div></div>
+                                            <div><button class="btn btn-primary" id="proxyFormBtn" type="button">Save</button><button class="btn btn-secondary" type="reset" style="margin-left: 5px;">Reset to default</button></div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
                                     <h6 class="text-danger fw-bold m-0">Danger Zone</h6>
                                 </div>
                                 <div class="card-body">

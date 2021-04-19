@@ -155,5 +155,57 @@ ready(() => {
 
             form.classList.add('was-validated')
         });
+
+        document.querySelector('#proxyFormBtn').addEventListener("click", function(e) {
+            let message = { "msg": "proxyForm" };
+            let form = document.querySelector('#proxyForm');
+            if (!form.checkValidity()) {
+                e.preventDefault()
+                e.stopPropagation()
+            } else {
+                if (typeof content !== "undefined") {
+                    let formData = new FormData(form);
+                    message.payload = serialize(formData);
+                }
+                astilectron.sendMessage(message, function(message) {
+                    if (message.status === SUCCESS) {
+                        iziToast.success({
+                            message: message.msg,
+                        });
+                    } else {
+                        iziToast.error({
+                            title: "Error during settings saving!",
+                            message: message.msg,
+                        });
+                    }
+                });
+            }
+
+            form.classList.add('was-validated')
+        });
+        document.querySelector('#proxyAuthCheck').addEventListener("click", function(e) {
+            let checkbox = document.querySelector('#proxyAuthCheck')
+            let divAuthInputs = document.querySelector('#proxyAuthInputs');
+            if (checkbox.checked) {
+                if (divAuthInputs.classList.contains('d-none'))
+                    divAuthInputs.classList.remove('d-none');
+            } else {
+                if (!divAuthInputs.classList.contains('d-none'))
+                    divAuthInputs.classList.add('d-none');
+            }
+
+            let authInputs = document.querySelectorAll('.auth-proxy');
+            authInputs.forEach(element => {
+                if (checkbox.checked) {
+                    if (element.required !== true)
+                        element.required = true;
+                } else {
+                    if (element.required !== false)
+                        element.required = false;
+                }
+            });
+
+        });
+
     });
 });
