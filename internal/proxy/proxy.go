@@ -10,14 +10,15 @@ import (
 )
 
 // Proxy store all remote proxy configuration
+// TODO: Add fields validation on this struct
 type Proxy struct {
-	RemoteIP       string `yaml:"ip"`
-	RemotePort     int    `yaml:"port"`
-	RemoteUsername string `yaml:"username"`
-	RemotePassword string `yaml:"password"`
+	RemoteIP       string `json:"ip" yaml:"ip"`
+	RemotePort     int    `json:"port,string" yaml:"port"`
+	RemoteUsername string `json:"username" yaml:"username"`
+	RemotePassword string `json:"password" yaml:"password"`
 
-	WithAuth bool `yaml:"auth"`
-	Enabled  bool `yaml:"activated"`
+	WithAuth bool `json:"auth,string" yaml:"auth"`
+	Enabled  bool `json:"proxyActivation,string" yaml:"activated"`
 
 	running                 bool
 	stopProxyForwarderChan  chan bool

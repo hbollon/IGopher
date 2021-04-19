@@ -160,7 +160,6 @@ type BlacklistYaml struct {
 }
 
 // SeleniumYaml is the yaml selenium configuration representation
-
 type SeleniumYaml struct {
 	Proxy proxy.Proxy `json:"proxy" yaml:"proxy"`
 }

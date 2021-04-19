@@ -7,6 +7,7 @@ import (
 
 	"github.com/asticode/go-astilectron"
 	"github.com/go-playground/validator/v10"
+	"github.com/hbollon/igopher/internal/proxy"
 	"github.com/sirupsen/logrus"
 )
 
@@ -82,6 +83,9 @@ func HandleMessages(w *astilectron.Window) {
 
 		case "dmUserScrappingSettingsForm":
 			return i.dmScrapperFormCallback()
+
+		case "proxyForm":
+			return i.proxyFormCallback()
 
 		case "launchDmBot":
 			return i.launchDmBotCallback()
@@ -244,6 +248,26 @@ func (m *MessageIn) dmScrapperFormCallback() MessageOut {
 	config.SrcUsers = scrapperConfig
 	ExportConfig(config)
 	return MessageOut{Status: SUCCESS, Msg: "Scrapper settings successfully updated!"}
+}
+
+func (m *MessageIn) proxyFormCallback() MessageOut {
+	var err error
+	var proxyConfig proxy.Proxy
+	// Unmarshal payload
+	if err = json.Unmarshal([]byte(m.Payload), &proxyConfig); err != nil {
+		logrus.Errorf("Failed to unmarshal message payload: %v", err)
+		return MessageOut{Status: ERROR, Msg: "Failed to unmarshal message payload."}
+	}
+
+	err = validate.Struct(proxyConfig)
+	if err != nil {
+		logrus.Warning("Validation issue on dm tool form, abort.")
+		return MessageOut{Status: ERROR, Msg: "Validation issue on dm tool form, please check given informations."}
+	}
+
+	config.Selenium.Proxy = proxyConfig
+	ExportConfig(config)
+	return MessageOut{Status: SUCCESS, Msg: "Proxy settings successfully updated!"}
 }
 
 func (m *MessageIn) launchDmBotCallback() MessageOut {

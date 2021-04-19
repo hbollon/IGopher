@@ -183,13 +183,15 @@ ready(() => {
 
             form.classList.add('was-validated')
         });
-        document.querySelector('#proxyAuthCheck').addEventListener("click", function(e) {
+        document.querySelector('#proxyAuthCheck').addEventListener("change", function(e) {
             let checkbox = document.querySelector('#proxyAuthCheck')
             let divAuthInputs = document.querySelector('#proxyAuthInputs');
             if (checkbox.checked) {
+                checkbox.value = 'true';
                 if (divAuthInputs.classList.contains('d-none'))
                     divAuthInputs.classList.remove('d-none');
             } else {
+                checkbox.value = 'false';
                 if (!divAuthInputs.classList.contains('d-none'))
                     divAuthInputs.classList.add('d-none');
             }
