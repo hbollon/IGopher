@@ -112,7 +112,7 @@ func HandleMessages(w *astilectron.Window) {
 func (m *MessageIn) resetGlobalSettingsCallback() MessageOut {
 	config = ResetBotConfig()
 	ExportConfig(config)
-	return MessageOut{Status: SUCCESS, Msg: "Global configuration was successfully reseted!"}
+	return MessageOut{Status: SUCCESS, Msg: "Global configuration was successfully reset!"}
 }
 
 func (m *MessageIn) clearDataCallback() MessageOut {
@@ -261,8 +261,8 @@ func (m *MessageIn) proxyFormCallback() MessageOut {
 
 	err = validate.Struct(proxyConfig)
 	if err != nil {
-		logrus.Warning("Validation issue on dm tool form, abort.")
-		return MessageOut{Status: ERROR, Msg: "Validation issue on dm tool form, please check given informations."}
+		logrus.Warning("Validation issue on proxy form, abort.")
+		return MessageOut{Status: ERROR, Msg: "Validation issue on proxy form, please check given informations."}
 	}
 
 	config.Selenium.Proxy = proxyConfig

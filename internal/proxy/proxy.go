@@ -10,10 +10,9 @@ import (
 )
 
 // Proxy store all remote proxy configuration
-// TODO: Add fields validation on this struct
 type Proxy struct {
-	RemoteIP       string `json:"ip" yaml:"ip"`
-	RemotePort     int    `json:"port,string" yaml:"port"`
+	RemoteIP       string `json:"ip" yaml:"ip" validate:"required,contains=."`
+	RemotePort     int    `json:"port,string" yaml:"port" validate:"required,numeric,min=1,max=65535"`
 	RemoteUsername string `json:"username" yaml:"username"`
 	RemotePassword string `json:"password" yaml:"password"`
 
