@@ -1,5 +1,20 @@
+var igopherConfig;
+
 ready(() => {
     document.addEventListener('astilectron-ready', function() {
+
+        // Get actual IGopher configuration to fill inputs
+        astilectron.sendMessage({ "msg": "getConfig" }, function(message) {
+            if (message.status === SUCCESS) {
+                igopherConfig = JSON.parse(message.msg);
+                console.log(igopherConfig);
+                fillInputs();
+            } else {
+                iziToast.error({
+                    message: message.msg,
+                });
+            }
+        });
 
         /// Buttons
         document.querySelector("#resetGlobalDefaultSettingsBtn").addEventListener("click", function() {
@@ -211,3 +226,21 @@ ready(() => {
 
     });
 });
+
+function fillInputs() {
+    document.getElementById("dmHourInput").value = igopherConfig.quotas.dmHour;
+    document.getElementById("dmDayInput").value = igopherConfig.quotas.dmDay;
+    document.getElementById("beginAtInput").value = igopherConfig.schedule.beginAt;
+    document.getElementById("endAtInput").value = igopherConfig.schedule.endAt;
+    document.getElementById("ipInput").value = igopherConfig.webdriver.proxy.ip;
+    document.getElementById("portInput").value = igopherConfig.webdriver.proxy.port;
+
+    if (igopherConfig.webdriver.proxy.auth == "true") {
+        document.getElementById("proxyAuthCheck").click();
+        document.getElementById("proxyUsernameInput").value = igopherConfig.webdriver.proxy.username;
+        document.getElementById("proxyPasswordInput").value = igopherConfig.webdriver.proxy.password;
+    }
+
+    document.getElementById("usernameInput").value = igopherConfig.account.username;
+    document.getElementById("passwordInput").value = igopherConfig.account.password;
+}

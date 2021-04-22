@@ -1,5 +1,20 @@
+var igopherConfig;
+
 ready(() => {
     document.addEventListener('astilectron-ready', function() {
+
+        // Get actual IGopher configuration to fill inputs
+        astilectron.sendMessage({ "msg": "getConfig" }, function(message) {
+            if (message.status === SUCCESS) {
+                igopherConfig = JSON.parse(message.msg);
+                console.log(igopherConfig);
+                fillInputs();
+            } else {
+                iziToast.error({
+                    message: message.msg,
+                });
+            }
+        });
 
         let dmBotLaunchBtn = document.querySelector('#dmBotLaunchBtn')
         let dmBotLaunchIcon = document.querySelector('#dmBotLaunchIcon')
@@ -156,3 +171,10 @@ ready(() => {
         });
     });
 });
+
+function fillInputs() {
+    document.getElementById("dmTemplates").value = igopherConfig.auto_dm.dmTemplates.join(";");
+    document.getElementById("greetingTemplate").value = igopherConfig.auto_dm.greeting.greetingTemplate;
+    document.getElementById("srcUsers").value = igopherConfig.scrapper.srcUsers.join(";");
+    document.getElementById("scrappingQuantity").value = igopherConfig.scrapper.scrappingQuantity;
+}
