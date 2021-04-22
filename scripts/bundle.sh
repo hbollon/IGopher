@@ -14,6 +14,9 @@ fi
 go get github.com/asticode/go-astilectron-bundler/...
 go install github.com/asticode/go-astilectron-bundler/astilectron-bundler
 
+# Install dependencies 
+go get ../../../...
+
 # Rename default bind.go to tmp file 
 mv bind.go bind.go.tmp
 
