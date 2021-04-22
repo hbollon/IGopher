@@ -28,3 +28,13 @@ schedule: # 24h format
   activated: true
 blacklist: 
   activated: true
+
+# Webdriver/Selenium config
+webdriver:
+  proxy:
+    ip: ""
+    port: 8080
+    username: ""
+    password: ""
+    auth: false
+    activated: false
