@@ -1,3 +1,5 @@
+var igopherConfig;
+
 // iziToast configuration for notification system
 iziToast.settings({
     position: 'topRight',
@@ -32,3 +34,18 @@ document.addEventListener('astilectron-ready', function() {
         }
     });
 })
+
+function getIgopherConfig() {
+    // Get actual IGopher configuration to fill inputs
+    astilectron.sendMessage({ "msg": "getConfig" }, function(message) {
+        if (message.status === SUCCESS) {
+            igopherConfig = JSON.parse(message.msg);
+            console.log(igopherConfig);
+            fillInputs();
+        } else {
+            iziToast.error({
+                message: message.msg,
+            });
+        }
+    });
+}

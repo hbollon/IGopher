@@ -1,20 +1,9 @@
-var igopherConfig;
+document.addEventListener('astilectron-ready', function() {
+    getIgopherConfig()
+});
 
 ready(() => {
     document.addEventListener('astilectron-ready', function() {
-
-        // Get actual IGopher configuration to fill inputs
-        astilectron.sendMessage({ "msg": "getConfig" }, function(message) {
-            if (message.status === SUCCESS) {
-                igopherConfig = JSON.parse(message.msg);
-                console.log(igopherConfig);
-                fillInputs();
-            } else {
-                iziToast.error({
-                    message: message.msg,
-                });
-            }
-        });
 
         let dmBotLaunchBtn = document.querySelector('#dmBotLaunchBtn')
         let dmBotLaunchIcon = document.querySelector('#dmBotLaunchIcon')

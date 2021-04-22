@@ -311,7 +311,7 @@ func ResetBotConfig() BotConfigYaml {
 			Activated: true,
 		},
 		Schedule: ScheduleYaml{
-			BeginAt:   "8:00",
+			BeginAt:   "08:00",
 			EndAt:     "18:00",
 			Activated: true,
 		},
