@@ -106,13 +106,13 @@ type GreetingConfig struct {
 
 // BotConfigYaml is the raw representation of the yaml bot config file
 type BotConfigYaml struct {
-	Account   AccountYaml   `yaml:"account"`
-	SrcUsers  ScrapperYaml  `yaml:"scrapper"`
-	AutoDm    AutoDmYaml    `yaml:"auto_dm"`
-	Quotas    QuotasYaml    `yaml:"quotas"`
-	Schedule  ScheduleYaml  `yaml:"schedule"`
-	Blacklist BlacklistYaml `yaml:"blacklist"`
-	Selenium  SeleniumYaml  `yaml:"webdriver"`
+	Account   AccountYaml   `json:"account" yaml:"account"`
+	SrcUsers  ScrapperYaml  `json:"scrapper" yaml:"scrapper"`
+	AutoDm    AutoDmYaml    `json:"auto_dm" yaml:"auto_dm"`
+	Quotas    QuotasYaml    `json:"quotas" yaml:"quotas"`
+	Schedule  ScheduleYaml  `json:"schedule" yaml:"schedule"`
+	Blacklist BlacklistYaml `json:"blacklist" yaml:"blacklist"`
+	Selenium  SeleniumYaml  `json:"webdriver" yaml:"webdriver"`
 }
 
 // AccountYaml is the yaml account configuration representation
@@ -130,7 +130,7 @@ type ScrapperYaml struct {
 // AutoDmYaml is the yaml autodm module configuration representation
 type AutoDmYaml struct {
 	DmTemplates SplitStringSlice `json:"dmTemplates" yaml:"dm_templates" validate:"required"`
-	Greeting    GreetingYaml     `yaml:"greeting"`
+	Greeting    GreetingYaml     `json:"greeting" yaml:"greeting"`
 	Activated   bool             `json:"dmActivation,string" yaml:"activated"`
 }
 

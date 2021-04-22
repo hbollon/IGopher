@@ -99,9 +99,12 @@ func HandleMessages(w *astilectron.Window) {
 		case "getLogs":
 			return i.getLogsCallback()
 
+		case "getConfig":
+			return i.getConfigCallback()
+
 		default:
-			logrus.Error("Unexpected message received.")
-			return MessageOut{Status: ERROR}
+			logrus.Errorf("Unexpected message received: \"%s\"", i.Msg)
+			return MessageOut{Status: ERROR, Msg: "Unknown error: Invalid message received"}
 		}
 	})
 	window = w
@@ -315,4 +318,14 @@ func (m *MessageIn) getLogsCallback() MessageOut {
 	}
 	logrus.Debug("Logs fetched successfully!")
 	return MessageOut{Status: SUCCESS, Msg: logs}
+}
+
+func (m *MessageIn) getConfigCallback() MessageOut {
+	config, err := json.Marshal(config)
+	if err != nil {
+		logrus.Errorf("Can't parse config structure to Json: %v", err)
+		return MessageOut{Status: ERROR, Msg: fmt.Sprintf("Can't parse config structure to Json: %v", err)}
+	}
+	logrus.Debug("Configuration structure successfully parsed!")
+	return MessageOut{Status: SUCCESS, Msg: string(config)}
 }

@@ -8,12 +8,15 @@ iziToast.settings({
     transitionOut: 'flipOutX',
 });
 
+var igopherConfig;
+
 // Wait for the astilectron namespace to be ready
 document.addEventListener('astilectron-ready', function() {
     let dmBotLaunchBtn = document.querySelector('#dmBotLaunchBtn')
     let dmBotLaunchIcon = document.querySelector('#dmBotLaunchIcon')
     let dmBotLaunchSpan = document.querySelector('#dmBotLaunchSpan')
-        // Listen to messages sent by Go
+    
+    // Listen to messages sent by Go
     astilectron.onMessage(function(message) {
         // Process message
         if (message.msg === "bot crash") {
@@ -28,6 +31,18 @@ document.addEventListener('astilectron-ready', function() {
                     message: message.payload,
                 });
             }
+        }
+    });
+    
+    // Get actual IGopher configuration to fill inputs
+    astilectron.sendMessage({ "msg": "getConfig" }, function(message) {
+        if (message.status === SUCCESS) {
+            igopherConfig = JSON.parse(message.msg);
+            console.log(igopherConfig);
+        } else {
+            iziToast.error({
+                message: message.msg,
+            });
         }
     });
 })
