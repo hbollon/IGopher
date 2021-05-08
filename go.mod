@@ -6,8 +6,9 @@ require (
 	cloud.google.com/go v0.41.0
 	github.com/akavel/rsrc v0.10.1 // indirect
 	github.com/asticode/go-astikit v0.18.0
-	github.com/asticode/go-astilectron v0.22.3
+	github.com/asticode/go-astilectron v0.23.0
 	github.com/asticode/go-astilectron-bootstrap v0.4.10
+	github.com/asticode/go-astilectron-bundler v0.7.10 // indirect
 	github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e
 	github.com/charmbracelet/bubbles v0.7.6
 	github.com/charmbracelet/bubbletea v0.12.2
