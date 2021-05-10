@@ -1,17 +1,43 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="fonts/fontawesome5-overrides.min.css">
+    <link rel="stylesheet" href="css/iziToast.min.css">
+    <title>
+        <%= htmlWebpackPlugin.options.title %>
+    </title>
+</head>
+
+<body id="page-top">
     <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript
+      enabled. Please enable it to continue.</strong>
+  </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
-  </body>
+    <script>
+        if (typeof module === 'object') {
+            window.module = module;
+            module = undefined;
+        }
+    </script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="js/bs-init.js"></script>
+    <script src="js/iziToast.min.js"></script>
+    <script src="js/fixScriptElectron.js"></script>
+    <script src="js/init.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/utils.js"></script>
+</body>
+
 </html>

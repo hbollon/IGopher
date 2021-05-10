@@ -55,7 +55,7 @@ func main() {
 	}
 
 	// New window
-	if w, err = a.NewWindow("./resources/static/app/dm_automation.html", &astilectron.WindowOptions{
+	if w, err = a.NewWindow("./resources/static/vue-igopher/dist/index.html", &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
 		Width:  astikit.IntPtr(1400),
 		Height: astikit.IntPtr(1000),
@@ -71,7 +71,7 @@ func main() {
 
 	// Open dev tools panel if flag is set
 	// if *flags.DevToolsFlag {
-	// w.OpenDevTools()
+	w.OpenDevTools()
 	// }
 
 	// Blocking pattern
