@@ -55,7 +55,7 @@ export default {
 
                 if (callback !== null) {
                     logMessage = logMessage + ' (scoped)';
-                    name = name + this.getScope()
+                    //name = name + this.getScope()
                 } 
 
                 this.log(logMessage, {name: name, payload: payload});
