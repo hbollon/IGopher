@@ -7,7 +7,7 @@ export default {
         const { debug, skipWait } = options;
         const emitter: any = inject("emitter");
 
-        Vue.config.globalProperties.$astor = {
+        const astor = {
             skipWait: false,
             debug: false,
             isReady: false,
@@ -86,7 +86,7 @@ export default {
             remove: function(name: any, callback: any) {
                 emitter.off(name, callback);
             },
-            log: function (message: any, data: any) {
+            log: function (message: any, data?: any) {
                 if (!this.debug) {
                     return;
                 }
@@ -102,8 +102,11 @@ export default {
             }
         }
         
-        Vue.config.globalProperties.$astor.debug = debug
-        Vue.config.globalProperties.$astor.skipWait = skipWait
-        Vue.config.globalProperties.$astor.init()
+        Vue.config.globalProperties.$astor = astor;
+        Vue.config.globalProperties.$astor.debug = debug;
+        Vue.config.globalProperties.$astor.skipWait = skipWait;
+        Vue.config.globalProperties.$astor.init();
+
+        Vue.provide('astor', astor);
     }   
 }

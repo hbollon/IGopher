@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import astor from "@/astilectron";
+import astor from "@/plugins/astilectron";
 
 import mitt from 'mitt';
 const emitter = mitt(); 
