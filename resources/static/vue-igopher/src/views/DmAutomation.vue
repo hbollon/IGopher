@@ -66,7 +66,7 @@ export default {
             dmBotRunning === false ||
             dmBotRunning === null
           ) {
-            astor.trigger("launchDmBot", {callback: function(message) {
+            astor.trigger("launchDmBot", {}, function(message) {
               if (message.status === config.SUCCESS) {
                 config.iziToast.success({
                   message: message.msg,
@@ -84,7 +84,7 @@ export default {
                   message: message.msg,
                 });
               }
-            }});
+            });
           } else {
             dmBotLaunchIcon.classList.add("fa-spinner", "fa-spin");
             dmBotLaunchIcon.classList.remove("fa-skull-crossbones");
@@ -92,7 +92,7 @@ export default {
               message:
                 "Stop procedure launched, the bot will stop once the current action is finished.",
             });
-            astor.trigger("stopDmBot", {callback: function(
+            astor.trigger("stopDmBot", {}, function(
               message
             ) {
               if (message.status === config.SUCCESS) {
@@ -113,7 +113,7 @@ export default {
                   message: message.msg,
                 });
               }
-            }});
+            });
           }
         });
 
@@ -124,7 +124,7 @@ export default {
             message:
               "Hot reload launched, the bot will update once the current action is finished.",
           });
-          astor.trigger("hotReloadBot", {callback: function(
+          astor.trigger("hotReloadBot", {}, function(
             message
           ) {
             if (message.status === config.SUCCESS) {
@@ -140,7 +140,7 @@ export default {
               dmBotHotReloadIcn.classList.add("fa-fire");
               dmBotHotReloadIcn.classList.remove("fa-spinner", "fa-spin");
             }
-          }});
+          });
         });
 
         /// Forms
@@ -158,7 +158,7 @@ export default {
                 let formData = new FormData(form);
                 message.payload = config.serialize(formData);
               }
-              astor.trigger(message.msg, {payload: message.payload, callback: function(message) {
+              astor.trigger(message.msg, message.payload, function(message) {
                 if (message.status === config.SUCCESS) {
                   config.iziToast.success({
                     message: message.msg,
@@ -169,7 +169,7 @@ export default {
                     message: message.msg,
                   });
                 }
-              }});
+              });
             }
 
             form.classList.add("was-validated");
@@ -188,7 +188,7 @@ export default {
                 let formData = new FormData(form);
                 message.payload = config.serialize(formData);
               }
-              astor.trigger(message.msg, {payload: message.payload, callback: function(message) {
+              astor.trigger(message.msg, message.payload, function(message) {
                 if (message.status === config.SUCCESS) {
                   config.iziToast.success({
                     message: message.msg,
@@ -199,7 +199,7 @@ export default {
                     message: message.msg,
                   });
                 }
-              }});
+              });
             }
 
             form.classList.add("was-validated");

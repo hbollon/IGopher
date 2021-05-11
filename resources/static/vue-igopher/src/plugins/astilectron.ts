@@ -1,11 +1,9 @@
-import { inject } from 'vue'
 declare var astilectron: any; // eslint-disable-line
 
 /* eslint-disable */
 export default {
     install (Vue: any, options: any) {
-        const { debug, skipWait } = options;
-        const emitter: any = inject("emitter");
+        const { debug, skipWait, emitter } = options;
 
         const astor = {
             skipWait: false,
@@ -52,7 +50,7 @@ export default {
                     this.emit(message.name, message.payload);
                 }
             },
-            trigger: function(name: any, payload = {}, callback = null) {
+            trigger: function(name: string, payload = {}, callback = null) {
                 let logMessage = 'Vue -> GO';
 
                 if (callback !== null) {
