@@ -15,13 +15,13 @@ func (bot *IGopher) ConnectToInstagram() {
 func (bot *IGopher) connectToInstagramWebDriver() {
 	log.Info("Connecting to Instagram account...")
 	// Access Instagram url
-	if err := bot.SeleniumStruct.WebDriver.Get("https://instagram.com/?hl=en"); err != nil {
+	if err := bot.SeleniumStruct.WebDriver.Get("https://www.instagram.com/?hl=en"); err != nil {
 		bot.SeleniumStruct.Fatal("Can't access to Instagram. ", err)
 	}
 	randomSleep()
 	// Accept cookies if requested
-	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Accept']", "xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Accept']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Accept All']", "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Accept All']", "xpath")
 		elem.Click()
 		log.Debug("Cookies validation done!")
 	} else {
