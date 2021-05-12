@@ -2,7 +2,6 @@ package igopher
 
 import (
 	"bufio"
-	"flag"
 	"os"
 	"runtime"
 
@@ -15,16 +14,14 @@ import (
 
 const logFilePath = "./logs/logs.log"
 
-func init() {
+func InitLogger() {
 	setLoggerOutput()
-
-	flag.Parse()
-	level, err := log.ParseLevel(*flags.LogLevelFlag)
+	level, err := log.ParseLevel(*Flags.LogLevelFlag)
 	if err == nil {
 		log.SetLevel(level)
 	} else {
 		log.SetLevel(log.InfoLevel)
-		log.Warnf("Invalid log level '%s', use default one.", *flags.LogLevelFlag)
+		log.Warnf("Invalid log level '%s', use default one.", *Flags.LogLevelFlag)
 	}
 }
 

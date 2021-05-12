@@ -8,6 +8,7 @@ For release purpose use gui-bundler package
 */
 
 import (
+	"flag"
 	"fmt"
 	"path/filepath"
 
@@ -24,6 +25,8 @@ const (
 )
 
 func main() {
+	flag.Parse()
+	igopher.InitLogger()
 	igopher.CheckEnvironment()
 	defer igopher.BotStruct.SeleniumStruct.CleanUp()
 

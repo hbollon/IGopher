@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"path/filepath"
 
 	"github.com/asticode/go-astikit"
@@ -17,6 +18,8 @@ const (
 )
 
 func main() {
+	flag.Parse()
+	igopher.InitLogger()
 	igopher.CheckEnvironment()
 	defer igopher.BotStruct.SeleniumStruct.CleanUp()
 

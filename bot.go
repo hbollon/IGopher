@@ -16,8 +16,8 @@ import (
 // BotStruct is the main struct instance used by this bot
 var BotStruct IGopher
 
-/// Flags
-var flags = struct {
+// Flags declarations
+var Flags = struct {
 	// LogLevelFlag set loglevel threshold
 	// If undefined or wrong set it to INFO level
 	LogLevelFlag *string
@@ -33,6 +33,9 @@ var flags = struct {
 
 	// IgnoreDependenciesFlag disable dependencies manager on startup
 	IgnoreDependenciesFlag *bool
+
+	// BackgroundFlag IGopher as background task with actual configuration and ignore TUI
+	BackgroundFlag *bool
 
 	// HeadlessFlag execute Selenium webdriver in headless mode
 	HeadlessFlag *bool
@@ -54,17 +57,17 @@ var errStopBot = errors.New("Bot stop process triggered")
 
 func initClientConfig() *ClientConfig {
 	clientConfig := CreateClientConfig()
-	clientConfig.LogLevel, _ = log.ParseLevel(*flags.LogLevelFlag)
-	clientConfig.ForceDependenciesDl = *flags.ForceDlFlag
-	clientConfig.Debug = *flags.DebugFlag
-	clientConfig.DevTools = *flags.DevToolsFlag
-	clientConfig.IgnoreDependencies = *flags.IgnoreDependenciesFlag
-	clientConfig.Headless = *flags.HeadlessFlag
+	clientConfig.LogLevel, _ = log.ParseLevel(*Flags.LogLevelFlag)
+	clientConfig.ForceDependenciesDl = *Flags.ForceDlFlag
+	clientConfig.Debug = *Flags.DebugFlag
+	clientConfig.DevTools = *Flags.DevToolsFlag
+	clientConfig.IgnoreDependencies = *Flags.IgnoreDependenciesFlag
+	clientConfig.Headless = *Flags.HeadlessFlag
 
-	if *flags.PortFlag > math.MaxUint16 || *flags.PortFlag < 8080 {
-		log.Warnf("Invalid port argument '%d'. Use default 8080.", *flags.PortFlag)
+	if *Flags.PortFlag > math.MaxUint16 || *Flags.PortFlag < 8080 {
+		log.Warnf("Invalid port argument '%d'. Use default 8080.", *Flags.PortFlag)
 	} else {
-		clientConfig.Port = uint16(*flags.PortFlag)
+		clientConfig.Port = uint16(*Flags.PortFlag)
 	}
 
 	return clientConfig
