@@ -2,7 +2,6 @@ package process
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 
@@ -10,16 +9,27 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// In this package, we use go-ps FindProcess method for process finding instead os one to be able to detect
+// if a process is running even on unix systems (indeed, os's FindProcess always return a process on unix even if it's not running)
+
+var pidFilePath string
+
+// Init take into parameter pid file path and update associated process package variable
+func Init(path string) {
+	pidFilePath = path
+}
+
 // CheckIfAlreadyRunning check for pid file (location is given by pidFilePath parameter) file existence.
 // If exist, it'll get saved pid and check if the process is still running.
-func CheckIfAlreadyRunning(pidFilePath string) bool {
+// Returns a boolean notifying if the process is running and the process in question if it exists
+func CheckIfAlreadyRunning() (bool, ps.Process) {
 	if _, err := os.Stat(pidFilePath); err == nil {
 		var file *os.File
 		file, err = os.Open(pidFilePath)
 		if err != nil {
 			logrus.Error("Failed to open existing pid file located at './data/pid.txt'.")
 			logrus.Error(err)
-			return true
+			return true, nil
 		}
 		defer file.Close()
 
@@ -31,7 +41,7 @@ func CheckIfAlreadyRunning(pidFilePath string) bool {
 			if err = os.Remove(pidFilePath); err != nil {
 				logrus.Error("Failed to delete corrupt pid file!")
 			}
-			return false
+			return false, nil
 		}
 		pidStr := scanner.Text()
 
@@ -44,13 +54,12 @@ func CheckIfAlreadyRunning(pidFilePath string) bool {
 			if err = os.Remove(pidFilePath); err != nil {
 				logrus.Error("Failed to delete corrupt pid file!")
 			}
-			return false
+			return false, nil
 		}
 
-		fmt.Println("running")
-		return true
+		return true, process
 	} else if os.IsNotExist(err) {
-		return false
+		return false, nil
 	} else {
 		logrus.Fatalf(
 			"Unknown issue during pid file checking: try to manually check if './data/pid.txt' exist and delete it. Detailed error: %v\n",
@@ -58,11 +67,11 @@ func CheckIfAlreadyRunning(pidFilePath string) bool {
 		)
 	}
 
-	return false
+	return false, nil
 }
 
 // DumpProcessPidToFile get program pid and save it to pidFilePath file
-func DumpProcessPidToFile(pidFilePath string) {
+func DumpProcessPidToFile() {
 	pid := strconv.Itoa(os.Getpid())
 	file, err := os.Create(pidFilePath)
 	if err != nil {
@@ -73,5 +82,13 @@ func DumpProcessPidToFile(pidFilePath string) {
 	_, err = file.WriteString(pid)
 	if err != nil {
 		logrus.Fatalf("Failed to dump IGopher pid to file! Exit program. Detailed error: %v\n", err)
+	}
+}
+
+// DeletePidFile delete pid file if exists
+func DeletePidFile() {
+	err := os.Remove(pidFilePath)
+	if err != nil {
+		logrus.Debug(err)
 	}
 }
