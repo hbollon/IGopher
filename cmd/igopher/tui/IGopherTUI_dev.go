@@ -3,15 +3,11 @@
 package main
 
 import (
-	"bufio"
 	"flag"
-	"fmt"
-	"os"
-	"strconv"
 
 	"github.com/hbollon/igopher"
+	"github.com/hbollon/igopher/internal/process"
 	tui "github.com/hbollon/igopher/internal/tui"
-	"github.com/mitchellh/go-ps"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,71 +18,6 @@ func init() {
 		"Run IGopher as background task with actual configuration (configure it normally and after re-run IGopher with this flag)")
 }
 
-// Check for ./data/pid.txt file existance. If exist, it'll get saved pid and check if the process is still running.
-func checkIfAlreadyRunning() bool {
-	if _, err := os.Stat(pidFilePath); err == nil {
-		var file *os.File
-		file, err = os.Open(pidFilePath)
-		if err != nil {
-			logrus.Error("Failed to open existing pid file located at './data/pid.txt'.")
-			logrus.Error(err)
-			return true
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		scanner.Split(bufio.ScanWords)
-		if res := scanner.Scan(); !res {
-			logrus.Warn("Pid file exist but without content, IGopher may be already running.")
-			logrus.Info("Delete corrupt pid file and continue.")
-			if err = os.Remove(pidFilePath); err != nil {
-				logrus.Error("Failed to delete corrupt pid file!")
-			}
-			return false
-		}
-		pidStr := scanner.Text()
-
-		pid, _ := strconv.Atoi(pidStr)
-		var process ps.Process
-		process, err = ps.FindProcess(pid)
-		if process == nil && err == nil {
-			logrus.Warnf("Failed to find process: %s\n. The pid must be outdated.", err)
-			logrus.Info("Delete outdated pid file and continue.")
-			if err = os.Remove(pidFilePath); err != nil {
-				logrus.Error("Failed to delete corrupt pid file!")
-			}
-			return false
-		}
-
-		fmt.Println("running")
-		return true
-	} else if os.IsNotExist(err) {
-		return false
-	} else {
-		logrus.Fatalf(
-			"Unknown issue during pid file checking: try to manually check if './data/pid.txt' exist and delete it. Detailed error: %v\n",
-			err,
-		)
-	}
-
-	return false
-}
-
-// Get program pid and save it to ./data/pid.txt file
-func dumpProcessPidToFile() {
-	pid := strconv.Itoa(os.Getpid())
-	file, err := os.Create(pidFilePath)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	_, err = file.WriteString(pid)
-	if err != nil {
-		logrus.Fatalf("Failed to dump IGopher pid to file! Exit program. Detailed error: %v\n", err)
-	}
-}
-
 func main() {
 	flag.Parse()
 	igopher.InitLogger()
@@ -94,26 +25,21 @@ func main() {
 	// Initialize environment
 	igopher.CheckEnvironment()
 
-	alreadyRunning := checkIfAlreadyRunning()
+	alreadyRunning := process.CheckIfAlreadyRunning(pidFilePath)
 	if *igopher.Flags.BackgroundFlag {
 		if alreadyRunning {
 			logrus.Error("IGopher is already running! Kill it or close it through TUI interface and retry.")
 			return
 		}
-		dumpProcessPidToFile()
+		process.DumpProcessPidToFile(pidFilePath)
 		logrus.Debug("Successfully dump pid to tmp file!")
 		igopher.LaunchBotTui()
 	} else {
-		if alreadyRunning {
-			logrus.Error("IGopher is already running! Kill it or close it through TUI interface and retry.")
-			return
-		}
-
 		// Clear terminal session
 		igopher.ClearTerminal()
 
 		// Launch TUI
-		execBot := tui.InitTui()
+		execBot := tui.InitTui(alreadyRunning)
 
 		// Launch bot if option selected
 		if execBot {

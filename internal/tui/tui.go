@@ -88,14 +88,16 @@ var (
 )
 
 type model struct {
-	screen                  screen
-	settingsChoice          settingsScreen
-	homeScreen              menu
-	configScreen            menu
-	configResetScreen       menu
-	genericMenuScreen       menu
-	settingsInputsScreen    inputs
+	instanceAlreadyRunning   bool
+	screen                   screen
+	settingsChoice           settingsScreen
+	homeScreen               menu
+	configScreen             menu
+	configResetScreen        menu
+	genericMenuScreen        menu
 	settingsTrueFalseScreen menu
+	settingsInputsScreen     inputs
+	settingsTrueFalseScreen  menu
 
 	termWidth  int
 	termHeight int
@@ -130,7 +132,8 @@ var initialModel = model{
 
 // InitTui initialize and start a terminal user interface instance
 // Return the bot execution state on tui exit
-func InitTui() bool {
+func InitTui(instanceRunning bool) bool {
+	initialModel.instanceAlreadyRunning = instanceRunning
 	p := tea.NewProgram(initialModel)
 	if err := p.Start(); err != nil {
 		log.Fatal(err)
