@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/hbollon/igopher/internal/process"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -30,10 +31,14 @@ func (m model) UpdateStopRunningProcess(msg tea.Msg) (model, tea.Cmd) {
 		case enter:
 			switch m.stopRunningProcessScreen.cursor {
 			case 0:
-				infoMessage = "All IGopher running instances has been successfully killed!" +
-					" You can now run it again or close this TUI and restart IGopher as background task using \"--background-task\" flag.\n\n"
-				m.instanceAlreadyRunning = false
-				m.updateMenuItemsHomePage()
+				if err := process.TerminateRunningInstance(); err != nil {
+					errorMessage = "Failed to terminate running IGopher instance! If the problem persist try to manually kill it or restart your computer."
+				} else {
+					infoMessage = "IGopher running instance has been successfully killed!" +
+						" You can now run it again or close this TUI and restart IGopher as background task using \"--background-task\" flag.\n\n"
+					m.instanceAlreadyRunning = false
+					m.updateMenuItemsHomePage()
+				}
 				m.screen = mainMenu
 			case 1:
 				m.screen = mainMenu
