@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hbollon/igopher/internal/process"
 	"github.com/hbollon/igopher/internal/proxy"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
@@ -31,6 +32,7 @@ var (
 )
 
 func init() {
+	process.Init("./data/pid.txt")
 	if runtime.GOOS == "windows" {
 		geckoDriverPath = filepath.FromSlash("./lib/geckodriver.exe")
 		chromeDriverPath = filepath.FromSlash("./lib/chromedriver.exe")

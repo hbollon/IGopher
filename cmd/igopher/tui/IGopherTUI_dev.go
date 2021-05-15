@@ -11,8 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const pidFilePath = "./data/pid.txt"
-
 func init() {
 	igopher.Flags.BackgroundFlag = flag.Bool("background-task", false,
 		"Run IGopher as background task with actual configuration (configure it normally and after re-run IGopher with this flag)")
@@ -25,13 +23,12 @@ func main() {
 	// Initialize environment
 	igopher.CheckEnvironment()
 
-	alreadyRunning := process.CheckIfAlreadyRunning(pidFilePath)
+	alreadyRunning, _ := process.CheckIfAlreadyRunning()
 	if *igopher.Flags.BackgroundFlag {
 		if alreadyRunning {
 			logrus.Error("IGopher is already running! Kill it or close it through TUI interface and retry.")
 			return
 		}
-		process.DumpProcessPidToFile(pidFilePath)
 		logrus.Debug("Successfully dump pid to tmp file!")
 		igopher.LaunchBotTui()
 	} else {

@@ -277,7 +277,7 @@ func (m *MessageIn) launchDmBotCallback() MessageOut {
 	var err error
 	if err = CheckConfigValidity(); err == nil {
 		ctx, cancel = context.WithCancel(context.Background())
-		go launchDmBot(ctx)
+		go launchBot(ctx)
 		return MessageOut{Status: SUCCESS, Msg: "Dm bot successfully launched!"}
 	}
 	return MessageOut{Status: ERROR, Msg: err.Error()}

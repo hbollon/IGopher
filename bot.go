@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/hbollon/igopher/internal/process"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -93,6 +94,8 @@ func LaunchBotTui() {
 	BotStruct.SeleniumStruct.InitChromeWebDriver()
 	defer BotStruct.SeleniumStruct.CloseSelenium()
 
+	process.DumpProcessPidToFile()
+
 	rand.Seed(time.Now().Unix())
 	if err = BotStruct.Scheduler.CheckTime(); err == nil {
 		BotStruct.ConnectToInstagram()
@@ -141,7 +144,7 @@ func checkBotChannels() bool {
 
 // Initialize client and bot configs, download dependencies,
 // launch Selenium instance and finally run dm bot routine
-func launchDmBot(ctx context.Context) {
+func launchBot(ctx context.Context) {
 	// Initialize client configuration
 	var err error
 	clientConfig := initClientConfig()
@@ -182,6 +185,8 @@ func launchDmBot(ctx context.Context) {
 	defer close(BotStruct.reloadCallback)
 	BotStruct.hotReloadCallback = make(chan bool)
 	defer close(BotStruct.hotReloadCallback)
+
+	process.DumpProcessPidToFile()
 
 	// Start bot routine
 	go func() {
