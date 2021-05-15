@@ -163,7 +163,7 @@ func (s *Selenium) CloseSelenium() {
 
 // SigTermCleaning launch a gouroutine to handle SigTerm signal and trigger Selenium and Webdriver closing if it raised
 func (s *Selenium) SigTermCleaning() {
-	sig := make(chan os.Signal)
+	sig := make(chan os.Signal, 1)
 	s.SigTermRoutineExit = make(chan bool)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -186,6 +186,7 @@ func (s *Selenium) SigTermCleaning() {
 func (s *Selenium) CleanUp() {
 	s.CloseSelenium()
 	s.Proxy.StopForwarderProxy()
+	process.DeletePidFile()
 	logrus.Info("IGopher's ressources successfully cleared!")
 }
 
