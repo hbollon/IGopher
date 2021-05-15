@@ -69,6 +69,7 @@ var (
 	cursorColor   = makeFgStyle("14")
 	subtle        = makeFgStyle("241")
 	errorColor    = makeFgStyle("1")
+	infoColor     = makeFgStyle("32")
 	progressEmpty = subtle(progressEmptyChar)
 	dot           = colorFg(" • ", "236")
 
@@ -82,6 +83,7 @@ var (
 	ramp = makeRamp("#B14FFF", "#00FFA3", progressBarWidth)
 
 	execBot      = false
+	infoMessage  string
 	errorMessage string
 	config       igopher.BotConfigYaml
 

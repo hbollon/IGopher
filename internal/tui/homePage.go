@@ -27,6 +27,7 @@ func (m model) UpdateHomePage(msg tea.Msg) (model, tea.Cmd) {
 
 		case enter:
 			errorMessage = ""
+			infoMessage = ""
 			switch m.homeScreen.cursor {
 			case 0:
 				return launchBot(m)
@@ -56,7 +57,11 @@ func (m model) UpdateHomePage(msg tea.Msg) (model, tea.Cmd) {
 
 func (m model) ViewHomePage() string {
 	s := fmt.Sprintf("\n🦄 Welcome to %s, the (soon) most powerful and versatile %s bot!\n\n", keyword("IGopher"), keyword("Instagram"))
-	s += errorColor(errorMessage)
+	if errorMessage != "" {
+		s += errorColor(errorMessage)
+	} else {
+		s += infoColor(infoMessage)
+	}
 
 	for i, choice := range m.homeScreen.choices {
 		cursor := " "

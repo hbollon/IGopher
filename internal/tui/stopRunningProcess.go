@@ -30,6 +30,8 @@ func (m model) UpdateStopRunningProcess(msg tea.Msg) (model, tea.Cmd) {
 		case enter:
 			switch m.stopRunningProcessScreen.cursor {
 			case 0:
+				infoMessage = "All IGopher running instances has been successfully killed!" +
+					" You can now run it again or close this TUI and restart IGopher as background task using \"--background-task\" flag.\n\n"
 				m.instanceAlreadyRunning = false
 				m.updateMenuItemsHomePage()
 				m.screen = mainMenu
