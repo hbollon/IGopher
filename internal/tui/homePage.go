@@ -29,19 +29,23 @@ func (m model) UpdateHomePage(msg tea.Msg) (model, tea.Cmd) {
 			errorMessage = ""
 			switch m.homeScreen.cursor {
 			case 0:
-				err := igopher.CheckConfigValidity()
-				if err == nil {
-					execBot = true
-					return m, tea.Quit
-				}
-				errorMessage = err.Error() + "\n\n"
+				return launchBot(m)
 			case 1:
 				config = igopher.ImportConfig()
 				m.screen = settingsMenu
 			case 2:
 				m.screen = settingsResetMenu
 			case 3:
-				return m, tea.Quit
+				if m.instanceAlreadyRunning {
+					m.screen = stopRunningInstance
+				} else {
+					return m, tea.Quit
+				}
+			case 4:
+				if m.instanceAlreadyRunning {
+					return m, tea.Quit
+				}
+				log.Warn("Invalid input!")
 			default:
 				log.Warn("Invalid input!")
 			}
@@ -64,4 +68,12 @@ func (m model) ViewHomePage() string {
 
 	s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+c: quit")
 	return s
+}
+
+func (m *model) updateMenuItemsHomePage() {
+	if m.instanceAlreadyRunning {
+		m.homeScreen.choices = []string{"🚀 - Launch!", "🔧 - Configure", "🧨 - Reset settings", "☠️ - Stop running instance", "🚪 - Exit"}
+	} else {
+		m.homeScreen.choices = []string{"🚀 - Launch!", "🔧 - Configure", "🧨 - Reset settings", "🚪 - Exit"}
+	}
 }

@@ -103,5 +103,15 @@ func (m model) ViewSettingsBoolMenu() string {
 		log.Error("Unexpected settings screen value!")
 		s = ""
 	}
+
+	for i, choice := range m.settingsTrueFalseScreen.choices {
+		cursor := " "
+		if m.settingsTrueFalseScreen.cursor == i {
+			cursor = cursorColor(">")
+		}
+		s += fmt.Sprintf("%s %s\n", cursor, choice)
+	}
+	s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
+
 	return s
 }

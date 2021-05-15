@@ -32,6 +32,7 @@ const (
 	genericMenu
 	settingsInputsScreen
 	settingsBoolScreen
+	stopRunningInstance
 )
 
 // Settings screen identifiers
@@ -95,7 +96,7 @@ type model struct {
 	configScreen             menu
 	configResetScreen        menu
 	genericMenuScreen        menu
-	settingsTrueFalseScreen menu
+	stopRunningProcessScreen menu
 	settingsInputsScreen     inputs
 	settingsTrueFalseScreen  menu
 
@@ -126,14 +127,17 @@ var initialModel = model{
 	homeScreen: menu{choices: []string{"🚀 - Launch!", "🔧 - Configure", "🧨 - Reset settings", "🚪 - Exit"}},
 	configScreen: menu{choices: []string{"Account", "Users scraping", "AutoDM",
 		"Greeting", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
-	configResetScreen:       menu{choices: []string{"Yes", "No"}},
-	settingsTrueFalseScreen: menu{choices: []string{"True", "False"}},
+	configResetScreen:        menu{choices: []string{"Yes", "No"}},
+	stopRunningProcessScreen: menu{choices: []string{"Yes", "No"}},
+	settingsTrueFalseScreen:  menu{choices: []string{"True", "False"}},
 }
 
 // InitTui initialize and start a terminal user interface instance
+// It take
 // Return the bot execution state on tui exit
 func InitTui(instanceRunning bool) bool {
 	initialModel.instanceAlreadyRunning = instanceRunning
+	initialModel.updateMenuItemsHomePage()
 	p := tea.NewProgram(initialModel)
 	if err := p.Start(); err != nil {
 		log.Fatal(err)
@@ -288,6 +292,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case settingsBoolScreen:
 		return m.UpdateSettingsBoolMenu(msg)
+
+	case stopRunningInstance:
+		return m.UpdateStopRunningProcess(msg)
 	}
 
 	return m, nil
@@ -314,14 +321,8 @@ func (m model) View() string {
 	case settingsBoolScreen:
 		s = m.ViewSettingsBoolMenu()
 
-		for i, choice := range m.settingsTrueFalseScreen.choices {
-			cursor := " "
-			if m.settingsTrueFalseScreen.cursor == i {
-				cursor = cursorColor(">")
-			}
-			s += fmt.Sprintf("%s %s\n", cursor, choice)
-		}
-		s += subtle("\nup/down: select") + dot + subtle("enter: choose") + dot + subtle("ctrl+b: back") + dot + subtle("ctrl+c: quit")
+	case stopRunningInstance:
+		s = m.ViewStopRunningProcess()
 	}
 
 	return wordwrap.String(s, min(m.termWidth, maxLineWidth))
@@ -342,6 +343,16 @@ func updateInputs(msg tea.Msg, m model) (model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
+}
+
+func launchBot(m model) (model, tea.Cmd) {
+	err := igopher.CheckConfigValidity()
+	if err == nil {
+		execBot = true
+		return m, tea.Quit
+	}
+	errorMessage = err.Error() + "\n\n"
+	return m, nil
 }
 
 // Utils
