@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"syscall"
+
+	"github.com/sirupsen/logrus"
 )
 
 // TerminateRunningInstance check if the pid stored in the pid file is running and, if yes, terminate it.
@@ -16,17 +18,17 @@ func TerminateRunningInstance() error {
 			return err
 		}
 
-		dll, e := syscall.LoadDLL("kernel32.dll")
-		if e != nil {
-			logrus.Fatalf("LoadDLL: %v\n", e)
+		dll, err := syscall.LoadDLL("kernel32.dll")
+		if err != nil {
+			logrus.Fatalf("LoadDLL: %v\n", err)
 		}
-		process, e := dll.FindProc("GenerateConsoleCtrlEvent")
-		if e != nil {
-			log.Fatalf("FindProc: %v\n", e)
+		dllProc, err := dll.FindProc("GenerateConsoleCtrlEvent")
+		if err != nil {
+			logrus.Fatalf("FindProc: %v\n", err)
 		}
-		r, _, e := process.Call(syscall.CTRL_BREAK_EVENT, uintptr(pid))
+		r, _, e := dllProc.Call(syscall.CTRL_BREAK_EVENT, uintptr(process.Pid))
 		if r == 0 {
-			log.Fatalf("GenerateConsoleCtrlEvent: %v\n", e)
+			logrus.Fatalf("GenerateConsoleCtrlEvent: %v\n", e)
 		}
 
 		return nil
