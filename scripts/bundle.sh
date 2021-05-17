@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script used to build GUI version and bundle executables for Windows/Linux/MacOS
 
-# Check if pwd is located inside the SkillsList folder
+# Check if pwd is located inside the IGopher gui-bundler folder
 if [ $(basename "$PWD") != "gui-bundler" ]; then
     cd "${0%/*}/../cmd/igopher/gui-bundler"
     if [ $(basename "$PWD") != "gui-bundler" ]; then
