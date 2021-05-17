@@ -11,7 +11,7 @@ if [ $(basename "$PWD") != "igopher" ]; then
 fi
 
 # Call bundle.sh script to build GUI executables
-./bundle.sh
+./scripts/bundle.sh
 
 # Build TUI executables fot all OS
 env GOOS=linux GOARCH=amd64 go build -o ./bin/IGopherTUI-linux-amd64 ./cmd/igopher/tui
