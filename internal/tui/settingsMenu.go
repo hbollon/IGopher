@@ -58,6 +58,8 @@ func (m model) UpdateSettingsMenu(msg tea.Msg) (model, tea.Cmd) {
 				m.screen = settingsBoolScreen
 				m.settingsChoice = blacklistEnablingSettings
 			case 7:
+				m.screen = settingsProxyScreen
+			case 8:
 				igopher.ExportConfig(config)
 				m.screen = mainMenu
 			default:

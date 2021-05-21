@@ -32,6 +32,7 @@ const (
 	genericMenu
 	settingsInputsScreen
 	settingsBoolScreen
+	settingsProxyScreen
 	stopRunningInstance
 )
 
@@ -101,6 +102,7 @@ type model struct {
 	stopRunningProcessScreen menu
 	settingsInputsScreen     inputs
 	settingsTrueFalseScreen  menu
+	settingsProxy            proxyMenu
 
 	termWidth  int
 	termHeight int
@@ -124,14 +126,23 @@ type inputs struct {
 	submitButton string
 }
 
+type proxyMenu struct {
+	index        int
+	title        string
+	inputs       []textinput.Model
+	states       map[string]bool
+	submitButton string
+}
+
 var initialModel = model{
 	screen:     0,
 	homeScreen: menu{choices: []string{"🚀 - Launch!", "🔧 - Configure", "🧨 - Reset settings", "🚪 - Exit"}},
 	configScreen: menu{choices: []string{"Account", "Users scraping", "AutoDM",
-		"Greeting", "Quotas", "Schedule", "Blacklist", "Save & exit"}},
+		"Greeting", "Quotas", "Schedule", "Blacklist", "Proxy", "Save & exit"}},
 	configResetScreen:        menu{choices: []string{"Yes", "No"}},
 	stopRunningProcessScreen: menu{choices: []string{"Yes", "No"}},
 	settingsTrueFalseScreen:  menu{choices: []string{"True", "False"}},
+	settingsProxy:            getProxySettings(),
 }
 
 // InitTui initialize and start a terminal user interface instance
@@ -264,6 +275,48 @@ func getAutoDmSettings() inputs {
 	return inp
 }
 
+func getProxySettings() proxyMenu {
+	inp := proxyMenu{
+		title: fmt.Sprintf("\nPlease enter your %s configuration."+
+			" If you use a proxy with %s,"+
+			" do not forget to activate the corresponding option below and add your connection %s.\n\n",
+			keyword("proxy"), keyword("authentication"), keyword("credentials")),
+		inputs: []textinput.Model{
+			textinput.NewModel(),
+			textinput.NewModel(),
+			textinput.NewModel(),
+			textinput.NewModel(),
+		},
+		states: map[string]bool{
+			"Authentication": false,
+			"Enabled":        false,
+		},
+		submitButton: blurredSubmitButton,
+	}
+
+	inp.inputs[0].Placeholder = "Remote proxy IP"
+	inp.inputs[0].Focus()
+	inp.inputs[0].Prompt = focusedPrompt
+	inp.inputs[0].TextColor = focusedTextColor
+
+	inp.inputs[1].Placeholder = "Remote proxy port"
+	inp.inputs[1].Focus()
+	inp.inputs[1].Prompt = focusedPrompt
+	inp.inputs[1].TextColor = focusedTextColor
+
+	inp.inputs[2].Placeholder = "Remote proxy username (optional)"
+	inp.inputs[2].Focus()
+	inp.inputs[2].Prompt = focusedPrompt
+	inp.inputs[2].TextColor = focusedTextColor
+
+	inp.inputs[3].Placeholder = "Remote proxy password (optional)"
+	inp.inputs[3].Focus()
+	inp.inputs[3].Prompt = focusedPrompt
+	inp.inputs[3].TextColor = focusedTextColor
+
+	return inp
+}
+
 func (m model) Init() tea.Cmd {
 	return textinput.Blink
 }
@@ -295,6 +348,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case settingsBoolScreen:
 		return m.UpdateSettingsBoolMenu(msg)
 
+	case settingsProxyScreen:
+		return m.UpdateSettingsProxy(msg)
+
 	case stopRunningInstance:
 		return m.UpdateStopRunningProcess(msg)
 	}
@@ -323,6 +379,9 @@ func (m model) View() string {
 	case settingsBoolScreen:
 		s = m.ViewSettingsBoolMenu()
 
+	case settingsProxyScreen:
+		s = m.ViewSettingsProxy()
+
 	case stopRunningInstance:
 		s = m.ViewStopRunningProcess()
 	}
@@ -333,6 +392,7 @@ func (m model) View() string {
 // Pass messages and models through to text input components. Only text inputs
 // with Focus() set will respond, so it's safe to simply update all of them
 // here without any further logic.
+// Used to update generics input screens
 func updateInputs(msg tea.Msg, m model) (model, tea.Cmd) {
 	var (
 		cmd  tea.Cmd
