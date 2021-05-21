@@ -119,8 +119,17 @@ func (m model) ViewSettingsProxy() string {
 		s += "\n\n"
 	}
 
-	s += fmt.Sprintf("%s : %s\n", "Authentication", strconv.FormatBool(m.settingsProxy.states["Authentication"]))
-	s += fmt.Sprintf("%s : %s\n", "Enabled", strconv.FormatBool(m.settingsProxy.states["Enabled"]))
+	if m.settingsProxy.index == 4 {
+		s += fmt.Sprintf("%s : %s\n", focusColor("Authentication"), strconv.FormatBool(m.settingsProxy.states["Authentication"]))
+	} else {
+		s += fmt.Sprintf("%s : %s\n", "Authentication", strconv.FormatBool(m.settingsProxy.states["Authentication"]))
+	}
+
+	if m.settingsProxy.index == 5 {
+		s += fmt.Sprintf("%s : %s\n", focusColor("Enabled"), strconv.FormatBool(m.settingsProxy.states["Enabled"]))
+	} else {
+		s += fmt.Sprintf("%s : %s\n", "Enabled", strconv.FormatBool(m.settingsProxy.states["Enabled"]))
+	}
 
 	s += "\n" + m.settingsProxy.submitButton + "\n"
 	s += subtle("\nup/down: select") + dot + subtle("enter: choose/enable/disable") +

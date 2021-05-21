@@ -71,6 +71,7 @@ var (
 	subtle        = makeFgStyle("241")
 	errorColor    = makeFgStyle("1")
 	infoColor     = makeFgStyle("32")
+	focusColor    = makeFgStyle("205")
 	progressEmpty = subtle(progressEmptyChar)
 	dot           = colorFg(" • ", "236")
 
@@ -300,18 +301,15 @@ func getProxySettings() proxyMenu {
 	inp.inputs[0].TextColor = focusedTextColor
 
 	inp.inputs[1].Placeholder = "Remote proxy port"
-	inp.inputs[1].Focus()
-	inp.inputs[1].Prompt = focusedPrompt
+	inp.inputs[1].Prompt = blurredPrompt
 	inp.inputs[1].TextColor = focusedTextColor
 
 	inp.inputs[2].Placeholder = "Remote proxy username (optional)"
-	inp.inputs[2].Focus()
-	inp.inputs[2].Prompt = focusedPrompt
+	inp.inputs[2].Prompt = blurredPrompt
 	inp.inputs[2].TextColor = focusedTextColor
 
 	inp.inputs[3].Placeholder = "Remote proxy password (optional)"
-	inp.inputs[3].Focus()
-	inp.inputs[3].Prompt = focusedPrompt
+	inp.inputs[3].Prompt = blurredPrompt
 	inp.inputs[3].TextColor = focusedTextColor
 
 	return inp
