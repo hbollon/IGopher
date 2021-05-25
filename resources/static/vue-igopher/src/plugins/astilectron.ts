@@ -1,4 +1,4 @@
-declare var astilectron: any; // eslint-disable-line
+declare const astilectron: any; // eslint-disable-line
 
 /* eslint-disable */
 export default {
@@ -45,31 +45,41 @@ export default {
                 }
             },
             onAstilectronMessage: function(message: any) {
-                if (message) {
-                    this.log('GO -> Vue', message);
-                    this.emit(message.name, message.payload);
+                if (Array.prototype.slice.call(arguments).length == 1) {
+                    if (message) {
+                        this.log('GO -> Vue', message);
+                        this.emit(message.name, message);
+                    }
+                } else {
+                    let identifier = message;
+                    message = Array.prototype.slice.call(arguments)[1];
+                    if (message) {
+                        this.log('GO -> Vue', message);
+                        this.emit(identifier, message);
+                    }
                 }
             },
             trigger: function(name: string, payload = {}, callback = null) {
                 let logMessage = 'Vue -> GO';
+                let identifier = name;
 
                 if (callback !== null) {
                     logMessage = logMessage + ' (scoped)';
-                    //name = name + this.getScope()
+                    identifier = identifier + this.getScope();
                 } 
 
                 this.log(logMessage, {name: name, payload: payload});
                 if (callback !== null) {
-                    this.listen(name + '.callback', callback, true)
+                    this.listen(identifier, callback, true);
                 }
-                astilectron.sendMessage({msg: name, payload: payload}, this.onAstilectronMessage.bind(this));
+                astilectron.sendMessage({msg: name, payload: payload}, this.onAstilectronMessage.bind(this, identifier));
             },
             listen: function(name: any, callback: any, once = false) {
                 if (once) {
                     this.log('listen once', {name: name, callback: callback});
                     const wrappedHandler = (evt: any) => {
-                        callback(evt)
-                        emitter.off(name, wrappedHandler)
+                        callback(evt);
+                        emitter.off(name, wrappedHandler);
                     }
                     emitter.on(name, wrappedHandler);
                 } else {
