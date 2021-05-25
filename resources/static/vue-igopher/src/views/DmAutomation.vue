@@ -18,8 +18,8 @@ import LateralNav from "@/components/LateralNav.vue";
 import NavBar from "@/components/NavBar.vue";
 import Footer from "@/components/Footer.vue";
 import DmAutomationPanel from "@/components/DmAutomationPanel.vue";
-import * as config from "../config.ts";
-import { getIgopherConfig, igopherConfig } from "../../public/js/init.js";
+import * as config from "@/config"
+import "@/theme"
 
 export default {
   components: {
@@ -28,15 +28,12 @@ export default {
     Footer,
     DmAutomationPanel,
   },
-  setup() {
+  mounted() {
     const astor = inject('astor');
-    console.log(astor);
-    document.addEventListener("astilectron-ready", function() {
-      getIgopherConfig();
-    });
 
     config.ready(() => {
       document.addEventListener("astilectron-ready", function() {
+        config.getIgopherConfig(astor, fillInputs);
         let dmBotLaunchBtn = document.querySelector("#dmBotLaunchBtn");
         let dmBotLaunchIcon = document.querySelector("#dmBotLaunchIcon");
         let dmBotLaunchSpan = document.querySelector("#dmBotLaunchSpan");
@@ -212,13 +209,13 @@ export default {
 function fillInputs() {
   document.getElementById(
     "dmTemplates"
-  ).value = igopherConfig.auto_dm.dmTemplates.join(";");
+  ).value = config.igopherConfig.auto_dm.dmTemplates.join(";");
   document.getElementById("greetingTemplate").value =
-    igopherConfig.auto_dm.greeting.greetingTemplate;
+    config.igopherConfig.auto_dm.greeting.greetingTemplate;
   document.getElementById(
     "srcUsers"
-  ).value = igopherConfig.scrapper.srcUsers.join(";");
+  ).value = config.igopherConfig.scrapper.srcUsers.join(";");
   document.getElementById("scrappingQuantity").value =
-    igopherConfig.scrapper.scrappingQuantity;
+    config.igopherConfig.scrapper.scrappingQuantity;
 }
 </script>
