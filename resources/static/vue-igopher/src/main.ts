@@ -7,6 +7,9 @@ import mitt, { Emitter } from 'mitt';
 const emitter: Emitter = mitt();
 export default emitter;
 
+import "@/bootstrap/css/bootstrap.min.css";
+import "@/bootstrap/js/bootstrap.min.js";
+
 const app = createApp(App);
 app
   .provide('emitter', emitter)

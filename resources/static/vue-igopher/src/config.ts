@@ -1,7 +1,7 @@
-/* eslint-disable */
-export declare var iziToast: any;
-export var SUCCESS = "Success";
-export var ERROR = "Error";
+export const iziToast: any = require("izitoast"); // eslint-disable-line
+export const bootstrap: any = require("@/bootstrap/js/bootstrap.min.js"); // eslint-disable-line
+export const SUCCESS = "Success";
+export const ERROR = "Error";
 
 // Parse JSON Array to JSON Object
 export function serialize(data: any) {
