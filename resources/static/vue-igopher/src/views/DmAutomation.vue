@@ -7,7 +7,7 @@
     </div>
     <Footer />
   </div>
-  <a class="border rounded scroll-to-top" href="#page-top"
+  <a class="border rounded back-to-top"
     ><i class="fas fa-angle-up"></i
   ></a>
 </template>
@@ -19,7 +19,6 @@ import NavBar from "@/components/NavBar.vue";
 import Footer from "@/components/Footer.vue";
 import DmAutomationPanel from "@/components/DmAutomationPanel.vue";
 import * as config from "@/config"
-import "@/theme"
 
 export default {
   components: {
@@ -207,6 +206,7 @@ export default {
 };
 
 function fillInputs() {
+  console.log(config.igopherConfig)
   document.getElementById(
     "dmTemplates"
   ).value = config.igopherConfig.auto_dm.dmTemplates.join(";");
@@ -219,3 +219,33 @@ function fillInputs() {
     config.igopherConfig.scrapper.scrappingQuantity;
 }
 </script>
+
+<style lang="scss">
+.back-to-top {
+  display: none;
+  background-color: rgba(90,92,105,.5);
+  color: #fff;
+  width: 2.75rem;
+  height: 2.75rem;
+  text-align: center;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  line-height: 2.35rem;
+  transition: background-color .3s, 
+    opacity .5s, visibility .5s;
+  z-index: 1000;
+}
+
+.back-to-top i {
+  font-size: 16px;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.back-to-top:hover {
+  cursor: pointer;
+  color: #fff;
+  background-color: rgb(68, 68, 68);
+}
+</style>

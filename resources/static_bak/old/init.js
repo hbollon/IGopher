@@ -1,3 +1,4 @@
+/* eslint-disable */
 var igopherConfig;
 
 // iziToast configuration for notification system

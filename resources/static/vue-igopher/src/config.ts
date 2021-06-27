@@ -4,6 +4,16 @@ export const SUCCESS = "Success";
 export const ERROR = "Error";
 export var igopherConfig: any; // eslint-disable-line
 
+// iziToast configuration for notification system
+iziToast.settings({
+    position: 'topRight',
+    timeout: 8000,
+    closeOnClick: true,
+    resetOnHover: false,
+    transitionIn: 'flipInX',
+    transitionOut: 'flipOutX',
+});
+
 // Parse JSON Array to JSON Object
 export function serialize(data: any) {
     const obj: any = {};

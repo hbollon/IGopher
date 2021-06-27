@@ -1,5 +1,5 @@
 <template>
-  <router-view/>
+  <router-view />
 </template>
 
 <style lang="scss">
@@ -10,3 +10,12 @@
   display: flex;
 }
 </style>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import "@/theme"
+
+export default defineComponent({
+  name: "App"
+});
+</script>

@@ -35,6 +35,7 @@
     "tests/**/*.tsx"
   ],
   "exclude": [
+    "src/bootstrap/**",
     "node_modules",
     "public"
   ]
