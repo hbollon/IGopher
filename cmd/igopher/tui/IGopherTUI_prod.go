@@ -49,11 +49,6 @@ func main() {
 		logrus.Debug("Successfully dump pid to tmp file!")
 		igopher.LaunchBotTui()
 	} else {
-		if alreadyRunning {
-			logrus.Error("IGopher is already running! Kill it or close it through TUI interface and retry.")
-			return
-		}
-
 		// Clear terminal session
 		igopher.ClearTerminal()
 
