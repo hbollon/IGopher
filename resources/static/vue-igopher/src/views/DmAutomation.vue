@@ -12,15 +12,17 @@
   ></a>
 </template>
 
-<script>
+<script lang="ts">
+import { Options, Vue } from "vue-class-component";
 import { inject } from 'vue'
 import LateralNav from "@/components/LateralNav.vue";
 import NavBar from "@/components/NavBar.vue";
 import Footer from "@/components/Footer.vue";
 import DmAutomationPanel from "@/components/DmAutomationPanel.vue";
 import * as config from "@/config"
+import { Astor } from "@/plugins/astilectron";
 
-export default {
+@Options({
   components: {
     LateralNav,
     NavBar,
@@ -28,7 +30,7 @@ export default {
     DmAutomationPanel,
   },
   mounted() {
-    const astor = inject('astor');
+    const astor: Astor = inject('astor');
 
     config.ready(() => {
       document.addEventListener("astilectron-ready", function() {
@@ -59,22 +61,21 @@ export default {
         dmBotLaunchBtn.addEventListener("click", function() {
           if (
             dmBotRunning === "false" ||
-            dmBotRunning === false ||
             dmBotRunning === null
           ) {
-            astor.trigger("launchDmBot", {}, function(message) {
+            astor.trigger("launchDmBot", {}, function(message: any) {
               if (message.status === config.SUCCESS) {
                 config.iziToast.success({
                   message: message.msg,
                 });
 
-                dmBotRunning = true;
+                dmBotRunning = "true";
                 dmBotLaunchBtn.classList.add("btn-danger");
                 dmBotLaunchBtn.classList.remove("btn-success");
                 dmBotLaunchIcon.classList.add("fa-skull-crossbones");
                 dmBotLaunchIcon.classList.remove("fa-rocket");
                 dmBotLaunchSpan.innerHTML = "Stop !";
-                sessionStorage.setItem("botState", true);
+                sessionStorage.setItem("botState", "true");
               } else {
                 config.iziToast.error({
                   message: message.msg,
@@ -89,19 +90,19 @@ export default {
                 "Stop procedure launched, the bot will stop once the current action is finished.",
             });
             astor.trigger("stopDmBot", {}, function(
-              message
+              message: any
             ) {
               if (message.status === config.SUCCESS) {
                 config.iziToast.success({
                   message: message.msg,
                 });
-                dmBotRunning = false;
+                dmBotRunning = "false";
                 dmBotLaunchBtn.classList.add("btn-success");
                 dmBotLaunchBtn.classList.remove("btn-danger");
                 dmBotLaunchIcon.classList.add("fa-rocket");
                 dmBotLaunchIcon.classList.remove("fa-spinner", "fa-spin");
                 dmBotLaunchSpan.innerHTML = "Launch !";
-                sessionStorage.setItem("botState", false);
+                sessionStorage.setItem("botState", "false");
               } else {
                 dmBotLaunchIcon.classList.add("fa-skull-crossbones");
                 dmBotLaunchIcon.classList.remove("fa-spinner", "fa-spin");
@@ -121,7 +122,7 @@ export default {
               "Hot reload launched, the bot will update once the current action is finished.",
           });
           astor.trigger("hotReloadBot", {}, function(
-            message
+            message: any
           ) {
             if (message.status === config.SUCCESS) {
               config.iziToast.success({
@@ -144,17 +145,15 @@ export default {
         document
           .querySelector("#dmSettingsFormBtn")
           .addEventListener("click", function(e) {
-            let message = {msg: "dmSettingsForm"};
-            let form = document.querySelector("#dmSettingsForm");
+            let message = {msg: "dmSettingsForm", payload: {}};
+            let form = document.querySelector("#dmSettingsForm") as HTMLFormElement;
             if (!form.checkValidity()) {
               e.preventDefault();
               e.stopPropagation();
             } else {
-              if (typeof content !== "undefined") {
-                let formData = new FormData(form);
-                message.payload = config.serialize(formData);
-              }
-              astor.trigger(message.msg, message.payload, function(message) {
+              let formData = new FormData(form);
+              message.payload = config.serialize(formData);
+              astor.trigger(message.msg, message.payload, function(message: any) {
                 if (message.status === config.SUCCESS) {
                   config.iziToast.success({
                     message: message.msg,
@@ -174,17 +173,15 @@ export default {
         document
           .querySelector("#dmUserScrappingSettingsFormBtn")
           .addEventListener("click", function(e) {
-            let message = {msg: "dmUserScrappingSettingsForm"};
-            let form = document.querySelector("#dmUserScrappingSettingsForm");
+            let message = {msg: "dmUserScrappingSettingsForm", payload: {}};
+            let form = document.querySelector("#dmUserScrappingSettingsForm") as HTMLFormElement;
             if (!form.checkValidity()) {
               e.preventDefault();
               e.stopPropagation();
             } else {
-              if (typeof content !== "undefined") {
-                let formData = new FormData(form);
-                message.payload = config.serialize(formData);
-              }
-              astor.trigger(message.msg, message.payload, function(message) {
+              let formData = new FormData(form);
+              message.payload = config.serialize(formData);
+              astor.trigger(message.msg, message.payload, function(message: any) {
                 if (message.status === config.SUCCESS) {
                   config.iziToast.success({
                     message: message.msg,
@@ -202,21 +199,30 @@ export default {
           });
       });
     });
-  },
-};
+  }
+})
+export default class DmAutomation extends Vue {}
 
 function fillInputs() {
-  console.log(config.igopherConfig)
-  document.getElementById(
+  const dmTemplatesField = document.getElementById(
     "dmTemplates"
-  ).value = config.igopherConfig.auto_dm.dmTemplates.join(";");
-  document.getElementById("greetingTemplate").value =
-    config.igopherConfig.auto_dm.greeting.greetingTemplate;
-  document.getElementById(
+  ) as HTMLTextAreaElement
+  dmTemplatesField.value = config.igopherConfig.auto_dm.dmTemplates.join(";");
+
+  const greetingTemplateField = document.getElementById(
+    "greetingTemplate"
+  ) as HTMLInputElement
+  greetingTemplateField.value = config.igopherConfig.auto_dm.greeting.greetingTemplate;
+
+  const srcUsersField = document.getElementById(
     "srcUsers"
-  ).value = config.igopherConfig.scrapper.srcUsers.join(";");
-  document.getElementById("scrappingQuantity").value =
-    config.igopherConfig.scrapper.scrappingQuantity;
+  ) as HTMLInputElement
+  srcUsersField.value = config.igopherConfig.scrapper.srcUsers.join(";");
+
+  const scrappingQuantityField = document.getElementById(
+    "scrappingQuantity"
+  ) as HTMLInputElement
+  scrappingQuantityField.value =config.igopherConfig.scrapper.scrappingQuantity;
 }
 </script>
 
