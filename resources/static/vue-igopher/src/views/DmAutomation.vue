@@ -5,34 +5,28 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import { inject } from 'vue'
-import LateralNav from "@/components/LateralNav.vue";
-import NavBar from "@/components/NavBar.vue";
-import Footer from "@/components/Footer.vue";
 import DmAutomationPanel from "@/components/DmAutomationPanel.vue";
 import * as config from "@/config"
 import { Astor } from "@/plugins/astilectron";
 
 @Options({
   components: {
-    LateralNav,
-    NavBar,
-    Footer,
     DmAutomationPanel,
   },
   mounted() {
     const astor: Astor = inject('astor');
-
+    console.log(window.location.href)
     config.ready(() => {
       document.addEventListener("astilectron-ready", function() {
         config.getIgopherConfig(astor, fillInputs);
-        let dmBotLaunchBtn = document.querySelector("#dmBotLaunchBtn");
-        let dmBotLaunchIcon = document.querySelector("#dmBotLaunchIcon");
-        let dmBotLaunchSpan = document.querySelector("#dmBotLaunchSpan");
-        let dmBotHotReloadBtn = document.querySelector("#dmBotHotReloadBtn");
-        let dmBotHotReloadIcn = document.querySelector("#dmBotHotReloadIcn");
+        const dmBotLaunchBtn = document.querySelector("#dmBotLaunchBtn");
+        const dmBotLaunchIcon = document.querySelector("#dmBotLaunchIcon");
+        const dmBotLaunchSpan = document.querySelector("#dmBotLaunchSpan");
+        const dmBotHotReloadBtn = document.querySelector("#dmBotHotReloadBtn");
+        const dmBotHotReloadIcn = document.querySelector("#dmBotHotReloadIcn");
 
         // Dynamics buttons inits
-        var dmBotRunning = sessionStorage.getItem("botState");
+        let dmBotRunning = sessionStorage.getItem("botState");
         if (dmBotRunning === "false" || dmBotRunning === null) {
           dmBotLaunchBtn.classList.add("btn-success");
           dmBotLaunchBtn.classList.remove("btn-danger");
@@ -212,7 +206,7 @@ function fillInputs() {
   const scrappingQuantityField = document.getElementById(
     "scrappingQuantity"
   ) as HTMLInputElement
-  scrappingQuantityField.value =config.igopherConfig.scrapper.scrappingQuantity;
+  scrappingQuantityField.value = config.igopherConfig.scrapper.scrappingQuantity;
 }
 </script>
 

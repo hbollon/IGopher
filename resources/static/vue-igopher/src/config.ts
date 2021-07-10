@@ -1,3 +1,4 @@
+import { Astor } from './plugins/astilectron';
 export const iziToast: any = require("izitoast"); // eslint-disable-line
 export const bootstrap: any = require("@/bootstrap/js/bootstrap.min.js"); // eslint-disable-line
 export const SUCCESS = "Success";
@@ -36,14 +37,15 @@ export const ready = (callback: any) => {
     else document.addEventListener("DOMContentLoaded", callback);
 }
 
-export function getIgopherConfig(astor: any, callback: () => void) {
+export function getIgopherConfig(astor: Astor, callback: () => void) {
     // Get actual IGopher configuration to fill inputs
-    astor.trigger("getConfig", {}, (message: any) => {
+    astor.trigger("getConfig", {}, function(message: any) {
         if (message.status === SUCCESS) {
             igopherConfig = JSON.parse(message.msg);
             console.log("getIgopherConfig: "+igopherConfig);
             callback();
         } else {
+            console.log(message.msg)
             iziToast.error({
                 message: message.msg,
             });

@@ -34,8 +34,8 @@ export class Astor {
     }
 
     onIsReady(callback: any) {
-        let self = this;
-        let delay = 100;
+        const self = this;
+        const delay = 100;
         if (!this.isReady) {
             setTimeout( () => {
                 if (this.isReady) {
@@ -52,14 +52,14 @@ export class Astor {
     }
 
     onAstilectronMessage(message: any) {
-        if (Array.prototype.slice.call(arguments).length == 1) {
+        if (Array.prototype.slice.call(arguments).length == 1) { // eslint-disable-line
             if (message) {
                 this.log('GO -> Vue', message);
                 this.emit(message.name, message);
             }
         } else {
-            let identifier = message;
-            message = Array.prototype.slice.call(arguments)[1];
+            const identifier = message;
+            message = Array.prototype.slice.call(arguments)[1]; // eslint-disable-line
             if (message) {
                 this.log('GO -> Vue', message);
                 this.emit(identifier, message);
@@ -126,7 +126,13 @@ export class Astor {
 export default {
     install (Vue: any, options: any) {
         const { debug, skipWait, emitter } = options;
-
         const astor: Astor = new Astor(debug, skipWait, emitter)
+
+        Vue.config.globalProperties.$astor = astor;
+        Vue.config.globalProperties.$astor.debug = debug;
+        Vue.config.globalProperties.$astor.skipWait = skipWait;
+        Vue.config.globalProperties.$astor.init();
+
+        Vue.provide('astor', astor);
     }
 }

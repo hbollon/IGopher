@@ -77,7 +77,7 @@ config.ready(() => {
 
   // Scroll to top button callback
   function backToTop() {
-    let rootElement = document.documentElement
+    const rootElement = document.documentElement
     rootElement.scrollTo({
       top: 0,
       behavior: "smooth"

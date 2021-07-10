@@ -12,6 +12,23 @@
   ></a>
 </template>
 
+<script lang="ts">
+import { Vue, Options } from "vue-class-component";
+import LateralNav from "@/components/LateralNav.vue";
+import NavBar from "@/components/NavBar.vue";
+import Footer from "@/components/Footer.vue";
+import "@/theme"
+
+@Options({
+  components: {
+    LateralNav,
+    NavBar,
+    Footer,
+  }
+})
+export default class App extends Vue {}
+</script>
+
 <style lang="scss">
 #app {
   font-family: Roboto, Helvetica, Arial, sans-serif;
@@ -48,12 +65,3 @@
   background-color: rgb(68, 68, 68);
 }
 </style>
-
-<script lang="ts">
-import { defineComponent } from "vue";
-import "@/theme"
-
-export default defineComponent({
-  name: "App"
-});
-</script>
