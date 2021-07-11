@@ -14,10 +14,12 @@ import { Astor } from "@/plugins/astilectron";
     SettingsPanel,
   },
   mounted() {
+      console.log("settings")
     const astor: Astor = inject('astor');
 
     config.ready(() => {
-      document.addEventListener("astilectron-ready", function() {
+      astor.onIsReady(function() {
+        console.log("settings")
         config.getIgopherConfig(astor, fillInputs);
 
         /// Buttons

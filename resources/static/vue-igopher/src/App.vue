@@ -1,6 +1,6 @@
 <template>
   <LateralNav />
-  <div class="d-flex flex-column" id="content-wrapper">
+  <div class="d-flex flex-column w-100" id="content-wrapper">
     <div id="content">
       <NavBar />
       <router-view />

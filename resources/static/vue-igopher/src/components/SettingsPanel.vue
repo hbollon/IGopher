@@ -130,6 +130,6 @@ export default class SettingsPanel extends Vue {
 }
 </script>
 
-<style>
+<style lang="scss">
 
 </style>

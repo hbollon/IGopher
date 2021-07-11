@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import { inject } from 'vue'
+import { inject, onActivated } from 'vue'
 import DmAutomationPanel from "@/components/DmAutomationPanel.vue";
 import * as config from "@/config"
 import { Astor } from "@/plugins/astilectron";
@@ -14,10 +14,11 @@ import { Astor } from "@/plugins/astilectron";
     DmAutomationPanel,
   },
   mounted() {
+    console.log("dmautomation")
     const astor: Astor = inject('astor');
-    console.log(window.location.href)
+    
     config.ready(() => {
-      document.addEventListener("astilectron-ready", function() {
+      astor.onIsReady(function() {
         config.getIgopherConfig(astor, fillInputs);
         const dmBotLaunchBtn = document.querySelector("#dmBotLaunchBtn");
         const dmBotLaunchIcon = document.querySelector("#dmBotLaunchIcon");

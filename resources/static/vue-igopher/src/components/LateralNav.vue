@@ -8,10 +8,10 @@
             <ul class="navbar-nav text-light" id="accordionSidebar">
                 <li class="nav-item"></li>
                 <li class="nav-item"></li>
-                <li class="nav-item"><a class="nav-link" href="index.html#/"><i class="fa fa-envelope"></i><span>DM Automation&nbsp;</span></a></li>
+                <li class="nav-item"><router-link class="nav-link" to="/"><i class="fa fa-envelope"></i><span>DM Automation&nbsp;</span></router-link></li>
                 <li class="nav-item"></li>
-                <li class="nav-item"><a class="nav-link" href="index.html#/settings"><i class="fa fa-gears"></i><span>Settings</span></a></li>
-                <li class="nav-item"><a class="nav-link" href="index.html#/logs"><i class="fa fa-list-alt"></i><span>Logs</span></a></li>
+                <li class="nav-item"><router-link class="nav-link" to="/settings"><i class="fa fa-gears"></i><span>Settings</span></router-link></li>
+                <li class="nav-item"><router-link class="nav-link" to="/logs"><i class="fa fa-list-alt"></i><span>Logs</span></router-link></li>
             </ul>
             <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
         </div>

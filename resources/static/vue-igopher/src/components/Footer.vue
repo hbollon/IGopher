@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-white sticky-footer">
+  <footer class="bg-white sticky-footer mt-auto">
     <div class="container my-auto">
       <div class="text-center my-auto copyright">
         <span>Copyright © IGopher 2021</span>
