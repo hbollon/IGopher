@@ -42,7 +42,7 @@ export function getIgopherConfig(astor: Astor, callback: () => void) {
     astor.trigger("getConfig", {}, function(message: any) {
         if (message.status === SUCCESS) {
             igopherConfig = JSON.parse(message.msg);
-            console.log("getIgopherConfig: "+igopherConfig);
+            console.log("getIgopherConfig: ", igopherConfig);
             callback();
         } else {
             console.log(message.msg)
