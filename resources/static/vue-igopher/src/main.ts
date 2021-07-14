@@ -2,6 +2,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import astor from "@/plugins/astilectron";
+import titleMixin from "@/mixins/titleMixin";
 
 import mitt, { Emitter } from 'mitt';
 const emitter: Emitter = mitt();
@@ -17,5 +18,6 @@ app
       debug: true,
       emitter: emitter
     })
+  .mixin(titleMixin)
   .use(router)
   .mount("#app");

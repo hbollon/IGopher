@@ -10,6 +10,7 @@ import * as config from "@/config"
 import { Astor } from "@/plugins/astilectron";
 
 @Options({
+  title: "Settings",
   components: {
     SettingsPanel,
   },

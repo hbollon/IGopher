@@ -65,6 +65,7 @@ class Pager {
 }
 
 @Options({
+  title: "Logs",
   components: {
     LogsPanel,
   },
