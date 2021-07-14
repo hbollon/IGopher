@@ -15,7 +15,6 @@ import { Astor } from "@/plugins/astilectron";
     DmAutomationPanel,
   },
   mounted() {
-    console.log("dmautomation")
     const astor: Astor = inject('astor');
     
     config.ready(() => {

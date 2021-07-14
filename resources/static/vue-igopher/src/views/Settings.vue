@@ -15,7 +15,6 @@ import { Astor } from "@/plugins/astilectron";
     SettingsPanel,
   },
   mounted() {
-      console.log("settings")
     const astor: Astor = inject('astor');
 
     config.ready(() => {
