@@ -11,9 +11,9 @@
     "dependencies": {
         "core-js": "^3.6.5",
         "mitt": "^2.1.0",
+        "sweetalert2": "^11.0.18",
         "vue": "^3.0.11",
         "vue-class-component": "^8.0.0-0",
-        "vue-izitoast": "^1.2.1",
         "vue-router": "^4.0.0-0"
     },
     "devDependencies": {

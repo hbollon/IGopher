@@ -1,18 +1,21 @@
 import { Astor } from "./plugins/astilectron";
-export const iziToast: any = require("izitoast"); // eslint-disable-line
+import Swal from 'sweetalert2'
 export const bootstrap: any = require("@/bootstrap/js/bootstrap.min.js"); // eslint-disable-line
 export const SUCCESS = "Success";
 export const ERROR = "Error";
 export var igopherConfig: any; // eslint-disable-line
 
-// iziToast configuration for notification system
-iziToast.settings({
-  position: "topRight",
-  timeout: 8000,
-  closeOnClick: true,
-  resetOnHover: false,
-  transitionIn: "flipInX",
-  transitionOut: "flipOutX",
+export const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-right',
+  iconColor: 'white',
+  customClass: {
+    popup: 'colored-toast'
+  },
+  showConfirmButton: false,
+  showCloseButton: true,
+  timer: 3000,
+  timerProgressBar: true
 });
 
 // Parse JSON Array to JSON Object
@@ -45,9 +48,9 @@ export function getIgopherConfig(astor: Astor, callback: () => void) {
       console.log("getIgopherConfig: ", igopherConfig);
       callback();
     } else {
-      console.log(message.msg);
-      iziToast.error({
-        message: message.msg,
+      Toast.fire({
+        icon: 'error',
+        title: 'Error',
       });
     }
   });
