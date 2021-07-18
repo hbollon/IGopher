@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        
+
       - name: Install Go
         uses: actions/setup-go@v2
         with:
@@ -40,7 +40,7 @@ jobs:
 
       - name: Bundle
         run: |
-          cd ../../../cmd/igopher/gui-bundler
+          cd cmd/igopher/gui-bundler
           mv bind.go bind.go.tmp
           astilectron-bundler -c bundler.json
 
