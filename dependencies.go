@@ -320,7 +320,8 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 		if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*linux64.tar.gz", "geckodriver.tar.gz", true); err != nil {
 			log.Errorf("Unable to find the latest Geckodriver: %s", err)
 		}
-		if err := addLatestGithubRelease(ctx, "hbollon", "proxy-login-automator", "proxy-login-automator-.*linux64", "proxy-login-automator", false); err != nil {
+		if err := addLatestGithubRelease(ctx, "hbollon", "proxy-login-automator", "proxy-login-automator-.*linux64",
+			"proxy-login-automator", false); err != nil {
 			log.Errorf("Unable to find the latest proxy-login-automator: %s", err)
 		}
 	}

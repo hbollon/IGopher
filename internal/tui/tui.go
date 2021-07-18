@@ -57,11 +57,12 @@ const (
 
 // Keyboard key
 const (
-	ctrlC = "ctrl+c"
-	ctrlB = "ctrl+b"
-	enter = "enter"
-	up    = "up"
-	down  = "down"
+	ctrlC    = "ctrl+c"
+	ctrlB    = "ctrl+b"
+	enter    = "enter"
+	up       = "up"
+	down     = "down"
+	shiftTab = "shift+tab"
 )
 
 var (

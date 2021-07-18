@@ -79,10 +79,9 @@ func HandleMessages(w *astilectron.Window) {
 		config = ImportConfig()
 		if callback, ok := CallbackMap[i.Msg]; ok {
 			return callback(&i)
-		} else {
-			logrus.Errorf("Unexpected message received: \"%s\"", i.Msg)
-			return MessageOut{Status: ERROR, Msg: "Unknown error: Invalid message received"}
 		}
+		logrus.Errorf("Unexpected message received: \"%s\"", i.Msg)
+		return MessageOut{Status: ERROR, Msg: "Unknown error: Invalid message received"}
 	})
 	window = w
 }

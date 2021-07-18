@@ -52,11 +52,11 @@ func (m model) UpdateSettingsProxy(msg tea.Msg) (model, tea.Cmd) {
 			}
 
 		// Cycle between inputs
-		case "tab", "shift+tab", up, down:
+		case "tab", shiftTab, up, down:
 			s := msg.String()
 
 			// Cycle indexes
-			if s == up || s == "shift+tab" {
+			if s == up || s == shiftTab {
 				m.settingsProxy.index--
 			} else {
 				m.settingsProxy.index++
