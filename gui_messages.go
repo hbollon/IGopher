@@ -27,6 +27,24 @@ var (
 	cancel                          context.CancelFunc
 )
 
+// CallbackMap is a map of callback functions for each message
+var CallbackMap = map[string]func(*MessageIn) MessageOut{
+	"resetGlobalDefaultSettings":  (*MessageIn).resetGlobalSettingsCallback,
+	"clearAllData":                (*MessageIn).clearDataCallback,
+	"igCredentialsForm":           (*MessageIn).credentialsFormCallback,
+	"quotasForm":                  (*MessageIn).quotasFormCallback,
+	"schedulerForm":               (*MessageIn).schedulerCallback,
+	"blacklistForm":               (*MessageIn).blacklistFormCallback,
+	"dmSettingsForm":              (*MessageIn).dmBotFormCallback,
+	"dmUserScrappingSettingsForm": (*MessageIn).dmScrapperFormCallback,
+	"proxyForm":                   (*MessageIn).proxyFormCallback,
+	"launchDmBot":                 (*MessageIn).launchDmBotCallback,
+	"stopDmBot":                   (*MessageIn).stopDmBotCallback,
+	"hotReloadBot":                (*MessageIn).hotReloadCallback,
+	"getLogs":                     (*MessageIn).getLogsCallback,
+	"getConfig":                   (*MessageIn).getConfigCallback,
+}
+
 // MessageOut represents a message for electron (going out)
 type MessageOut struct {
 	Status  SucessState `json:"status"`
@@ -59,50 +77,9 @@ func HandleMessages(w *astilectron.Window) {
 
 		// Process message
 		config = ImportConfig()
-		switch i.Msg {
-		case "resetGlobalDefaultSettings":
-			return i.resetGlobalSettingsCallback()
-
-		case "clearAllData":
-			return i.clearDataCallback()
-
-		case "igCredentialsForm":
-			return i.credentialsFormCallback()
-
-		case "quotasForm":
-			return i.quotasFormCallback()
-
-		case "schedulerForm":
-			return i.schedulerCallback()
-
-		case "blacklistForm":
-			return i.blacklistFormCallback()
-
-		case "dmSettingsForm":
-			return i.dmBotFormCallback()
-
-		case "dmUserScrappingSettingsForm":
-			return i.dmScrapperFormCallback()
-
-		case "proxyForm":
-			return i.proxyFormCallback()
-
-		case "launchDmBot":
-			return i.launchDmBotCallback()
-
-		case "stopDmBot":
-			return i.stopDmBotCallback()
-
-		case "hotReloadBot":
-			return i.hotReloadCallback()
-
-		case "getLogs":
-			return i.getLogsCallback()
-
-		case "getConfig":
-			return i.getConfigCallback()
-
-		default:
+		if callback, ok := CallbackMap[i.Msg]; ok {
+			return callback(&i)
+		} else {
 			logrus.Errorf("Unexpected message received: \"%s\"", i.Msg)
 			return MessageOut{Status: ERROR, Msg: "Unknown error: Invalid message received"}
 		}

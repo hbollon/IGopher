@@ -16,7 +16,7 @@ require (
 	github.com/google/go-github/v27 v27.0.4
 	github.com/lucasb-eyer/go-colorful v1.0.3
 	github.com/magefile/mage v1.11.0 // indirect
-	github.com/mitchellh/go-ps v1.0.0 // indirect
+	github.com/mitchellh/go-ps v1.0.0
 	github.com/muesli/reflow v0.2.0
 	github.com/muesli/termenv v0.7.4
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
