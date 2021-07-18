@@ -1,14 +1,24 @@
 #!/bin/bash
 # Script used to build GUI version and bundle executables for Windows/Linux/MacOS
+# Require Go and Node/Npm installed
+# You must locate your terminal into the scripts sub-folder before running this script
 
-# Check if pwd is located inside the IGopher gui-bundler folder
-if [ $(basename "$PWD") != "gui-bundler" ]; then
-    cd "${0%/*}/../cmd/igopher/gui-bundler"
-    if [ $(basename "$PWD") != "gui-bundler" ]; then
-        echo "Invalid current directory! Please cd to the IGopher directory and re-run this script."
+# Check if pwd is located inside the "scripts" sub-folder
+if [ $(basename "$PWD") != "scripts" ]; then
+    cd "scripts"
+    if [ $(basename "$PWD") != "scripts" ]; then
+        echo "Invalid current directory! Please cd to the IGopher scripts sub-directory and re-run this script."
         exit 1
     fi
 fi
+
+cd "../resources/static/vue-igopher"
+
+# Install node dependencies and build vue-igopher
+npm install
+npm run build
+
+cd "../../../cmd/igopher/gui-bundler"
 
 # Download and install go-astilectron-bundler
 go get github.com/asticode/go-astilectron-bundler/...
