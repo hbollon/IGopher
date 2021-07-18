@@ -55,7 +55,7 @@ func main() {
 	}
 
 	// New window
-	if w, err = a.NewWindow("./resources/static/vue-igopher/dist/index.html", &astilectron.WindowOptions{
+	if w, err = a.NewWindow("./resources/static/vue-igopher/dist/app/index.html", &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
 		Width:  astikit.IntPtr(1400),
 		Height: astikit.IntPtr(1000),

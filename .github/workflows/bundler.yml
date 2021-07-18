@@ -11,13 +11,18 @@ jobs:
     env:
       GO111MODULE: "on"
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
       - name: Install Go
         uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go-version }}
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
       - name: Download Go modules
         run: go mod download
@@ -27,9 +32,15 @@ jobs:
           go get github.com/asticode/go-astilectron-bundler/...
           go install github.com/asticode/go-astilectron-bundler/astilectron-bundler
 
+      - name: Download npm dependencies and build Vue project
+        run: |
+          cd resources/static/vue-igopher
+          npm install
+          npm run build
+
       - name: Bundle
         run: |
-          cd cmd/igopher/gui-bundler
+          cd ../../../cmd/igopher/gui-bundler
           mv bind.go bind.go.tmp
           astilectron-bundler -c bundler.json
 

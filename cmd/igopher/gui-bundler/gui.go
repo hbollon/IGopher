@@ -44,9 +44,9 @@ func main() {
 			return nil
 		},
 		RestoreAssets: RestoreAssets,
-		ResourcesPath: "resources/static",
+		ResourcesPath: "resources/static/vue-igopher/dist",
 		Windows: []*bootstrap.Window{{
-			Homepage: "dm_automation.html",
+			Homepage: "index.html",
 			Options: &astilectron.WindowOptions{
 				BackgroundColor: astikit.StrPtr("#333"),
 				Center:          astikit.BoolPtr(true),
