@@ -77,7 +77,7 @@ bundle: build-vue install
 	@echo "Done. Executables are located in 'cmd/igopher/gui-bundler/output/' folder"
 
 ## install: Install go dependencies
-.PHONY: installNAME
+.PHONY: install
 install:
 	go get ./...
 
@@ -100,13 +100,13 @@ clean:
 	rm -rf $(VUE_DIST_DIR)
 
 .PHONY: all
-all: lint test build-vue build-all
+all: lint test build-vue build-all bundle
 
 .PHONY: help
 all: help
 help: Makefile
 	@echo
-	@echo " Choose a command run in "$(PROJECTNAME)":"
+	@echo " Choose a command to run in "$(NAME)":"
 	@echo
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
 	@echo
