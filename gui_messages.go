@@ -11,11 +11,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type SucessState string
+type MsgState string
 
 const (
-	SUCCESS SucessState = "Success"
-	ERROR   SucessState = "Error"
+	SUCCESS MsgState = "Success"
+	ERROR   MsgState = "Error"
+	INFO    MsgState = "Info"
 )
 
 var (
@@ -47,7 +48,7 @@ var CallbackMap = map[string]func(*MessageIn) MessageOut{
 
 // MessageOut represents a message for electron (going out)
 type MessageOut struct {
-	Status  SucessState `json:"status"`
+	Status  MsgState    `json:"status"`
 	Msg     string      `json:"msg"`
 	Payload interface{} `json:"payload,omitempty"`
 }
@@ -58,10 +59,17 @@ type MessageIn struct {
 	Payload json.RawMessage `json:"payload,omitempty"`
 }
 
+// IsElectronRunning checks if electron is running
+func IsElectronRunning() bool {
+	return window != nil
+}
+
 // SendMessageToElectron will send a message to Electron Gui and execute a callback
 // Callback function is optional
 func SendMessageToElectron(msg MessageOut, callbacks ...astilectron.CallbackMessage) {
-	window.SendMessage(msg, callbacks...)
+	if IsElectronRunning() {
+		window.SendMessage(msg, callbacks...)
+	}
 }
 
 // HandleMessages is handling function for incoming messages

@@ -55,7 +55,7 @@ export class Astor {
         if (Array.prototype.slice.call(arguments).length == 1) { // eslint-disable-line
             if (message) {
                 this.log('GO -> Vue', message);
-                this.emit(message.name, message);
+                this.emit(message.msg, message);
             }
         } else {
             const identifier = message;

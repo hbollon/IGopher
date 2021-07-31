@@ -60,6 +60,18 @@ type file struct {
 	browser    bool
 }
 
+type downloadsTracking map[string]*downloadStatus
+
+type downloadStatus struct {
+	TotalSize      int64
+	DownloadedSize int64
+	Progress       float64
+	Speed          int64
+	Started        bool
+	Completed      bool
+	Failed         bool
+}
+
 var (
 	files = []file{
 		{
@@ -332,9 +344,13 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 	)
 
 	var wg sync.WaitGroup
+	var filesToDl []file
+	dlTracking := make(downloadsTracking)
 	for _, file := range files {
 		if file.os == "" || file.os == runtime.GOOS {
 			wg.Add(1)
+			dlTracking[file.name] = &downloadStatus{}
+			filesToDl = append(filesToDl, file)
 			bar := p.Add(0,
 				mpb.NewBarFiller("[=>-|"),
 				mpb.BarFillerClearOnComplete(),
@@ -351,18 +367,26 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 			file := file
 			go func() {
 				time.Sleep(2 * time.Second)
-				if err := handleFile(bar, file, downloadBrowsers, forceDl); err != nil {
+				if err := handleFile(bar, dlTracking, file, downloadBrowsers, forceDl); err != nil {
 					log.Fatalf("Error handling %s: %s", file.name, err)
 				}
 				wg.Done()
 			}()
 		}
 	}
+	if IsElectronRunning() {
+		done := make(chan bool)
+		go followUpDownloads(dlTracking, filesToDl, done)
+		defer func(done chan bool) {
+			done <- true
+			close(done)
+		}(done)
+	}
 	p.Wait()
 	wg.Wait()
 }
 
-func handleFile(bar *mpb.Bar, file file, downloadBrowsers, forceDl bool) error {
+func handleFile(bar *mpb.Bar, dlTracking downloadsTracking, file file, downloadBrowsers, forceDl bool) error {
 	if file.browser && !downloadBrowsers {
 		log.Infof("Skipping %q because --download_browser is not set.", file.name)
 		bar.Abort(true)
@@ -372,7 +396,7 @@ func handleFile(bar *mpb.Bar, file file, downloadBrowsers, forceDl bool) error {
 		log.Debugf("Skipping file %q which has already been downloaded.", file.name)
 		bar.Abort(true)
 	} else {
-		if err := downloadFile(bar, file); err != nil {
+		if err := downloadFile(bar, dlTracking, file); err != nil {
 			bar.Abort(true)
 			return err
 		}
@@ -419,7 +443,7 @@ func extractFile(file file) error {
 	return nil
 }
 
-func downloadFile(bar *mpb.Bar, file file) (err error) {
+func downloadFile(bar *mpb.Bar, dlTracking downloadsTracking, file file) (err error) {
 	f, err := os.Create(file.path)
 	if err != nil {
 		return fmt.Errorf("error creating %q: %v", file.path, err)
@@ -431,11 +455,16 @@ func downloadFile(bar *mpb.Bar, file file) (err error) {
 	}()
 
 	resp, err := http.Get(file.url)
-	bar.SetTotal(resp.ContentLength, false)
 	if err != nil {
 		return fmt.Errorf("%s: error downloading %q: %v", file.name, file.url, err)
 	}
 	defer resp.Body.Close()
+
+	bar.SetTotal(resp.ContentLength, false)
+	if track, ok := dlTracking[file.name]; ok {
+		track.TotalSize = resp.ContentLength
+	}
+
 	if file.hash != "" {
 		var h hash.Hash
 		switch strings.ToLower(file.hashType) {
@@ -446,6 +475,7 @@ func downloadFile(bar *mpb.Bar, file file) (err error) {
 		default:
 			h = sha256.New()
 		}
+		dlTracking[file.name].Started = true
 		if _, err := io.Copy(io.MultiWriter(f, h), bar.ProxyReader(resp.Body)); err != nil {
 			return fmt.Errorf("%s: error downloading %q: %v", file.name, file.url, err)
 		}
@@ -453,11 +483,67 @@ func downloadFile(bar *mpb.Bar, file file) (err error) {
 			return fmt.Errorf("%s: got %s hash %q, want %q", file.name, file.hashType, h, file.hash)
 		}
 	} else {
+		dlTracking[file.name].Started = true
 		if _, err := io.Copy(f, bar.ProxyReader(resp.Body)); err != nil {
 			return fmt.Errorf("%s: error downloading %q: %v", file.name, file.url, err)
 		}
 	}
 	return nil
+}
+
+// Will regulrary check downloads status and calculate progress pencentages
+// to send it to Electron GUI if it's running
+func followUpDownloads(dlTracking downloadsTracking, srcFiles []file, done chan bool) {
+	time.Sleep(2 * time.Second)
+	for {
+		select {
+		case <-done:
+			msg := MessageOut{
+				Status: SUCCESS,
+				Msg:    "downloads done",
+			}
+			SendMessageToElectron(msg)
+			log.Infof("Downloads finished")
+			return
+		default:
+			for _, srcFile := range srcFiles {
+				if track, ok := dlTracking[srcFile.name]; ok {
+					if track.Started && !track.Completed && !track.Failed {
+						file, err := os.Open(srcFile.path)
+						if err != nil {
+							log.Error(err)
+						}
+
+						fi, err := file.Stat()
+						if err != nil {
+							log.Error(err)
+						}
+
+						size := fi.Size()
+						if size == 0 {
+							size = 1
+						}
+
+						track.DownloadedSize = size
+						track.Progress = float64(size) / float64(track.TotalSize) * 100
+						if track.Progress == 100 {
+							track.Completed = true
+						}
+					}
+				} else {
+					log.Errorf("%s: download tracking not found", srcFile.name)
+				}
+			}
+
+			msg := MessageOut{
+				Status:  INFO,
+				Msg:     "downloads tracking",
+				Payload: dlTracking,
+			}
+			SendMessageToElectron(msg)
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func fileSameHash(file file) bool {

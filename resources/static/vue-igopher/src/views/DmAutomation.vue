@@ -1,4 +1,5 @@
 <template>
+  <DownloadTracking v-if="this.downloading" @done="this.dissmissModalComp()"/>
   <DmAutomationPanel />
 </template>
 
@@ -6,19 +7,35 @@
 import { Options, Vue } from "vue-class-component";
 import { inject } from "vue";
 import DmAutomationPanel from "@/components/DmAutomationPanel.vue";
+import DownloadTracking from "@/components/DownloadTracking.vue";
 import * as config from "@/config";
 import { Astor } from "@/plugins/astilectron";
 
 @Options({
   title: "DM Automation",
   components: {
+    DownloadTracking,
     DmAutomationPanel,
+  },
+  data() {
+    return {
+      downloading: false
+    }
+  },
+  methods: {
+    dissmissModalComp() {
+      this.downloading = false;
+      config.Toast.fire({
+        icon: "success",
+        title: "Bot successfully launched!",
+      });
+    },
   },
   mounted() {
     const astor: Astor = inject("astor");
 
     config.ready(() => {
-      astor.onIsReady(function() {
+      astor.onIsReady(() => {
         config.getIgopherConfig(astor, fillInputs);
         const dmBotLaunchBtn = document.querySelector("#dmBotLaunchBtn");
         const dmBotLaunchIcon = document.querySelector("#dmBotLaunchIcon");
@@ -43,15 +60,11 @@ import { Astor } from "@/plugins/astilectron";
         }
 
         /// Buttons
-        dmBotLaunchBtn.addEventListener("click", function() {
+        dmBotLaunchBtn.addEventListener("click", () => {
           if (dmBotRunning === "false" || dmBotRunning === null) {
-            astor.trigger("launchDmBot", {}, function(message: any) {
+            astor.trigger("launchDmBot", {}, (message: any) => {
               if (message.status === config.SUCCESS) {
-                config.Toast.fire({
-                  icon: "success",
-                  title: message.msg,
-                });
-
+                this.downloading = true;
                 dmBotRunning = "true";
                 dmBotLaunchBtn.classList.add("btn-danger");
                 dmBotLaunchBtn.classList.remove("btn-success");
