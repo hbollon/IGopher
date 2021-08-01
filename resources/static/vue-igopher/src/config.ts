@@ -40,13 +40,13 @@ export const ready = (callback: any) => {
   else document.addEventListener("DOMContentLoaded", callback);
 };
 
-export function getIgopherConfig(astor: Astor, callback: () => void) {
+export function getIgopherConfig(astor: Astor, callback?: () => void): void {
   // Get actual IGopher configuration to fill inputs
   astor.trigger("getConfig", {}, function(message: any) {
     if (message.status === SUCCESS) {
       igopherConfig = JSON.parse(message.msg);
-      console.log("getIgopherConfig: ", igopherConfig);
-      callback();
+      if (callback !== undefined)
+        callback();
     } else {
       Toast.fire({
         icon: 'error',

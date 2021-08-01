@@ -16,5 +16,6 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-undef': 0,
     "@typescript-eslint/no-this-alias": ["off"],
+    "@typescript-eslint/no-explicit-any": ["off"],
   },
 }
