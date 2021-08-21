@@ -189,6 +189,11 @@ import Multiselect from '@vueform/multiselect'
       ) as HTMLInputElement;
       scrappingQuantityField.value =
         config.igopherConfig.scrapper.scrappingQuantity;
+
+      config.igopherConfig.scrapper.srcUsers.forEach((username: string) => {
+        this.srcUsrMultiSelect.options.push({ value: username, label: username });
+        this.srcUsrMultiSelect.value.push(username);
+      });
     },
     onClickDmBotLaunchBtn(): void {
       const dmBotLaunchBtn = document.querySelector("#dmBotLaunchBtn");
