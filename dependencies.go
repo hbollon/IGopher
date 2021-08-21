@@ -37,7 +37,7 @@ const (
 	// See https://omahaproxy.appspot.com for a list of current releases.
 	//
 	// Update this periodically.
-	desiredChromeBuild = "664981" // This corresponds to version 76.0.3809.0
+	desiredChromeBuild = "885287"
 
 	// desiredFirefoxVersion is the known version of Firefox to download.
 	//

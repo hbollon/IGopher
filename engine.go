@@ -110,6 +110,7 @@ func (s *Selenium) InitChromeWebDriver() {
 		Args: []string{
 			"--disable-extensions",
 			"--disable-infobars",
+			"--disable-dev-shm-usage",
 			"--no-sandbox",
 			"--window-size=360,640",
 		},
