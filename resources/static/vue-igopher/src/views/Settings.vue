@@ -279,6 +279,11 @@ function fillInputs() {
   const dmDayField = document.getElementById("dmDayInput") as HTMLInputElement;
   dmDayField.value = config.igopherConfig.quotas.dmDay;
 
+  const quotasRadio = document.getElementById(
+    config.igopherConfig.quotas.quotasActivation == "true" ? "quotasRadioEnabled" : "quotasRadioDisabled"
+  ) as HTMLInputElement;
+  quotasRadio.checked = true;
+
   const beginAtField = document.getElementById(
     "beginAtInput"
   ) as HTMLInputElement;
@@ -286,6 +291,16 @@ function fillInputs() {
 
   const endAtField = document.getElementById("endAtInput") as HTMLInputElement;
   endAtField.value = config.igopherConfig.schedule.endAt;
+
+  const schedulerRadio = document.getElementById(
+    config.igopherConfig.schedule.scheduleActivation == "true" ? "schedulerRadioEnabled" : "schedulerRadioDisabled"
+  ) as HTMLInputElement;
+  schedulerRadio.checked = true;
+
+  const blacklistRadio = document.getElementById(
+    config.igopherConfig.blacklist.blacklistActivation == "true" ? "blacklistRadioEnabled" : "blacklistRadioDisabled"
+  ) as HTMLInputElement;
+  blacklistRadio.checked = true;
 
   const ipProxyField = document.getElementById("ipInput") as HTMLInputElement;
   ipProxyField.value = config.igopherConfig.webdriver.proxy.ip;
@@ -308,6 +323,11 @@ function fillInputs() {
     ) as HTMLInputElement;
     proxyPasswordField.value = config.igopherConfig.webdriver.proxy.password;
   }
+
+  const proxyRadio = document.getElementById(
+    config.igopherConfig.webdriver.proxy.proxyActivation == "true" ? "proxyRadioEnabled" : "proxyRadioDisabled"
+  ) as HTMLInputElement;
+  proxyRadio.checked = true;
 
   const usernameField = document.getElementById(
     "usernameInput"

@@ -27,16 +27,16 @@
               <div class="form-group mb-3">
                 <label class="form-label">Greeting:&nbsp;</label>
                 <div class="form-check">
-                  <input type="radio" class="form-check-input" id="formCheck-5" value="true" name="greetingActivation" required /><label
+                  <input type="radio" class="form-check-input" id="greetingRadioEnabled" value="true" name="greetingActivation" required /><label
                     class="form-check-label"
-                    for="formCheck-1"
+                    for="greetingRadioEnabled"
                     >Enabled</label
                   >
                 </div>
                 <div class="form-check disabled">
-                  <input type="radio" class="form-check-input" id="formCheck-6" value="false" name="greetingActivation" required checked /><label
+                  <input type="radio" class="form-check-input" id="greetingRadioDisabled" value="false" name="greetingActivation" required checked /><label
                     class="form-check-label"
-                    for="formCheck-2"
+                    for="greetingRadioDisabled"
                     >Disabled</label
                   >
                   <div class="invalid-feedback">Invalid input!</div>
@@ -178,6 +178,11 @@ import Multiselect from '@vueform/multiselect'
       ) as HTMLInputElement;
       greetingTemplateField.value =
         config.igopherConfig.auto_dm.greeting.greetingTemplate;
+
+      const greetingRadio = document.getElementById(
+        config.igopherConfig.auto_dm.greeting.greetingActivation == "true" ? "greetingRadioEnabled" : "greetingRadioDisabled"
+      ) as HTMLInputElement;
+      greetingRadio.checked = true;
 
       const scrappingQuantityField = document.getElementById(
         "scrappingQuantity"
