@@ -70,10 +70,12 @@ import { bootstrap } from "@/config";
       }
     },
     closeModal() {
-      this.dlModal.toggle();
       this.dlModal.dispose();
+      document.body.classList.remove("modal-open");
+      const backdrop = document.querySelector(".modal-backdrop");
+      backdrop.parentNode.removeChild(backdrop);
       this.astor.remove("downloads tracking", this.updateProgress);
-      this.$emit("done");
+      this.$emit("dlDone");
     },
   },
   mounted() {

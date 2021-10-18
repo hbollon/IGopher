@@ -1,5 +1,5 @@
 <template>
-  <DownloadTracking v-if="this.downloading" @done="this.successDl()" @error="this.errorDl()"/>
+  <DownloadTracking v-if="this.downloading" @dlDone="this.successDl()" @error="this.errorDl()"/>
   <DmAutomationPanel @showDlModal="this.showModalComp()"/>
 </template>
 
@@ -24,18 +24,18 @@ import * as config from "@/config";
     showModalComp() {
       this.downloading = true;
     },
-    dissmissModalComp() {
+    dismissModalComp() {
       this.downloading = false;
     },
     errorDl() {
-      this.dissmissModalComp()
+      this.dismissModalComp()
       config.Toast.fire({
         icon: "error",
         title: "Error during bot launch! Check logs tab for more details.",
       });
     },
     successDl() {
-      this.dissmissModalComp()
+      this.dismissModalComp()
       config.Toast.fire({
         icon: "success",
         title: "Bot successfully launched!",
