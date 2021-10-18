@@ -3,9 +3,9 @@
     <div class="d-flex d-xl-flex align-items-xl-center" style="margin-bottom: 20px;">
       <h3 class="text-dark d-flex d-xl-flex justify-content-start mb-1" style="margin-right: auto;">DM Automation</h3>
       <a class="btn btn-warning d-flex justify-content-end btn-icon-split" role="button"
-      id="dmBotHotReloadBtn" style="margin-right: 5px;" @click="onClickDmBotLaunchBtn"
+      id="dmBotHotReloadBtn" style="margin-right: 5px;" @click="onClickHotReloadBtn"
         ><span class="text-white-50 icon"><i class="fas fa-fire" id="dmBotHotReloadIcn"></i></span><span class="text-white text">Hot reload</span></a
-      ><a class="btn btn-success d-flex justify-content-end btn-icon-split" role="button" id="dmBotLaunchBtn" @click="onClickHotReloadBtn"
+      ><a class="btn btn-success d-flex justify-content-end btn-icon-split" role="button" id="dmBotLaunchBtn" @click="onClickDmBotLaunchBtn"
         ><span class="text-white-50 icon"><i class="fas fa-rocket" id="dmBotLaunchIcon"></i></span
         ><span class="text-white text" id="dmBotLaunchSpan">Launch !</span></a
       >
