@@ -108,14 +108,21 @@ func (s *Selenium) InitChromeWebDriver() {
 	chromeCaps := chrome.Capabilities{
 		Path: filepath.FromSlash(chromePath),
 		Args: []string{
+			"--incognito",
 			"--disable-extensions",
 			"--disable-infobars",
 			"--disable-dev-shm-usage",
 			"--no-sandbox",
-			"--window-size=360,640",
+			"--window-size=360,740",
 		},
 		MobileEmulation: &chrome.MobileEmulation{
-			DeviceName: "Nexus 5",
+			DeviceMetrics: &chrome.DeviceMetrics{
+				Width:      360,
+				Height:     740,
+				PixelRatio: 2.05,
+			},
+			UserAgent: "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) " +
+				"AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.137 Mobile Safari/537.36",
 		},
 	}
 	caps.AddChrome(chromeCaps)
