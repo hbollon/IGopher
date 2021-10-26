@@ -87,6 +87,7 @@ func (p *Proxy) LaunchLocalForwarder() error {
 			default:
 				break
 			}
+			time.Sleep(10 * time.Millisecond)
 		}
 	}()
 	time.Sleep(5 * time.Second)

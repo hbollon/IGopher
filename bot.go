@@ -265,6 +265,7 @@ func launchBot(ctx context.Context) {
 		default:
 			break
 		}
+		time.Sleep(10 * time.Millisecond)
 	}
 }
 

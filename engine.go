@@ -186,6 +186,7 @@ func (s *Selenium) SigTermCleaning() {
 			default:
 				break
 			}
+			time.Sleep(10 * time.Millisecond)
 		}
 	}()
 }
@@ -265,5 +266,6 @@ func (s *Selenium) WaitForElement(elementTag, locator string, delay int) (bool, 
 				return true, nil
 			}
 		}
+		time.Sleep(10 * time.Millisecond)
 	}
 }
