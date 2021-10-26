@@ -21,13 +21,13 @@ github.com/asticode/go-astikit v0.15.0/go.mod h1:h4ly7idim1tNhaVkdVBeXQZEE3L0xbl
 github.com/asticode/go-astikit v0.18.0 h1:YvxBzUyAPglkIZWUfVCRp6Ni1uaKQHbvVnZQXtvo81E=
 github.com/asticode/go-astikit v0.18.0/go.mod h1:h4ly7idim1tNhaVkdVBeXQZEE3L0xblP7fCWbgwipF0=
 github.com/asticode/go-astilectron v0.22.3/go.mod h1:Tx+aS0IvbV0cO4TlQbOO1NFA/lATj11vEStydyIjMjM=
-github.com/asticode/go-astilectron v0.24.0 h1:UWUz80rRB0L/IJ8SQ9yMoAXEyZ3108xM75npe/fFekE=
-github.com/asticode/go-astilectron v0.24.0/go.mod h1:Tx+aS0IvbV0cO4TlQbOO1NFA/lATj11vEStydyIjMjM=
+github.com/asticode/go-astilectron v0.25.0 h1:eMDoHuEMn1uaLnRIIYLjhmqJUReifxyX6YyFSWmNtAA=
+github.com/asticode/go-astilectron v0.25.0/go.mod h1:Tx+aS0IvbV0cO4TlQbOO1NFA/lATj11vEStydyIjMjM=
 github.com/asticode/go-astilectron-bootstrap v0.4.10 h1:DYHogwJD1fNm26X9skp/pKhDHzUGAhKavrNr/6X+uUo=
 github.com/asticode/go-astilectron-bootstrap v0.4.10/go.mod h1:4Aab720T9Nx+F5Mzkr1Dy79YvF5jJg4KWFSQ1V/k2ko=
 github.com/asticode/go-astilectron-bundler v0.7.8/go.mod h1:/vghoLATtvcIxsX4/l6jmDYbvsOjwT1b0HQA8QXA3eA=
-github.com/asticode/go-astilectron-bundler v0.7.11 h1:LzjRJKdx5skL4Nc414xIbbjMF2sxfxSgrqUes065VEc=
-github.com/asticode/go-astilectron-bundler v0.7.11/go.mod h1:Y7I/G6ybzW5tqRO6ttUt7exmQHcX8f6dqnrUsVX064o=
+github.com/asticode/go-astilectron-bundler v0.7.12 h1:NpVYzSkAvi2uxcPWapDjQscgbwpfh2OJ/tgO0dw17gE=
+github.com/asticode/go-astilectron-bundler v0.7.12/go.mod h1:0p8rjecxoyaUahllWY6U1dhO89RpTaV+gUkCk04bVPQ=
 github.com/asticode/go-bindata v1.0.0 h1:5whO0unjdx2kbAbzoBMS3307jKAEf3oQ1lJcx5RdgA8=
 github.com/asticode/go-bindata v1.0.0/go.mod h1:t/Y+/iCLrvaYkv8Y6PscRnyUeYzy9y9+8JC9CMcKdHY=
 github.com/atotto/clipboard v0.1.2 h1:YZCtFu5Ie8qX2VmVTBnrqLSiU9XOWwqNRmdT3gIQzbY=
