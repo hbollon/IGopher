@@ -60,6 +60,15 @@ func (bot *IGopher) connectToInstagramWebDriver() {
 		bot.SeleniumStruct.Fatal("Log in button not found: ", err)
 	}
 	randomSleepCustom(10, 15)
+	// Accept second cookies prompt if requested
+	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Allow All Cookies']", "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Allow All Cookies']", "xpath")
+		elem.Click()
+		log.Debug("Second cookies validation done!")
+		randomSleep()
+	} else {
+		log.Info("Second cookies validation button not found, skipping.")
+	}
 	// Check if login was successful
 	if bot.SeleniumStruct.IsElementPresent(selenium.ByXPATH,
 		"//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {

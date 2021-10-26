@@ -136,15 +136,6 @@ func (sc *IGopher) navigateUserFollowersList(srcUsername string) (bool, error) {
 	} else {
 		return true, errors.New("Error during access to user followers list")
 	}
-	randomSleepCustom(1, 3)
-	// Focus list
-	if find, err := sc.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div", "xpath", 10); err == nil && find {
-		dialog, _ := sc.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div", "xpath")
-		dialog.Click()
-		logrus.Debug("Clicked on user followers dialog box")
-	} else {
-		return true, errors.New("Error during focus user followers list dialog")
-	}
 
 	return true, nil
 }
