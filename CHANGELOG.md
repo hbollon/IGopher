@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [0.3.1](https://www.github.com/hbollon/IGopher/compare/v0.3.0...v0.3.1) (2021-10-26)
+
+
+### Bug Fixes
+
+* crash during followers list focus ([d020662](https://www.github.com/hbollon/IGopher/commit/d0206621e7548fb86e3950745461bed9797180fc))
+* **engine:** add --incognito flag to chrome & update user-agent ([a20c0eb](https://www.github.com/hbollon/IGopher/commit/a20c0eba0d4b9d81f363cd647f03b5b8e012145c))
+* **frontend:** launch/hotreload callbacks swiped ([596bc9a](https://www.github.com/hbollon/IGopher/commit/596bc9af65cd15564025cc2be61e0cdb71a17867))
+* **frontend:** modal-backdrop not destroying on modal close ([4c5e1c8](https://www.github.com/hbollon/IGopher/commit/4c5e1c840b3f75f4474f45c6d45ceff01ffcc50d))
+* now check for the second cookies prompt after login (not always present) ([d020662](https://www.github.com/hbollon/IGopher/commit/d0206621e7548fb86e3950745461bed9797180fc))
+* **perf:** slow down goroutines loop to significantly reduce cpu usage ([f0d8739](https://www.github.com/hbollon/IGopher/commit/f0d87398cfe76fbc153be94fa513782832d857f0))
+
 ## [0.3.0] - 2021-03-06
 ### Features
 * native proxy support configurable from both GUI/TUI
