@@ -44,11 +44,15 @@ const (
 	// desiredFirefoxVersion is the known version of Firefox to download.
 	//
 	// Update this periodically.
-	desiredFirefoxVersion = "68.0.1"
+	desiredFirefoxVersion             = "68.0.1"
+	desiredSeleniumVersion            = "3.141.59"
+	desiredProxyLoginAutomatorVersion = "1.0.0"
+	desiredHTMLUnitDriver             = "2.54.0"
+	desiredGeckodriver                = "0.30.0"
+	desiredSauceLabs                  = "4.6.3"
 
-	windowsOs    = "windows"
-	macOs        = "darwin"
-	manifestPath = "./lib/manifest.json"
+	windowsOs = "windows"
+	macOs     = "darwin"
 )
 
 type file struct {
@@ -76,52 +80,98 @@ type downloadStatus struct {
 }
 
 var (
-	files = []file{
-		{
-			Url:        "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar",
-			Name:       "selenium-server.jar",
-			Path:       downloadDirectory + "selenium-server.jar",
-			compressed: false,
-		},
-		{
-			Url:        "https://saucelabs.com/downloads/sc-4.6.3-linux.tar.gz",
-			Name:       "sauce-connect.tar.gz",
-			Path:       downloadDirectory + "sauce-connect.tar.gz",
-			Rename:     []string{downloadDirectory + "sc-4.6.3-linux", downloadDirectory + "sauce-connect"},
-			Os:         "linux",
-			compressed: true,
-		},
-		{
-			Url:        "https://saucelabs.com/downloads/sc-4.6.3-win32.zip",
-			Name:       "sauce-connect.zip",
-			Path:       downloadDirectory + "sauce-connect.zip",
-			Rename:     []string{downloadDirectory + "sc-4.6.3-win32", downloadDirectory + "sauce-connect"},
-			Os:         windowsOs,
-			compressed: true,
-		},
-		{
-			Url:        "https://saucelabs.com/downloads/sc-4.6.3-osx.zip",
-			Name:       "sauce-connect.zip",
-			Path:       downloadDirectory + "sauce-connect.zip",
-			Rename:     []string{downloadDirectory + "sc-4.6.3-osx", downloadDirectory + "sauce-connect"},
-			Os:         macOs,
-			compressed: true,
-		},
+	files             []file
+	downloadDirectory = filepath.FromSlash("./lib/")
+	manifestPath      = filepath.FromSlash("./lib/manifest.json")
+)
+
+func init() {
+	switch runtime.GOOS {
+	case "windows":
+		files = []file{
+			{
+				Url:        fmt.Sprintf("https://saucelabs.com/downloads/sc-%s-win32.zip", desiredSauceLabs),
+				Name:       "sauce-connect.zip",
+				Path:       downloadDirectory + "sauce-connect.zip",
+				Rename:     []string{downloadDirectory + fmt.Sprintf("sc-%s-win32", desiredSauceLabs), downloadDirectory + "sauce-connect"},
+				Os:         runtime.GOOS,
+				compressed: true,
+			},
+		}
+
+	case "darwin":
+		files = []file{
+			{
+				Url:        fmt.Sprintf("https://saucelabs.com/downloads/sc-%s-osx.zip", desiredSauceLabs),
+				Name:       "sauce-connect.zip",
+				Path:       downloadDirectory + "sauce-connect.zip",
+				Rename:     []string{downloadDirectory + fmt.Sprintf("sc-%s-osx", desiredSauceLabs), downloadDirectory + "sauce-connect"},
+				Os:         runtime.GOOS,
+				compressed: true,
+			},
+		}
+
+	case "linux":
+		files = []file{
+			{
+				Url:        fmt.Sprintf("https://saucelabs.com/downloads/sc-%s-linux.tar.gz", desiredSauceLabs),
+				Name:       "sauce-connect.tar.gz",
+				Path:       downloadDirectory + "sauce-connect.tar.gz",
+				Rename:     []string{downloadDirectory + fmt.Sprintf("sc-%s-linux", desiredSauceLabs), downloadDirectory + "sauce-connect"},
+				Os:         runtime.GOOS,
+				compressed: true,
+			},
+		}
+
+	default:
+		log.Fatal("Unsupported OS")
+	}
+}
+
+// addGithubRelease adds a file to the list of files to download from the
+// release of the specified Github repository that matches the asset
+// name and tag. The file will be downloaded to localFileName.
+func addGithubRelease(ctx context.Context, owner, repo, assetName, tag, localFileName string, comp bool) error {
+	client := github.NewClient(nil)
+	rel, _, err := client.Repositories.GetReleaseByTag(ctx, owner, repo, tag)
+	if err != nil {
+		return err
 	}
 
-	downloadDirectory = filepath.FromSlash("./lib/")
-)
+	assetNameRE, err := regexp.Compile(assetName)
+	if err != nil {
+		return fmt.Errorf("invalid asset name regular expression %q: %s", assetName, err)
+	}
+	for _, a := range rel.Assets {
+		if !assetNameRE.MatchString(a.GetName()) {
+			continue
+		}
+		u := a.GetBrowserDownloadURL()
+		if u == "" {
+			return fmt.Errorf("%s does not have a download URL", a.GetName())
+		}
+		files = append(files, file{
+			Name:       localFileName,
+			Path:       downloadDirectory + localFileName,
+			Url:        u,
+			compressed: comp,
+		})
+		return nil
+	}
+
+	return fmt.Errorf("Release for %s not found at http://github.com/%s/%s/releases", assetName, owner, repo)
+}
 
 // addLatestGithubRelease adds a file to the list of files to download from the
 // latest release of the specified Github repository that matches the asset
 // name. The file will be downloaded to localFileName.
 func addLatestGithubRelease(ctx context.Context, owner, repo, assetName, localFileName string, comp bool) error {
 	client := github.NewClient(nil)
-
 	rel, _, err := client.Repositories.GetLatestRelease(ctx, owner, repo)
 	if err != nil {
 		return err
 	}
+
 	assetNameRE, err := regexp.Compile(assetName)
 	if err != nil {
 		return fmt.Errorf("invalid asset name regular expression %q: %s", assetName, err)
@@ -217,10 +267,12 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		return fmt.Errorf("cannot get the chrome package %s%s attrs: %v", gcsPath, latestChromePackage, err)
 	}
 	files = append(files, file{
-		Name:    chromeFilename,
-		Path:    downloadDirectory + chromeFilename,
-		browser: true,
-		Url:     cpAttrs.MediaLink,
+		Name:     chromeFilename,
+		Path:     downloadDirectory + chromeFilename,
+		browser:  true,
+		Url:      cpAttrs.MediaLink,
+		Hash:     hex.EncodeToString(cpAttrs.MD5),
+		HashType: "md5",
 	})
 	latestChromeDriverPackage := path.Join(prefixOS, latestChromeBuild, chromeDriverFilename)
 	cpAttrs, err = bkt.Object(latestChromeDriverPackage).Attrs(ctx)
@@ -228,10 +280,12 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		return fmt.Errorf("cannot get the chrome driver package %s%s attrs: %v", gcsPath, latestChromeDriverPackage, err)
 	}
 	files = append(files, file{
-		Name:   chromeDriverTargetFilename,
-		Path:   downloadDirectory + chromeDriverTargetFilename,
-		Url:    cpAttrs.MediaLink,
-		Rename: []string{downloadDirectory + downloadDriverPath, downloadDirectory + targetDriverPath},
+		Name:     chromeDriverTargetFilename,
+		Path:     downloadDirectory + chromeDriverTargetFilename,
+		Url:      cpAttrs.MediaLink,
+		Rename:   []string{downloadDirectory + downloadDriverPath, downloadDirectory + targetDriverPath},
+		Hash:     hex.EncodeToString(cpAttrs.MD5),
+		HashType: "md5",
 	})
 	return nil
 }
@@ -290,7 +344,9 @@ func addFirefox(desiredVersion string) {
 
 func CheckDependencies() {
 	for i := 0; i < len(files); i++ {
+		log.Debugf("Checking %s with i=%d\n", files[i].Name, i)
 		if _, finded := findInManifest(files[i].Name); finded {
+			log.Debugf("%s is already in the manifest\n", files[i].Name)
 			files = append(files[:i], files[i+1:]...)
 			i--
 		}
@@ -318,35 +374,39 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 		}
 	}
 
-	if err := addLatestGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar",
-		"htmlunit-driver.jar", false); err != nil {
-		log.Errorf("Unable to find the latest HTMLUnit Driver: %s", err)
+	if err := addGithubRelease(ctx, "SeleniumHQ", "selenium", "selenium-server-.*.jar",
+		fmt.Sprintf("selenium-%s", desiredSeleniumVersion), "selenium-server.jar", false); err != nil {
+		log.Errorf("Unable to find the requested Selenium Server: %s", err)
+	}
+	if err := addGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar",
+		desiredHTMLUnitDriver, "htmlunit-driver.jar", false); err != nil {
+		log.Errorf("Unable to find the requested HTMLUnit Driver: %s", err)
 	}
 
 	if runtime.GOOS == windowsOs {
-		if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*win64.zip", "geckodriver.zip", true); err != nil {
-			log.Errorf("Unable to find the latest Geckodriver: %s", err)
+		if err := addGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*win64.zip", fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.zip", true); err != nil {
+			log.Errorf("Unable to find the requested Geckodriver: %s", err)
 		}
-		if err := addLatestGithubRelease(ctx, "hbollon", "proxy-login-automator",
-			"proxy-login-automator-.*win64.exe", "proxy-login-automator.exe", false); err != nil {
-			log.Errorf("Unable to find the latest proxy-login-automator: %s", err)
+		if err := addGithubRelease(ctx, "hbollon", "proxy-login-automator",
+			fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator-.*win64.exe", "proxy-login-automator.exe", false); err != nil {
+			log.Errorf("Unable to find the requested proxy-login-automator: %s", err)
 		}
 	} else if runtime.GOOS == macOs {
-		if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver",
-			"geckodriver-.*macos.tar.gz", "geckodriver.tar.gz", true); err != nil {
-			log.Errorf("Unable to find the latest Geckodriver: %s", err)
+		if err := addGithubRelease(ctx, "mozilla", "geckodriver",
+			"geckodriver-.*macos.tar.gz", fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.tar.gz", true); err != nil {
+			log.Errorf("Unable to find the requested Geckodriver: %s", err)
 		}
-		if err := addLatestGithubRelease(ctx, "hbollon", "proxy-login-automator",
-			"proxy-login-automator-.*macos", "proxy-login-automator", false); err != nil {
-			log.Errorf("Unable to find the latest proxy-login-automator: %s", err)
+		if err := addGithubRelease(ctx, "hbollon", "proxy-login-automator",
+			fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator-.*macos", "proxy-login-automator", false); err != nil {
+			log.Errorf("Unable to find the requested proxy-login-automator: %s", err)
 		}
 	} else {
-		if err := addLatestGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*linux64.tar.gz", "geckodriver.tar.gz", true); err != nil {
-			log.Errorf("Unable to find the latest Geckodriver: %s", err)
+		if err := addGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*linux64.tar.gz", fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.tar.gz", true); err != nil {
+			log.Errorf("Unable to find the requested Geckodriver: %s", err)
 		}
-		if err := addLatestGithubRelease(ctx, "hbollon", "proxy-login-automator", "proxy-login-automator-.*linux64",
-			"proxy-login-automator", false); err != nil {
-			log.Errorf("Unable to find the latest proxy-login-automator: %s", err)
+		if err := addGithubRelease(ctx, "hbollon", "proxy-login-automator", "proxy-login-automator-.*linux64",
+			fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator", false); err != nil {
+			log.Errorf("Unable to find the requested proxy-login-automator: %s", err)
 		}
 	}
 
@@ -481,11 +541,14 @@ func findInManifest(name string) (file, bool) {
 
 	data := []file{}
 	json.Unmarshal(manifest, &data)
-	index := sort.Search(len(data), func(i int) bool {
-		return data[i].Name == name
+	sort.Slice(data, func(i, j int) bool {
+		return data[i].Name <= data[j].Name
 	})
-	if index < len(data) && data[index].Name == name {
-		return data[index], true
+	idx := sort.Search(len(data), func(i int) bool {
+		return data[i].Name >= name
+	})
+	if idx < len(data) && data[idx].Name == name {
+		return data[idx], true
 	}
 	return file{}, false
 }
@@ -505,16 +568,19 @@ func dumpDependencyToManifest(f file) error {
 
 	data := []file{}
 	json.Unmarshal(manifest, &data)
-	index := sort.Search(len(data), func(i int) bool {
-		return data[i].Name == f.Name
+	sort.Slice(data, func(i, j int) bool {
+		return data[i].Name <= data[j].Name
 	})
-	if index < len(data) && data[index].Name == f.Name {
-		data[index] = f
+	idx := sort.Search(len(data), func(i int) bool {
+		return data[i].Name >= f.Name
+	})
+	if idx < len(data) && data[idx].Name == f.Name {
+		data[idx] = f
 	} else {
 		data = append(data, f)
 	}
 
-	dataBytes, err := json.Marshal(data)
+	dataBytes, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		return err
 	}
