@@ -345,10 +345,14 @@ func addFirefox(desiredVersion string) {
 func CheckDependencies() {
 	for i := 0; i < len(files); i++ {
 		log.Debugf("Checking %s with i=%d\n", files[i].Name, i)
-		if _, finded := findInManifest(files[i].Name); finded {
+		if f, finded := findInManifest(files[i].Name); finded {
 			log.Debugf("%s is already in the manifest\n", files[i].Name)
-			files = append(files[:i], files[i+1:]...)
-			i--
+			if fileSameHash(f) || f.Hash == "" {
+				files = append(files[:i], files[i+1:]...)
+				i--
+			} else {
+				log.Errorf("%s: hash is different from the one in the manifest, reinstallation planned\n", files[i].Name)
+			}
 		}
 	}
 }
@@ -696,16 +700,23 @@ func followUpDownloads(dlTracking downloadsTracking, srcFiles []file, done chan 
 }
 
 func fileSameHash(file file) bool {
+	if file.Hash == "" {
+		return false
+	}
 	if _, err := os.Stat(file.Path); err != nil {
 		return false
 	}
+
 	var h hash.Hash
 	switch strings.ToLower(file.HashType) {
 	case "md5":
 		h = md5.New()
+	case "sha1":
+		h = sha1.New()
 	default:
 		h = sha256.New()
 	}
+
 	f, err := os.Open(file.Path)
 	if err != nil {
 		return false
