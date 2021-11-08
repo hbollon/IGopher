@@ -53,10 +53,11 @@ const (
 
 	windowsOs = "windows"
 	macOs     = "darwin"
+	linuxOs   = "linux"
 )
 
 type file struct {
-	Url        string   `json:"url"`
+	URL        string   `json:"url"`
 	Name       string   `json:"name"`
 	Path       string   `json:"path"`
 	Hash       string   `json:"hash"`
@@ -87,10 +88,10 @@ var (
 
 func init() {
 	switch runtime.GOOS {
-	case "windows":
+	case windowsOs:
 		files = []file{
 			{
-				Url:        fmt.Sprintf("https://saucelabs.com/downloads/sc-%s-win32.zip", desiredSauceLabs),
+				URL:        fmt.Sprintf("https://saucelabs.com/downloads/sc-%s-win32.zip", desiredSauceLabs),
 				Name:       "sauce-connect.zip",
 				Path:       downloadDirectory + "sauce-connect.zip",
 				Rename:     []string{downloadDirectory + fmt.Sprintf("sc-%s-win32", desiredSauceLabs), downloadDirectory + "sauce-connect"},
@@ -99,10 +100,10 @@ func init() {
 			},
 		}
 
-	case "darwin":
+	case macOs:
 		files = []file{
 			{
-				Url:        fmt.Sprintf("https://saucelabs.com/downloads/sc-%s-osx.zip", desiredSauceLabs),
+				URL:        fmt.Sprintf("https://saucelabs.com/downloads/sc-%s-osx.zip", desiredSauceLabs),
 				Name:       "sauce-connect.zip",
 				Path:       downloadDirectory + "sauce-connect.zip",
 				Rename:     []string{downloadDirectory + fmt.Sprintf("sc-%s-osx", desiredSauceLabs), downloadDirectory + "sauce-connect"},
@@ -111,10 +112,10 @@ func init() {
 			},
 		}
 
-	case "linux":
+	case linuxOs:
 		files = []file{
 			{
-				Url:        fmt.Sprintf("https://saucelabs.com/downloads/sc-%s-linux.tar.gz", desiredSauceLabs),
+				URL:        fmt.Sprintf("https://saucelabs.com/downloads/sc-%s-linux.tar.gz", desiredSauceLabs),
 				Name:       "sauce-connect.tar.gz",
 				Path:       downloadDirectory + "sauce-connect.tar.gz",
 				Rename:     []string{downloadDirectory + fmt.Sprintf("sc-%s-linux", desiredSauceLabs), downloadDirectory + "sauce-connect"},
@@ -153,7 +154,7 @@ func addGithubRelease(ctx context.Context, owner, repo, assetName, tag, localFil
 		files = append(files, file{
 			Name:       localFileName,
 			Path:       downloadDirectory + localFileName,
-			Url:        u,
+			URL:        u,
 			compressed: comp,
 		})
 		return nil
@@ -187,7 +188,7 @@ func addLatestGithubRelease(ctx context.Context, owner, repo, assetName, localFi
 		files = append(files, file{
 			Name:       localFileName,
 			Path:       downloadDirectory + localFileName,
-			Url:        u,
+			URL:        u,
 			compressed: comp,
 		})
 		return nil
@@ -270,7 +271,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		Name:     chromeFilename,
 		Path:     downloadDirectory + chromeFilename,
 		browser:  true,
-		Url:      cpAttrs.MediaLink,
+		URL:      cpAttrs.MediaLink,
 		Hash:     hex.EncodeToString(cpAttrs.MD5),
 		HashType: "md5",
 	})
@@ -282,7 +283,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 	files = append(files, file{
 		Name:     chromeDriverTargetFilename,
 		Path:     downloadDirectory + chromeDriverTargetFilename,
-		Url:      cpAttrs.MediaLink,
+		URL:      cpAttrs.MediaLink,
 		Rename:   []string{downloadDirectory + downloadDriverPath, downloadDirectory + targetDriverPath},
 		Hash:     hex.EncodeToString(cpAttrs.MD5),
 		HashType: "md5",
@@ -299,7 +300,7 @@ func addFirefox(desiredVersion string) {
 		if desiredVersion == "" {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				Url:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&lang=en-US",
+				URL:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&lang=en-US",
 				Name:       "firefox-nightly.exe",
 				Path:       downloadDirectory + "firefox-nightly.exe",
 				compressed: false,
@@ -308,7 +309,7 @@ func addFirefox(desiredVersion string) {
 		} else {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				Url: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
+				URL: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
 					url.PathEscape(desiredVersion) + "/en-US/firefox-" +
 					url.PathEscape(desiredVersion) + ".exe",
 				Name:       "firefox.exe",
@@ -321,7 +322,7 @@ func addFirefox(desiredVersion string) {
 		if desiredVersion == "" {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				Url:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US",
+				URL:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US",
 				Name:       "firefox-nightly.tar.bz2",
 				Path:       downloadDirectory + "firefox-nightly.tar.bz2",
 				compressed: true,
@@ -330,7 +331,7 @@ func addFirefox(desiredVersion string) {
 		} else {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				Url: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
+				URL: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
 					url.PathEscape(desiredVersion) + "/linux-x86_64/en-US/firefox-" +
 					url.PathEscape(desiredVersion) + ".tar.bz2",
 				Name:       "firefox.tar.bz2",
@@ -388,11 +389,13 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 	}
 
 	if runtime.GOOS == windowsOs {
-		if err := addGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*win64.zip", fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.zip", true); err != nil {
+		if err := addGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*win64.zip",
+			fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.zip", true); err != nil {
 			log.Errorf("Unable to find the requested Geckodriver: %s", err)
 		}
 		if err := addGithubRelease(ctx, "hbollon", "proxy-login-automator",
-			fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator-.*win64.exe", "proxy-login-automator.exe", false); err != nil {
+			fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator-.*win64.exe",
+			"proxy-login-automator.exe", false); err != nil {
 			log.Errorf("Unable to find the requested proxy-login-automator: %s", err)
 		}
 	} else if runtime.GOOS == macOs {
@@ -405,7 +408,8 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 			log.Errorf("Unable to find the requested proxy-login-automator: %s", err)
 		}
 	} else {
-		if err := addGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*linux64.tar.gz", fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.tar.gz", true); err != nil {
+		if err := addGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*linux64.tar.gz",
+			fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.tar.gz", true); err != nil {
 			log.Errorf("Unable to find the requested Geckodriver: %s", err)
 		}
 		if err := addGithubRelease(ctx, "hbollon", "proxy-login-automator", "proxy-login-automator-.*linux64",
@@ -607,9 +611,9 @@ func downloadFile(bar *mpb.Bar, dlTracking downloadsTracking, file file) (err er
 		}
 	}()
 
-	resp, err := http.Get(file.Url)
+	resp, err := http.Get(file.URL)
 	if err != nil {
-		return fmt.Errorf("%s: error downloading %q: %v", file.Name, file.Url, err)
+		return fmt.Errorf("%s: error downloading %q: %v", file.Name, file.URL, err)
 	}
 	defer resp.Body.Close()
 
@@ -630,7 +634,7 @@ func downloadFile(bar *mpb.Bar, dlTracking downloadsTracking, file file) (err er
 		}
 		dlTracking[file.Name].Started = true
 		if _, err := io.Copy(io.MultiWriter(f, h), bar.ProxyReader(resp.Body)); err != nil {
-			return fmt.Errorf("%s: error downloading %q: %v", file.Name, file.Url, err)
+			return fmt.Errorf("%s: error downloading %q: %v", file.Name, file.URL, err)
 		}
 		if h := hex.EncodeToString(h.Sum(nil)); h != file.Hash {
 			return fmt.Errorf("%s: got %s hash %q, want %q", file.Name, file.HashType, h, file.Hash)
@@ -638,7 +642,7 @@ func downloadFile(bar *mpb.Bar, dlTracking downloadsTracking, file file) (err er
 	} else {
 		dlTracking[file.Name].Started = true
 		if _, err := io.Copy(f, bar.ProxyReader(resp.Body)); err != nil {
-			return fmt.Errorf("%s: error downloading %q: %v", file.Name, file.Url, err)
+			return fmt.Errorf("%s: error downloading %q: %v", file.Name, file.URL, err)
 		}
 	}
 	return nil
