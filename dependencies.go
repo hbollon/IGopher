@@ -6,6 +6,7 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"hash"
 	"io"
@@ -18,6 +19,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -44,18 +46,19 @@ const (
 	// Update this periodically.
 	desiredFirefoxVersion = "68.0.1"
 
-	windowsOs = "windows"
-	macOs     = "darwin"
+	windowsOs    = "windows"
+	macOs        = "darwin"
+	manifestPath = "./lib/manifest.json"
 )
 
 type file struct {
-	url        string
-	name       string
-	path       string
-	hash       string
-	hashType   string // default is sha256
-	rename     []string
-	os         string
+	Url        string   `json:"url"`
+	Name       string   `json:"name"`
+	Path       string   `json:"path"`
+	Hash       string   `json:"hash"`
+	HashType   string   `json:"hash_method"` // default is sha256
+	Rename     []string `json:"rename,omitempty"`
+	Os         string   `json:"os,omitempty"`
 	compressed bool
 	browser    bool
 }
@@ -75,33 +78,33 @@ type downloadStatus struct {
 var (
 	files = []file{
 		{
-			url:        "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar",
-			name:       "selenium-server.jar",
-			path:       downloadDirectory + "selenium-server.jar",
+			Url:        "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar",
+			Name:       "selenium-server.jar",
+			Path:       downloadDirectory + "selenium-server.jar",
 			compressed: false,
 		},
 		{
-			url:        "https://saucelabs.com/downloads/sc-4.6.3-linux.tar.gz",
-			name:       "sauce-connect.tar.gz",
-			path:       downloadDirectory + "sauce-connect.tar.gz",
-			rename:     []string{downloadDirectory + "sc-4.6.3-linux", downloadDirectory + "sauce-connect"},
-			os:         "linux",
+			Url:        "https://saucelabs.com/downloads/sc-4.6.3-linux.tar.gz",
+			Name:       "sauce-connect.tar.gz",
+			Path:       downloadDirectory + "sauce-connect.tar.gz",
+			Rename:     []string{downloadDirectory + "sc-4.6.3-linux", downloadDirectory + "sauce-connect"},
+			Os:         "linux",
 			compressed: true,
 		},
 		{
-			url:        "https://saucelabs.com/downloads/sc-4.6.3-win32.zip",
-			name:       "sauce-connect.zip",
-			path:       downloadDirectory + "sauce-connect.zip",
-			rename:     []string{downloadDirectory + "sc-4.6.3-win32", downloadDirectory + "sauce-connect"},
-			os:         windowsOs,
+			Url:        "https://saucelabs.com/downloads/sc-4.6.3-win32.zip",
+			Name:       "sauce-connect.zip",
+			Path:       downloadDirectory + "sauce-connect.zip",
+			Rename:     []string{downloadDirectory + "sc-4.6.3-win32", downloadDirectory + "sauce-connect"},
+			Os:         windowsOs,
 			compressed: true,
 		},
 		{
-			url:        "https://saucelabs.com/downloads/sc-4.6.3-osx.zip",
-			name:       "sauce-connect.zip",
-			path:       downloadDirectory + "sauce-connect.zip",
-			rename:     []string{downloadDirectory + "sc-4.6.3-osx", downloadDirectory + "sauce-connect"},
-			os:         macOs,
+			Url:        "https://saucelabs.com/downloads/sc-4.6.3-osx.zip",
+			Name:       "sauce-connect.zip",
+			Path:       downloadDirectory + "sauce-connect.zip",
+			Rename:     []string{downloadDirectory + "sc-4.6.3-osx", downloadDirectory + "sauce-connect"},
+			Os:         macOs,
 			compressed: true,
 		},
 	}
@@ -132,9 +135,9 @@ func addLatestGithubRelease(ctx context.Context, owner, repo, assetName, localFi
 			return fmt.Errorf("%s does not have a download URL", a.GetName())
 		}
 		files = append(files, file{
-			name:       localFileName,
-			path:       downloadDirectory + localFileName,
-			url:        u,
+			Name:       localFileName,
+			Path:       downloadDirectory + localFileName,
+			Url:        u,
 			compressed: comp,
 		})
 		return nil
@@ -214,10 +217,10 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		return fmt.Errorf("cannot get the chrome package %s%s attrs: %v", gcsPath, latestChromePackage, err)
 	}
 	files = append(files, file{
-		name:    chromeFilename,
-		path:    downloadDirectory + chromeFilename,
+		Name:    chromeFilename,
+		Path:    downloadDirectory + chromeFilename,
 		browser: true,
-		url:     cpAttrs.MediaLink,
+		Url:     cpAttrs.MediaLink,
 	})
 	latestChromeDriverPackage := path.Join(prefixOS, latestChromeBuild, chromeDriverFilename)
 	cpAttrs, err = bkt.Object(latestChromeDriverPackage).Attrs(ctx)
@@ -225,10 +228,10 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		return fmt.Errorf("cannot get the chrome driver package %s%s attrs: %v", gcsPath, latestChromeDriverPackage, err)
 	}
 	files = append(files, file{
-		name:   chromeDriverTargetFilename,
-		path:   downloadDirectory + chromeDriverTargetFilename,
-		url:    cpAttrs.MediaLink,
-		rename: []string{downloadDirectory + downloadDriverPath, downloadDirectory + targetDriverPath},
+		Name:   chromeDriverTargetFilename,
+		Path:   downloadDirectory + chromeDriverTargetFilename,
+		Url:    cpAttrs.MediaLink,
+		Rename: []string{downloadDirectory + downloadDriverPath, downloadDirectory + targetDriverPath},
 	})
 	return nil
 }
@@ -242,20 +245,20 @@ func addFirefox(desiredVersion string) {
 		if desiredVersion == "" {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				url:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&lang=en-US",
-				name:       "firefox-nightly.exe",
-				path:       downloadDirectory + "firefox-nightly.exe",
+				Url:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&lang=en-US",
+				Name:       "firefox-nightly.exe",
+				Path:       downloadDirectory + "firefox-nightly.exe",
 				compressed: false,
 				browser:    true,
 			})
 		} else {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				url: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
+				Url: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
 					url.PathEscape(desiredVersion) + "/en-US/firefox-" +
 					url.PathEscape(desiredVersion) + ".exe",
-				name:       "firefox.exe",
-				path:       downloadDirectory + "firefox.exe",
+				Name:       "firefox.exe",
+				Path:       downloadDirectory + "firefox.exe",
 				compressed: false,
 				browser:    true,
 			})
@@ -264,23 +267,32 @@ func addFirefox(desiredVersion string) {
 		if desiredVersion == "" {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				url:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US",
-				name:       "firefox-nightly.tar.bz2",
-				path:       downloadDirectory + "firefox-nightly.tar.bz2",
+				Url:        "https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US",
+				Name:       "firefox-nightly.tar.bz2",
+				Path:       downloadDirectory + "firefox-nightly.tar.bz2",
 				compressed: true,
 				browser:    true,
 			})
 		} else {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				url: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
+				Url: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
 					url.PathEscape(desiredVersion) + "/linux-x86_64/en-US/firefox-" +
 					url.PathEscape(desiredVersion) + ".tar.bz2",
-				name:       "firefox.tar.bz2",
-				path:       downloadDirectory + "firefox.tar.bz2",
+				Name:       "firefox.tar.bz2",
+				Path:       downloadDirectory + "firefox.tar.bz2",
 				compressed: true,
 				browser:    true,
 			})
+		}
+	}
+}
+
+func CheckDependencies() {
+	for i := 0; i < len(files); i++ {
+		if _, finded := findInManifest(files[i].Name); finded {
+			files = append(files[:i], files[i+1:]...)
+			i--
 		}
 	}
 }
@@ -338,6 +350,16 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 		}
 	}
 
+	if CheckDependencies(); len(files) == 0 {
+		msg := MessageOut{
+			Status: SUCCESS,
+			Msg:    "downloads done",
+		}
+		SendMessageToElectron(msg)
+		log.Info("All dependencies are already installed, skipping.")
+		return
+	}
+
 	p := mpb.New(
 		mpb.WithWidth(60),
 		mpb.WithRefreshRate(180*time.Millisecond),
@@ -347,15 +369,15 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 	var filesToDl []file
 	dlTracking := make(downloadsTracking)
 	for _, file := range files {
-		if file.os == "" || file.os == runtime.GOOS {
+		if file.Os == "" || file.Os == runtime.GOOS {
 			wg.Add(1)
-			dlTracking[file.name] = &downloadStatus{}
+			dlTracking[file.Name] = &downloadStatus{}
 			filesToDl = append(filesToDl, file)
 			bar := p.Add(0,
 				mpb.NewBarFiller("[=>-|"),
 				mpb.BarFillerClearOnComplete(),
 				mpb.PrependDecorators(
-					decor.OnComplete(decor.Name(file.name+": ", decor.WCSyncSpaceR), file.name+": done!"),
+					decor.OnComplete(decor.Name(file.Name+": ", decor.WCSyncSpaceR), file.Name+": done!"),
 					decor.OnComplete(decor.CountersKibiByte("% .2f / % .2f", decor.WCSyncWidth), ""),
 				),
 				mpb.AppendDecorators(
@@ -368,7 +390,7 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 			go func() {
 				time.Sleep(2 * time.Second)
 				if err := handleFile(bar, dlTracking, file, downloadBrowsers, forceDl); err != nil {
-					log.Fatalf("Error handling %s: %s", file.name, err)
+					log.Fatalf("Error handling %s: %s", file.Name, err)
 				}
 				wg.Done()
 			}()
@@ -388,12 +410,12 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 
 func handleFile(bar *mpb.Bar, dlTracking downloadsTracking, file file, downloadBrowsers, forceDl bool) error {
 	if file.browser && !downloadBrowsers {
-		log.Infof("Skipping %q because --download_browser is not set.", file.name)
+		log.Infof("Skipping %q because --download_browser is not set.", file.Name)
 		bar.Abort(true)
 		return nil
 	}
-	if _, err := os.Stat(file.path); err == nil && !forceDl {
-		log.Debugf("Skipping file %q which has already been downloaded.", file.name)
+	if _, err := os.Stat(file.Path); err == nil && !forceDl {
+		log.Debugf("Skipping file %q which has already been downloaded.", file.Name)
 		bar.Abort(true)
 	} else {
 		if err := downloadFile(bar, dlTracking, file); err != nil {
@@ -405,69 +427,130 @@ func handleFile(bar *mpb.Bar, dlTracking downloadsTracking, file file, downloadB
 	if err := extractFile(file); err != nil {
 		return err
 	}
-	if rename := file.rename; len(rename) == 2 {
+	if rename := file.Rename; len(rename) == 2 {
 		log.Debugf("Renaming %q to %q", rename[0], rename[1])
 		os.RemoveAll(rename[1]) // Ignore error.
 		if err := os.Rename(rename[0], rename[1]); err != nil {
 			log.Warnf("Error renaming %q to %q: %v", rename[0], rename[1], err)
 		}
 	}
+	if err := dumpDependencyToManifest(file); err != nil {
+		log.Error(err)
+	}
 	return nil
 }
 
 func extractFile(file file) error {
-	switch path.Ext(file.name) {
+	switch path.Ext(file.Name) {
 	case ".zip":
-		log.Debugf("Unzipping %q", file.path)
+		log.Debugf("Unzipping %q", file.Path)
 		if runtime.GOOS == windowsOs {
-			if err := exec.Command("tar", "-xf", file.path, "-C", downloadDirectory).Run(); err != nil {
-				return fmt.Errorf("Error unzipping %q: %v", file.path, err)
+			if err := exec.Command("tar", "-xf", file.Path, "-C", downloadDirectory).Run(); err != nil {
+				return fmt.Errorf("Error unzipping %q: %v", file.Path, err)
 			}
 		} else {
-			if err := exec.Command("unzip", "-o", file.path, "-d", downloadDirectory).Run(); err != nil {
-				return fmt.Errorf("Error unzipping %q: %v", file.path, err)
+			if err := exec.Command("unzip", "-o", file.Path, "-d", downloadDirectory).Run(); err != nil {
+				return fmt.Errorf("Error unzipping %q: %v", file.Path, err)
 			}
 		}
 	case ".gz":
-		log.Debugf("Unzipping %q", file.path)
-		if err := exec.Command("tar", "-xzf", file.path, "-C", downloadDirectory).Run(); err != nil {
-			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
+		log.Debugf("Unzipping %q", file.Path)
+		if err := exec.Command("tar", "-xzf", file.Path, "-C", downloadDirectory).Run(); err != nil {
+			return fmt.Errorf("Error unzipping %q: %v", file.Path, err)
 		}
 	case ".bz2":
-		log.Debugf("Unzipping %q", file.path)
-		if err := exec.Command("tar", "-xjf", file.path, "-C", downloadDirectory).Run(); err != nil {
-			return fmt.Errorf("Error unzipping %q: %v", file.path, err)
+		log.Debugf("Unzipping %q", file.Path)
+		if err := exec.Command("tar", "-xjf", file.Path, "-C", downloadDirectory).Run(); err != nil {
+			return fmt.Errorf("Error unzipping %q: %v", file.Path, err)
 		}
 	}
 
 	return nil
 }
 
-func downloadFile(bar *mpb.Bar, dlTracking downloadsTracking, file file) (err error) {
-	f, err := os.Create(file.path)
+func findInManifest(name string) (file, bool) {
+	if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
+		return file{}, false
+	}
+
+	manifest, err := os.ReadFile(manifestPath)
 	if err != nil {
-		return fmt.Errorf("error creating %q: %v", file.path, err)
+		log.Error("Failed to read existing manifest file.")
+		return file{}, false
+	}
+
+	data := []file{}
+	json.Unmarshal(manifest, &data)
+	index := sort.Search(len(data), func(i int) bool {
+		return data[i].Name == name
+	})
+	if index < len(data) && data[index].Name == name {
+		return data[index], true
+	}
+	return file{}, false
+}
+
+func dumpDependencyToManifest(f file) error {
+	if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
+		_, err := os.Create(manifestPath)
+		if err != nil {
+			return err
+		}
+	}
+
+	manifest, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return err
+	}
+
+	data := []file{}
+	json.Unmarshal(manifest, &data)
+	index := sort.Search(len(data), func(i int) bool {
+		return data[i].Name == f.Name
+	})
+	if index < len(data) && data[index].Name == f.Name {
+		data[index] = f
+	} else {
+		data = append(data, f)
+	}
+
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(manifestPath, dataBytes, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func downloadFile(bar *mpb.Bar, dlTracking downloadsTracking, file file) (err error) {
+	f, err := os.Create(file.Path)
+	if err != nil {
+		return fmt.Errorf("error creating %q: %v", file.Path, err)
 	}
 	defer func() {
 		if closeErr := f.Close(); closeErr != nil && err == nil {
-			err = fmt.Errorf("error closing %q: %v", file.path, err)
+			err = fmt.Errorf("error closing %q: %v", file.Path, err)
 		}
 	}()
 
-	resp, err := http.Get(file.url)
+	resp, err := http.Get(file.Url)
 	if err != nil {
-		return fmt.Errorf("%s: error downloading %q: %v", file.name, file.url, err)
+		return fmt.Errorf("%s: error downloading %q: %v", file.Name, file.Url, err)
 	}
 	defer resp.Body.Close()
 
 	bar.SetTotal(resp.ContentLength, false)
-	if track, ok := dlTracking[file.name]; ok {
+	if track, ok := dlTracking[file.Name]; ok {
 		track.TotalSize = resp.ContentLength
 	}
 
-	if file.hash != "" {
+	if file.Hash != "" {
 		var h hash.Hash
-		switch strings.ToLower(file.hashType) {
+		switch strings.ToLower(file.HashType) {
 		case "md5":
 			h = md5.New()
 		case "sha1":
@@ -475,17 +558,17 @@ func downloadFile(bar *mpb.Bar, dlTracking downloadsTracking, file file) (err er
 		default:
 			h = sha256.New()
 		}
-		dlTracking[file.name].Started = true
+		dlTracking[file.Name].Started = true
 		if _, err := io.Copy(io.MultiWriter(f, h), bar.ProxyReader(resp.Body)); err != nil {
-			return fmt.Errorf("%s: error downloading %q: %v", file.name, file.url, err)
+			return fmt.Errorf("%s: error downloading %q: %v", file.Name, file.Url, err)
 		}
-		if h := hex.EncodeToString(h.Sum(nil)); h != file.hash {
-			return fmt.Errorf("%s: got %s hash %q, want %q", file.name, file.hashType, h, file.hash)
+		if h := hex.EncodeToString(h.Sum(nil)); h != file.Hash {
+			return fmt.Errorf("%s: got %s hash %q, want %q", file.Name, file.HashType, h, file.Hash)
 		}
 	} else {
-		dlTracking[file.name].Started = true
+		dlTracking[file.Name].Started = true
 		if _, err := io.Copy(f, bar.ProxyReader(resp.Body)); err != nil {
-			return fmt.Errorf("%s: error downloading %q: %v", file.name, file.url, err)
+			return fmt.Errorf("%s: error downloading %q: %v", file.Name, file.Url, err)
 		}
 	}
 	return nil
@@ -507,9 +590,9 @@ func followUpDownloads(dlTracking downloadsTracking, srcFiles []file, done chan 
 			return
 		default:
 			for _, srcFile := range srcFiles {
-				if track, ok := dlTracking[srcFile.name]; ok {
+				if track, ok := dlTracking[srcFile.Name]; ok {
 					if track.Started && !track.Completed && !track.Failed {
-						file, err := os.Open(srcFile.path)
+						file, err := os.Open(srcFile.Path)
 						if err != nil {
 							log.Error(err)
 						}
@@ -531,7 +614,7 @@ func followUpDownloads(dlTracking downloadsTracking, srcFiles []file, done chan 
 						}
 					}
 				} else {
-					log.Errorf("%s: download tracking not found", srcFile.name)
+					log.Errorf("%s: download tracking not found", srcFile.Name)
 				}
 			}
 
@@ -547,17 +630,17 @@ func followUpDownloads(dlTracking downloadsTracking, srcFiles []file, done chan 
 }
 
 func fileSameHash(file file) bool {
-	if _, err := os.Stat(file.path); err != nil {
+	if _, err := os.Stat(file.Path); err != nil {
 		return false
 	}
 	var h hash.Hash
-	switch strings.ToLower(file.hashType) {
+	switch strings.ToLower(file.HashType) {
 	case "md5":
 		h = md5.New()
 	default:
 		h = sha256.New()
 	}
-	f, err := os.Open(file.path)
+	f, err := os.Open(file.Path)
 	if err != nil {
 		return false
 	}
@@ -568,8 +651,8 @@ func fileSameHash(file file) bool {
 	}
 
 	sum := hex.EncodeToString(h.Sum(nil))
-	if sum != file.hash {
-		log.Warningf("File %q: got hash %q, expect hash %q", file.path, sum, file.hash)
+	if sum != file.Hash {
+		log.Warningf("File %q: got hash %q, expect hash %q", file.Path, sum, file.Hash)
 		return false
 	}
 	return true
