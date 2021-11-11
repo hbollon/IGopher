@@ -253,7 +253,6 @@ func ReadBotConfigYaml() (IGopher, error) {
 		logrus.Errorf("Failed to initialize blacklist: %v", err)
 		return c, err
 	}
-	logrus.Debugf("config.yaml: %+v\n\n", c)
 	return c, nil
 }
 
