@@ -14,9 +14,12 @@
 
 <script lang="ts">
 import { Vue, Options } from "vue-class-component";
+import { inject } from "vue";
+import { Astor } from "./plugins/astilectron";
 import LateralNav from "@/components/LateralNav.vue";
 import NavBar from "@/components/NavBar.vue";
 import Footer from "@/components/Footer.vue";
+import * as config from "@/config";
 import "@/theme"
 
 @Options({
@@ -24,7 +27,33 @@ import "@/theme"
     LateralNav,
     NavBar,
     Footer,
-  }
+  },
+  data() {
+    return {
+      astor: Astor,
+    }
+  },
+  mounted() {
+    this.astor = inject("astor");
+    config.ready(() => {
+      this.astor.onIsReady(() => {
+        this.astor.listen("bot crash", () => {
+          const dmBotLaunchBtn = document.querySelector("#dmBotLaunchBtn");
+          const dmBotLaunchIcon = document.querySelector("#dmBotLaunchIcon");
+          const dmBotLaunchSpan = document.querySelector("#dmBotLaunchSpan");
+
+          if(dmBotLaunchBtn != undefined && dmBotLaunchIcon != undefined && dmBotLaunchSpan != undefined) {
+            dmBotLaunchBtn.classList.add("btn-success");
+            dmBotLaunchBtn.classList.remove("btn-danger");
+            dmBotLaunchIcon.classList.add("fa-rocket");
+            dmBotLaunchIcon.classList.remove("fa-spinner", "fa-spin");
+            dmBotLaunchSpan.innerHTML = "Launch !";
+          }
+          sessionStorage.setItem("botState", "false");
+        });
+      });
+    });
+  },
 })
 export default class App extends Vue {}
 </script>

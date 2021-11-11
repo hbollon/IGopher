@@ -152,7 +152,6 @@ import Multiselect from '@vueform/multiselect'
   data() {
     return {
       astor: Astor,
-      dmBotRunning: "false",
       srcUsrMultiSelect: {
         mode: 'tags',
         value: [],
@@ -163,6 +162,16 @@ import Multiselect from '@vueform/multiselect'
         createTag: true,
         showOptions: false,
         caret: false,
+      },
+    }
+  },
+  computed: {
+    sessionBotState: {
+      get(): string {
+        return sessionStorage.getItem("botState");
+      },
+      set(value: string) {
+        return sessionStorage.setItem("botState", value);
       },
     }
   },
@@ -199,17 +208,16 @@ import Multiselect from '@vueform/multiselect'
       const dmBotLaunchBtn = document.querySelector("#dmBotLaunchBtn");
       const dmBotLaunchIcon = document.querySelector("#dmBotLaunchIcon");
       const dmBotLaunchSpan = document.querySelector("#dmBotLaunchSpan");
-      if (this.dmBotRunning === "false" || this.dmBotRunning === null) {
+      if (this.sessionBotState === "false" || this.sessionBotState === null) {
         this.astor.trigger("launchDmBot", {}, (message: any) => {
           if (message.status === config.SUCCESS) {
             this.$emit("showDlModal");
-            this.dmBotRunning = "true";
+            this.sessionBotState = "true";
             dmBotLaunchBtn.classList.add("btn-danger");
             dmBotLaunchBtn.classList.remove("btn-success");
             dmBotLaunchIcon.classList.add("fa-skull-crossbones");
             dmBotLaunchIcon.classList.remove("fa-rocket");
             dmBotLaunchSpan.innerHTML = "Stop !";
-            sessionStorage.setItem("botState", "true");
           } else {
             config.Toast.fire({
               icon: "error",
@@ -233,13 +241,12 @@ import Multiselect from '@vueform/multiselect'
               title: message.msg,
             });
 
-            this.dmBotRunning = "false";
+            this.sessionBotState = "false";
             dmBotLaunchBtn.classList.add("btn-success");
             dmBotLaunchBtn.classList.remove("btn-danger");
             dmBotLaunchIcon.classList.add("fa-rocket");
             dmBotLaunchIcon.classList.remove("fa-spinner", "fa-spin");
             dmBotLaunchSpan.innerHTML = "Launch !";
-            sessionStorage.setItem("botState", "false");
           } else {
             dmBotLaunchIcon.classList.add("fa-skull-crossbones");
             dmBotLaunchIcon.classList.remove("fa-spinner", "fa-spin");
@@ -352,8 +359,7 @@ import Multiselect from '@vueform/multiselect'
         const dmBotLaunchSpan = document.querySelector("#dmBotLaunchSpan");
 
         // Dynamics buttons inits
-        this.dmBotRunning = sessionStorage.getItem("botState");
-        if (this.dmBotRunning === "false" || this.dmBotRunning === null) {
+        if (this.sessionBotState === "false" || this.sessionBotState === null) {
           dmBotLaunchBtn.classList.add("btn-success");
           dmBotLaunchBtn.classList.remove("btn-danger");
           dmBotLaunchIcon.classList.add("fa-rocket");
