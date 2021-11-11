@@ -190,6 +190,19 @@ func launchBot(ctx context.Context) {
 
 	// Start bot routine
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Errorf("Unknown error: %v", r)
+				SendMessageToElectron(
+					MessageOut{
+						Status:  ERROR,
+						Msg:     "bot crash",
+						Payload: fmt.Errorf("Unknown error: %v", r),
+					},
+				)
+				BotStruct.running = false
+			}
+		}()
 		rand.Seed(time.Now().Unix())
 		if err = BotStruct.Scheduler.CheckTime(); err == nil {
 			if exit := checkBotChannels(); exit {
@@ -264,6 +277,11 @@ func launchBot(ctx context.Context) {
 			return
 		default:
 			break
+		}
+
+		if ws, err := BotStruct.SeleniumStruct.WebDriver.WindowHandles(); len(ws) == 0 || err != nil {
+			BotStruct.SeleniumStruct.CleanUp()
+			return
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
