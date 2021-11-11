@@ -76,6 +76,10 @@ bundle: build-vue install
 		mv bind.go.tmp bind.go
 	@echo "Done. Executables are located in 'cmd/igopher/gui-bundler/output/' folder"
 
+## release: Build binaries for all platforms for both GUI and TUI
+.PHONY: release
+release: build-all bundle
+
 ## install: Install go dependencies
 .PHONY: install
 install:
