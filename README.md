@@ -74,7 +74,7 @@ All dependencies are downloaded and managed automatically.
 </p>
 
 ### Requirements
-- [Java](https://java.com/fr/download/)
+- [Java 8 or 11](https://java.com/fr/download/) (incompatible with newer versions yet)
 - For Windows:
   - [Optionnal] [Windows Terminal](https://www.microsoft.com/fr-fr/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab) -> in order to have a best TUI experience
 
@@ -101,7 +101,7 @@ All dependencies are downloaded and managed automatically.
 
 #### GUI version:
 
-1. Download and install [Java](https://java.com/fr/download/) and [Java JDK](https://www.oracle.com/fr/java/technologies/javase-jdk15-downloads.html) (needed for Selenium webdriver) and add them to your path (on Windows)
+1. Download and install [Java 8 or 11](https://java.com/fr/download/) (needed for Selenium webdriver) and add them to your path (on Windows)
 2. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) GUI executable for your operating system
 3. Move the executable to a dedicated folder (it will create folders/files)
 4. Launch it
@@ -112,7 +112,7 @@ IGopher will download all needed dependencies automatically, don't panic if it s
 
 #### TUI version:
 
-1. Download and install [Java](https://java.com/fr/download/) and [Java JDK](https://www.oracle.com/fr/java/technologies/javase-jdk15-downloads.html) (needed for Selenium webdriver) and add them to your path (on Windows)
+1. Download and install [Java 8 or 11](https://java.com/fr/download/) (needed for Selenium webdriver) and add them to your path (on Windows)
 2. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) TUI executable for your operating system
 3. Move the executable to a dedicated folder (it will create folders/files)
 4. Launch it:
@@ -127,7 +127,7 @@ IGopher will download all needed dependencies automatically, don't panic if it s
 
 ##### With bundles
 
-1. Download and install [Java](https://java.com/fr/download/) and [Java JDK](https://www.oracle.com/fr/java/technologies/javase-jdk15-downloads.html) (needed for Selenium webdriver) and add them to your path (on Windows)
+1. Download and install [Java 8 or 11](https://java.com/fr/download/) (needed for Selenium webdriver) and add them to your path (on Windows)
 2. Install [Go](https://golang.org/doc/install) on your system
 3. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) source archive or clone the master branch
 4. Launch ```bundle.sh``` script from the project root directory
@@ -135,14 +135,14 @@ IGopher will download all needed dependencies automatically, don't panic if it s
 
 ##### Without bundles
 
-1. Download and install [Java](https://java.com/fr/download/) and [Java JDK](https://www.oracle.com/fr/java/technologies/javase-jdk15-downloads.html) (needed for Selenium webdriver) and add them to your path (on Windows)
+1. Download and install [Java 8 or 11](https://java.com/fr/download/) (needed for Selenium webdriver) and add them to your path (on Windows)
 2. Install [Go](https://golang.org/doc/install) on your system
 3. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) source archive or clone the master branch
 4. Launch it with this command: ```go run ./cmd/igopher/gui```
 
 #### TUI version:
 
-1. Download and install [Java](https://java.com/fr/download/) and [Java JDK](https://www.oracle.com/fr/java/technologies/javase-jdk15-downloads.html) (needed for Selenium webdriver) and add them to your path (on Windows)
+1. Download and install [Java 8 or 11](https://java.com/fr/download/) (needed for Selenium webdriver) and add them to your path (on Windows)
 2. Install [Go](https://golang.org/doc/install) on your system
 3. Download [lastest release](https://github.com/hbollon/igopher/releases/latest) source archive or clone the master branch
 4. Launch it with this command: ```go run ./cmd/igopher/tui```
@@ -185,10 +185,14 @@ I'm currently investigating on this issue, I submitted my exe to Microsoft so we
 At the moment, you must move the .app to your Applications folder and run the binary file located in it.
 It can also block the execution since the app isn't signed yet. You can avoid it by launching it from terminal or by right clicking on it and open it.
 
-#### Orphaned Chromium processes may remain after crashing or shutting down IGopher
+#### Javascript error just after bot launch
 
-Indeed, under certain circumstances, it is possible that certain Chromium processes do not close and run in the background after IGopher crash or unexpected shutdown. 
-This problem will be fixed very quickly, but in the meantime you can kill them via the task manager or the terminal without troubles.
+This issue ofter happen with an incompatible Java version installed. 
+Indeed, IGopher isn't compatible with versions of the JRE greater than 11 yet due to the use of Selenium 3.
+
+Working Java versions tested:
+- Windows: [Java 8](https://java.com/fr/download/)
+- Linux (Manjaro): **jre11-openjdk** -> `sudo pacman -S jre11-openjdk`
 
 
 **If you find other problems, please open an issue. This is essential so that we can continue to improve IGopher! :smile:**
