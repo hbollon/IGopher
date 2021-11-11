@@ -20,7 +20,7 @@ import (
 
 const (
 	AppName            = "IGopher"
-	VersionAstilectron = "0.44.0"
+	VersionAstilectron = "0.46.0"
 	VersionElectron    = "11.1.0"
 )
 
