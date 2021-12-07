@@ -19,7 +19,6 @@ import { Astor } from "@/plugins/astilectron";
 
     config.ready(() => {
       astor.onIsReady(function() {
-        console.log("settings");
         config.getIgopherConfig(astor, fillInputs);
 
         /// Buttons
