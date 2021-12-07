@@ -108,8 +108,8 @@ func (bot *IGopher) sendMessageWebDriver(user, message string) (bool, error) {
 
 	// Type and select user to dm
 	if find, err := bot.SeleniumStruct.WaitForElement(
-		"//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/div[2]/div/div[1]/div/div[2]/input", "xpath")
+		"//*[@id=\"react-root\"]/div/div/section/div[2]/div/div[1]/div/div[2]/input", "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/div/div/section/div[2]/div/div[1]/div/div[2]/input", "xpath")
 		log.Debug("Finded an retrieved user searchbar")
 		if res := SimulateHandWriting(elem, user); !res {
 			return false, errors.New("Error during user searching")
