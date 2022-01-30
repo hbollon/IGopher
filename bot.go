@@ -86,7 +86,7 @@ func LaunchBotTui() {
 
 	// Download dependencies
 	if !clientConfig.IgnoreDependencies {
-		DownloadDependencies(true, true, clientConfig.ForceDependenciesDl)
+		DownloadDependencies(true, false, clientConfig.ForceDependenciesDl)
 	}
 
 	// Initialize Selenium and WebDriver and defer their closing
@@ -156,7 +156,7 @@ func launchBot(ctx context.Context) {
 
 	// Download dependencies
 	if !clientConfig.IgnoreDependencies {
-		DownloadDependencies(true, true, clientConfig.ForceDependenciesDl)
+		DownloadDependencies(true, false, clientConfig.ForceDependenciesDl)
 	}
 
 	// Initialize Selenium and WebDriver and defer their closing

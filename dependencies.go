@@ -39,17 +39,34 @@ const (
 	// See https://omahaproxy.appspot.com for a list of current releases.
 	//
 	// Update this periodically.
-	desiredChromeBuild = "920003"
+	desiredChromeBuildWin   = "949485"
+	desiredChromeBuildMac   = "949482"
+	desiredChromeBuildLinux = "949505"
 
 	// desiredFirefoxVersion is the known version of Firefox to download.
 	//
 	// Update this periodically.
-	desiredFirefoxVersion             = "68.0.1"
+	desiredFirefoxVersion             = "94.0.2"
 	desiredSeleniumVersion            = "3.141.59"
 	desiredProxyLoginAutomatorVersion = "1.0.0"
 	desiredHTMLUnitDriver             = "2.54.0"
 	desiredGeckodriver                = "0.30.0"
 	desiredSauceLabs                  = "4.6.3"
+
+	// MD5 hashes of the files to download
+	firefoxMD5                  = "2660a42bcd4f1620066996ba26dc1694"
+	firefoxWinMD5               = "4f8f467affdeaa37a7dccd701a68cd23"
+	geckodriverWinMD5           = "8e7dfe214f8979ba4bc18606d289988e"
+	geckodriverMacMD5           = "7bf2abd573b1a04fead3b424b27e14ed"
+	geckodriverLinuxMD5         = "207eb6550f6a1772f01da7d847a1820f"
+	htmlUnitDriverMD5           = "e01f33fddf81fd808293c332ade4d4d5"
+	seleniumMD5                 = "947e57925b4185ae04d03ceec175a34a"
+	proxyLoginAutomatorWinMD5   = "660556c9b5e57ae779bacf3763f55672"
+	proxyLoginAutomatorMacMD5   = "1fdf57e157a1b1ee888d609904f12d54"
+	proxyLoginAutomatorLinuxMD5 = "7e09bdb948b042a82f6285c0d252f91d"
+	sauceLabsWinMD5             = "0ee070d47c7aea6c269fe70ec9053dab"
+	sauceLabsMacMD5             = "71d0583bdafe3289aed9bbd2c8bb4f38"
+	sauceLabsLinuxMD5           = "cbb30a0dd04b708160c19a802bd5a157"
 
 	windowsOs = "windows"
 	macOs     = "darwin"
@@ -95,6 +112,8 @@ func init() {
 				Name:       "sauce-connect.zip",
 				Path:       downloadDirectory + "sauce-connect.zip",
 				Rename:     []string{downloadDirectory + fmt.Sprintf("sc-%s-win32", desiredSauceLabs), downloadDirectory + "sauce-connect"},
+				Hash:       sauceLabsWinMD5,
+				HashType:   "md5",
 				Os:         runtime.GOOS,
 				compressed: true,
 			},
@@ -107,6 +126,8 @@ func init() {
 				Name:       "sauce-connect.zip",
 				Path:       downloadDirectory + "sauce-connect.zip",
 				Rename:     []string{downloadDirectory + fmt.Sprintf("sc-%s-osx", desiredSauceLabs), downloadDirectory + "sauce-connect"},
+				Hash:       sauceLabsMacMD5,
+				HashType:   "md5",
 				Os:         runtime.GOOS,
 				compressed: true,
 			},
@@ -119,6 +140,8 @@ func init() {
 				Name:       "sauce-connect.tar.gz",
 				Path:       downloadDirectory + "sauce-connect.tar.gz",
 				Rename:     []string{downloadDirectory + fmt.Sprintf("sc-%s-linux", desiredSauceLabs), downloadDirectory + "sauce-connect"},
+				Hash:       sauceLabsLinuxMD5,
+				HashType:   "md5",
 				Os:         runtime.GOOS,
 				compressed: true,
 			},
@@ -132,7 +155,7 @@ func init() {
 // addGithubRelease adds a file to the list of files to download from the
 // release of the specified Github repository that matches the asset
 // name and tag. The file will be downloaded to localFileName.
-func addGithubRelease(ctx context.Context, owner, repo, assetName, tag, localFileName string, comp bool) error {
+func addGithubRelease(ctx context.Context, owner, repo, assetName, tag, localFileName, hash, hashMethod string, comp bool) error {
 	client := github.NewClient(nil)
 	rel, _, err := client.Repositories.GetReleaseByTag(ctx, owner, repo, tag)
 	if err != nil {
@@ -155,6 +178,8 @@ func addGithubRelease(ctx context.Context, owner, repo, assetName, tag, localFil
 			Name:       localFileName,
 			Path:       downloadDirectory + localFileName,
 			URL:        u,
+			Hash:       hash,
+			HashType:   hashMethod,
 			compressed: comp,
 		})
 		return nil
@@ -263,6 +288,7 @@ func addChrome(ctx context.Context, latestChromeBuild string) error {
 		latestChromeBuild = string(data)
 	}
 	latestChromePackage := path.Join(prefixOS, latestChromeBuild, chromeFilename)
+	fmt.Println(latestChromePackage)
 	cpAttrs, err := bkt.Object(latestChromePackage).Attrs(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot get the chrome package %s%s attrs: %v", gcsPath, latestChromePackage, err)
@@ -309,11 +335,13 @@ func addFirefox(desiredVersion string) {
 		} else {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				URL: "https://download-installer.cdn.mozilla.net/pub/firefox/releases/" +
-					url.PathEscape(desiredVersion) + "/en-US/firefox-" +
-					url.PathEscape(desiredVersion) + ".exe",
+				URL: "https://sourceforge.net/projects/portableapps/files/Mozilla%20Firefox%2C%20Portable%20Ed./Mozilla%20Firefox%2C%20Portable%20Edition%20" +
+					url.PathEscape(desiredVersion) + "/FirefoxPortable_" +
+					url.PathEscape(desiredVersion) + "_English.paf.exe/download",
 				Name:       "firefox.exe",
 				Path:       downloadDirectory + "firefox.exe",
+				Hash:       firefoxWinMD5,
+				HashType:   "md5",
 				compressed: false,
 				browser:    true,
 			})
@@ -336,6 +364,8 @@ func addFirefox(desiredVersion string) {
 					url.PathEscape(desiredVersion) + ".tar.bz2",
 				Name:       "firefox.tar.bz2",
 				Path:       downloadDirectory + "firefox.tar.bz2",
+				Hash:       firefoxMD5,
+				HashType:   "md5",
 				compressed: true,
 				browser:    true,
 			})
@@ -365,7 +395,15 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 	ctx := context.Background()
 	if len(files) <= 4 || files == nil {
 		if downloadBrowsers {
-			chromeBuild := desiredChromeBuild
+			var chromeBuild string
+			switch runtime.GOOS {
+			case "darwin":
+				chromeBuild = desiredChromeBuildMac
+			case "windows":
+				chromeBuild = desiredChromeBuildWin
+			default:
+				chromeBuild = desiredChromeBuildLinux
+			}
 			firefoxVersion := desiredFirefoxVersion
 			if downloadLatest {
 				chromeBuild = ""
@@ -380,40 +418,40 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 	}
 
 	if err := addGithubRelease(ctx, "SeleniumHQ", "selenium", "selenium-server-.*.jar",
-		fmt.Sprintf("selenium-%s", desiredSeleniumVersion), "selenium-server.jar", false); err != nil {
+		fmt.Sprintf("selenium-%s", desiredSeleniumVersion), "selenium-server.jar", seleniumMD5, "md5", false); err != nil {
 		log.Errorf("Unable to find the requested Selenium Server: %s", err)
 	}
 	if err := addGithubRelease(ctx, "SeleniumHQ", "htmlunit-driver", "htmlunit-driver-.*-jar-with-dependencies.jar",
-		desiredHTMLUnitDriver, "htmlunit-driver.jar", false); err != nil {
+		desiredHTMLUnitDriver, "htmlunit-driver.jar", htmlUnitDriverMD5, "md5", false); err != nil {
 		log.Errorf("Unable to find the requested HTMLUnit Driver: %s", err)
 	}
 
 	if runtime.GOOS == windowsOs {
 		if err := addGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*win64.zip",
-			fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.zip", true); err != nil {
+			fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.zip", geckodriverWinMD5, "md5", true); err != nil {
 			log.Errorf("Unable to find the requested Geckodriver: %s", err)
 		}
 		if err := addGithubRelease(ctx, "hbollon", "proxy-login-automator",
-			fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator-.*win64.exe",
-			"proxy-login-automator.exe", false); err != nil {
+			"proxy-login-automator-.*win64.exe", fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion),
+			"proxy-login-automator.exe", proxyLoginAutomatorWinMD5, "md5", false); err != nil {
 			log.Errorf("Unable to find the requested proxy-login-automator: %s", err)
 		}
 	} else if runtime.GOOS == macOs {
 		if err := addGithubRelease(ctx, "mozilla", "geckodriver",
-			"geckodriver-.*macos.tar.gz", fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.tar.gz", true); err != nil {
+			"geckodriver-.*macos.tar.gz", fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.tar.gz", geckodriverMacMD5, "md5", true); err != nil {
 			log.Errorf("Unable to find the requested Geckodriver: %s", err)
 		}
 		if err := addGithubRelease(ctx, "hbollon", "proxy-login-automator",
-			fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator-.*macos", "proxy-login-automator", false); err != nil {
+			"proxy-login-automator-.*macos", fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator", proxyLoginAutomatorMacMD5, "md5", false); err != nil {
 			log.Errorf("Unable to find the requested proxy-login-automator: %s", err)
 		}
 	} else {
 		if err := addGithubRelease(ctx, "mozilla", "geckodriver", "geckodriver-.*linux64.tar.gz",
-			fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.tar.gz", true); err != nil {
+			fmt.Sprintf("v%s", desiredGeckodriver), "geckodriver.tar.gz", geckodriverLinuxMD5, "md5", true); err != nil {
 			log.Errorf("Unable to find the requested Geckodriver: %s", err)
 		}
 		if err := addGithubRelease(ctx, "hbollon", "proxy-login-automator", "proxy-login-automator-.*linux64",
-			fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator", false); err != nil {
+			fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator", proxyLoginAutomatorLinuxMD5, "md5", false); err != nil {
 			log.Errorf("Unable to find the requested proxy-login-automator: %s", err)
 		}
 	}
