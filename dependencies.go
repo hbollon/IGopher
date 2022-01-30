@@ -155,6 +155,7 @@ func init() {
 // addGithubRelease adds a file to the list of files to download from the
 // release of the specified Github repository that matches the asset
 // name and tag. The file will be downloaded to localFileName.
+//nolint:unparam // hashmethod could be used in the future
 func addGithubRelease(ctx context.Context, owner, repo, assetName, tag, localFileName, hash, hashMethod string, comp bool) error {
 	client := github.NewClient(nil)
 	rel, _, err := client.Repositories.GetReleaseByTag(ctx, owner, repo, tag)
@@ -335,7 +336,8 @@ func addFirefox(desiredVersion string) {
 		} else {
 			files = append(files, file{
 				// This is a recent nightly. Update this path periodically.
-				URL: "https://sourceforge.net/projects/portableapps/files/Mozilla%20Firefox%2C%20Portable%20Ed./Mozilla%20Firefox%2C%20Portable%20Edition%20" +
+				URL: "https://sourceforge.net/projects/portableapps/files/" +
+					"Mozilla%20Firefox%2C%20Portable%20Ed./Mozilla%20Firefox%2C%20Portable%20Edition%20" +
 					url.PathEscape(desiredVersion) + "/FirefoxPortable_" +
 					url.PathEscape(desiredVersion) + "_English.paf.exe/download",
 				Name:       "firefox.exe",
@@ -397,9 +399,9 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 		if downloadBrowsers {
 			var chromeBuild string
 			switch runtime.GOOS {
-			case "darwin":
+			case macOs:
 				chromeBuild = desiredChromeBuildMac
-			case "windows":
+			case windowsOs:
 				chromeBuild = desiredChromeBuildWin
 			default:
 				chromeBuild = desiredChromeBuildLinux
@@ -442,7 +444,8 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 			log.Errorf("Unable to find the requested Geckodriver: %s", err)
 		}
 		if err := addGithubRelease(ctx, "hbollon", "proxy-login-automator",
-			"proxy-login-automator-.*macos", fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion), "proxy-login-automator", proxyLoginAutomatorMacMD5, "md5", false); err != nil {
+			"proxy-login-automator-.*macos", fmt.Sprintf("v%s", desiredProxyLoginAutomatorVersion),
+			"proxy-login-automator", proxyLoginAutomatorMacMD5, "md5", false); err != nil {
 			log.Errorf("Unable to find the requested proxy-login-automator: %s", err)
 		}
 	} else {
