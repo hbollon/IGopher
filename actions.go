@@ -74,7 +74,13 @@ func (bot *IGopher) connectToInstagramWebDriver() {
 		"//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {
 		log.Info("Login Successful!")
 	} else {
-		log.Warnf("Instagram does not ask for informations saving, the login process may have failed.")
+		if err := bot.SeleniumStruct.WebDriver.Refresh(); err != nil {
+			bot.SeleniumStruct.Fatal("Can't refresh page: ", err)
+		}
+		if find, err := bot.SeleniumStruct.WaitForElement("//*[@aria-label='Home'] | //*[text()='Save Info'] | //*[text()='Not Now']",
+			"xpath", 10); err != nil || !find {
+			log.Warnf("Instagram does not ask for informations saving or app download, the login process may have failed.")
+		}
 	}
 }
 
