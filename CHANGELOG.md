@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://www.github.com/hbollon/IGopher/compare/v0.3.1...v0.4.0) (2022-01-30)
+
+
+### Features
+
+* add dependencies hash checking during dependency check at startup ([664589e](https://www.github.com/hbollon/IGopher/commit/664589efc7aa7c72affaf1bde056eff916669712))
+* add fixed versions for dependencies ([1a1e20f](https://www.github.com/hbollon/IGopher/commit/1a1e20fefd8798b21c8fb60350b9ba52d68a82de))
+* **dependency-manager:** set fixed versions for all files and add hashes ([6eea031](https://www.github.com/hbollon/IGopher/commit/6eea031c4b97c5d7d7c1c90a9b0a48bd72fc8e1f))
+* manifest file generation and checking ([5d0902f](https://www.github.com/hbollon/IGopher/commit/5d0902f359609df7a11573d197d85a471b41a7e6))
+
+
+### Bug Fixes
+
+* browser stuck after connexion on /#reactivated url ([b47e1b8](https://www.github.com/hbollon/IGopher/commit/b47e1b8d029cb6b419dac8816a4e497a2e259090))
+* dependency search in manifest ([1a1e20f](https://www.github.com/hbollon/IGopher/commit/1a1e20fefd8798b21c8fb60350b9ba52d68a82de))
+* **gui:** now handle 'bot crash' msg from Go ([592766a](https://www.github.com/hbollon/IGopher/commit/592766ae725157178f49c30da1249d6c5f7aaf4a))
+* handle browser closing event and avoid crash ([70da812](https://www.github.com/hbollon/IGopher/commit/70da812a817f7333ed262173cc82a5ffaafe7926))
+* **logs:** removed config dump from logs ([2c437dd](https://www.github.com/hbollon/IGopher/commit/2c437dd340971e834c6773de234df58c66835724))
+* update xpath for scrapper and user search input ([408962a](https://www.github.com/hbollon/IGopher/commit/408962a4b5f02a235259c6bd10b3ccef152b10b8))
+* update xpath for users scrap and search ([2be277b](https://www.github.com/hbollon/IGopher/commit/2be277bbd20628abc1a6821794c5ed1180b04676))
+* **vue:** remove useless console log ([c776b8d](https://www.github.com/hbollon/IGopher/commit/c776b8d0871e0ddd3a358e625bb7ee24db55fe4e))
+
 ### [0.3.1](https://www.github.com/hbollon/IGopher/compare/v0.3.0...v0.3.1) (2021-10-26)
 
 
