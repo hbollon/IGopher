@@ -1,35 +1,29 @@
-package igopher
+package actions
 
 import (
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/hbollon/igopher/internal/config/types"
+	"github.com/hbollon/igopher/internal/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
 	"github.com/vbauerster/mpb/v6"
 	"github.com/vbauerster/mpb/v6/decor"
 )
 
-// ScrapperConfig store scrapper configuration for user fetching
-// It also store fetched usernames
-type ScrapperConfig struct {
-	SrcAccounts     []string `yaml:"src_accounts"`
-	FetchedAccounts []string
-	Quantity        int `yaml:"fetch_quantity" validate:"numeric"`
-}
-
 // FetchUsersFromUserFollowers scrap username list from users followers.
 // Source accounts and quantity are set by the bot user.
-func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
+func FetchUsersFromUserFollowers(bot *types.IGopher) ([]string, error) {
 	logrus.Info("Fetching users from users followers...")
 
 	var igUsers []string
 	// Valid configuration checking before fetching process
-	if len(sc.ScrapperManager.SrcAccounts) == 0 || sc.ScrapperManager.SrcAccounts == nil {
+	if len(bot.ScrapperManager.SrcAccounts) == 0 || bot.ScrapperManager.SrcAccounts == nil {
 		return nil, errors.New("No source users are set, please check your scrapper settings and retry")
 	}
-	if sc.ScrapperManager.Quantity <= 0 {
+	if bot.ScrapperManager.Quantity <= 0 {
 		return nil, errors.New("Scrapping quantity is null or negative, please check your scrapper settings and retry")
 	}
 
@@ -37,7 +31,7 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 		mpb.WithWidth(60),
 		mpb.WithRefreshRate(180*time.Millisecond),
 	)
-	totalBar := p.Add(int64(len(sc.ScrapperManager.SrcAccounts)),
+	totalBar := p.Add(int64(len(bot.ScrapperManager.SrcAccounts)),
 		mpb.NewBarFiller("[=>-|"),
 		mpb.BarRemoveOnComplete(),
 		mpb.PrependDecorators(
@@ -48,15 +42,15 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 		),
 	)
 
-	for _, srcUsername := range sc.ScrapperManager.SrcAccounts {
+	for _, srcUsername := range bot.ScrapperManager.SrcAccounts {
 		logrus.Debugf("Fetch from '%s' user", srcUsername)
-		finded, err := sc.navigateUserFollowersList(srcUsername)
+		finded, err := navigateUserFollowersList(bot, srcUsername)
 		if !finded || err != nil {
 			totalBar.IncrBy(1)
 			continue
 		}
 
-		userBar := p.Add(int64(sc.ScrapperManager.Quantity),
+		userBar := p.Add(int64(bot.ScrapperManager.Quantity),
 			mpb.NewBarFiller("[=>-|"),
 			mpb.BarRemoveOnComplete(),
 			mpb.PrependDecorators(
@@ -70,10 +64,10 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 
 		// Scrap users until it has the right amount defined in ScrapperManager.Quantity by the user
 		var scrappedUsers []selenium.WebElement
-		for len(scrappedUsers) < sc.ScrapperManager.Quantity {
+		for len(scrappedUsers) < bot.ScrapperManager.Quantity {
 			if len(scrappedUsers) != 0 {
 				// Scroll to the end of the list to gather more followers from ig
-				_, err = sc.SeleniumStruct.WebDriver.ExecuteScript("window.scrollTo(0, document.body.scrollHeight);", nil)
+				_, err = bot.SeleniumStruct.WebDriver.ExecuteScript("window.scrollTo(0, document.body.scrollHeight);", nil)
 				if err != nil {
 					logrus.Warnf(
 						"Error during followers dialog box scroll for '%s' user. The user certainly did not have enough followers for the request",
@@ -83,8 +77,8 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 					break
 				}
 			}
-			randomSleepCustom(3, 4)
-			scrappedUsers, err = sc.SeleniumStruct.GetElements("//*/li/div/div/div/div/a", "xpath")
+			utils.RandomSleepCustom(3, 4)
+			scrappedUsers, err = bot.SeleniumStruct.GetElements("//*/li/div/div/div/div/a", "xpath")
 			if err != nil {
 				logrus.Errorf(
 					"Error during users scrapping from followers dialog box for '%s' user",
@@ -93,7 +87,7 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 				userBar.Abort(true)
 				break
 			}
-			scrappedUsers = sc.Blacklist.FilterScrappedUsers(scrappedUsers)
+			scrappedUsers = bot.Blacklist.FilterScrappedUsers(scrappedUsers)
 			userBar.SetCurrent(int64(len(scrappedUsers)))
 			logrus.Debugf("Users count finded: %d", len(scrappedUsers))
 		}
@@ -121,16 +115,16 @@ func (sc *IGopher) FetchUsersFromUserFollowers() ([]string, error) {
 }
 
 // Go to user followers list with webdriver
-func (sc *IGopher) navigateUserFollowersList(srcUsername string) (bool, error) {
+func navigateUserFollowersList(bot *types.IGopher, srcUsername string) (bool, error) {
 	// Navigate to Instagram user page
-	if err := sc.SeleniumStruct.WebDriver.Get(fmt.Sprintf("https://www.instagram.com/%s/?hl=en", srcUsername)); err != nil {
+	if err := bot.SeleniumStruct.WebDriver.Get(fmt.Sprintf("https://www.instagram.com/%s/?hl=en", srcUsername)); err != nil {
 		logrus.Warnf("Requested user '%s' doesn't exist, skip it", srcUsername)
 		return false, errors.New("Error during access to requested user")
 	}
-	randomSleepCustom(1, 3)
+	utils.RandomSleepCustom(1, 3)
 	// Access to followers list view
-	if find, err := sc.SeleniumStruct.WaitForElement("//section/main/div/ul/li[2]/a", "xpath", 10); err == nil && find {
-		elem, _ := sc.SeleniumStruct.GetElement("//section/main/div/ul/li[2]/a", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath")
 		elem.Click()
 		logrus.Debug("Clicked on user followers list")
 	} else {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hbollon/igopher"
+	conf "github.com/hbollon/igopher/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -60,7 +60,7 @@ func (m model) UpdateSettingsMenu(msg tea.Msg) (model, tea.Cmd) {
 			case 7:
 				m.screen = settingsProxyScreen
 			case 8:
-				igopher.ExportConfig(config)
+				conf.ExportConfig(config)
 				m.screen = mainMenu
 			default:
 				log.Warn("Invalid input!")

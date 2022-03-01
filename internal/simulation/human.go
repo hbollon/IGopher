@@ -1,6 +1,7 @@
-package igopher
+package simulation
 
 import (
+	"github.com/hbollon/igopher/internal/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
 )
@@ -16,7 +17,7 @@ func SimulateHandWriting(element selenium.WebElement, input string) bool {
 				logrus.Errorf("Error during message sending: %v", err)
 				return false
 			}
-			randomSleepCustom(0.25, 1.0)
+			utils.RandomSleepCustom(0.25, 1.0)
 		}
 		return true
 	}

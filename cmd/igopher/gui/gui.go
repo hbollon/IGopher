@@ -14,7 +14,9 @@ import (
 
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
-	"github.com/hbollon/igopher"
+	"github.com/hbollon/igopher/internal/config"
+	"github.com/hbollon/igopher/internal/gui"
+	"github.com/hbollon/igopher/internal/logger"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,9 +28,9 @@ const (
 
 func main() {
 	flag.Parse()
-	igopher.InitLogger()
-	igopher.CheckEnvironment()
-	defer igopher.BotStruct.SeleniumStruct.CleanUp()
+	logger.InitLogger()
+	config.CheckEnvironment()
+	//defer engine.BotStruct.SeleniumStruct.CleanUp()
 
 	var w *astilectron.Window
 	// Create astilectron
@@ -67,7 +69,7 @@ func main() {
 	if err = w.Create(); err != nil {
 		log.Fatal(fmt.Errorf("main: creating window failed: %w", err))
 	}
-	igopher.HandleMessages(w)
+	gui.HandleMessages(w)
 
 	// Open dev tools panel if flag is set
 	// if *flags.DevToolsFlag {

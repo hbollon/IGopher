@@ -1,4 +1,4 @@
-package igopher
+package engine
 
 import (
 	"errors"
@@ -56,6 +56,38 @@ type Selenium struct {
 	Proxy              proxy.Proxy `yaml:"proxy"`
 	WebDriver          selenium.WebDriver
 	SigTermRoutineExit chan bool
+}
+
+// ClientConfig struct centralize all client configuration and flags.
+// Inizialized at program startup, not safe to modify this after.
+type ClientConfig struct {
+	// LogLevel set loglevel threshold
+	// If undefined or wrong set it to INFO level
+	LogLevel logrus.Level
+	// ForceDependenciesDl force re-download of all dependencies
+	ForceDependenciesDl bool
+	// Debug set selenium debug mode and display its logging to stderr
+	Debug bool
+	//DevTools launch Electron gui with devtools openned
+	DevTools bool
+	// IgnoreDependencies disable dependencies manager on startup
+	IgnoreDependencies bool
+	// Headless execute Selenium webdriver in headless mode
+	Headless bool
+	// Port : communication port
+	Port uint16
+}
+
+// CreateClientConfig create default ClientConfig instance and return a pointer on it
+func CreateClientConfig() *ClientConfig {
+	return &ClientConfig{
+		LogLevel:            logrus.InfoLevel,
+		ForceDependenciesDl: false,
+		Debug:               false,
+		IgnoreDependencies:  false,
+		Headless:            false,
+		Port:                8080,
+	}
 }
 
 // InitializeSelenium start a Selenium WebDriver server instance
@@ -268,4 +300,10 @@ func (s *Selenium) WaitForElement(elementTag, locator string, delay int) (bool, 
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
+}
+
+// Fatal closes all selenium stuff and call logrus fatal with error printing
+func (s *Selenium) Fatal(msg string, err error) {
+	s.CleanUp()
+	logrus.Fatal(msg, err)
 }

@@ -1,4 +1,4 @@
-package igopher
+package logger
 
 import (
 	"bufio"
@@ -6,6 +6,7 @@ import (
 	"runtime"
 
 	logRuntime "github.com/banzaicloud/logrus-runtime-formatter"
+	"github.com/hbollon/igopher/internal/config/flags"
 	"github.com/rifflock/lfshook"
 	"github.com/shiena/ansicolor"
 	"github.com/sirupsen/logrus"
@@ -15,17 +16,18 @@ import (
 const logFilePath = "./logs/logs.log"
 
 func InitLogger() {
-	setLoggerOutput()
-	level, err := log.ParseLevel(*Flags.LogLevelFlag)
+	SetLoggerOutput()
+	level, err := log.ParseLevel(*flags.Flags.LogLevelFlag)
 	if err == nil {
 		log.SetLevel(level)
 	} else {
 		log.SetLevel(log.InfoLevel)
-		log.Warnf("Invalid log level '%s', use default one.", *Flags.LogLevelFlag)
+		log.Warnf("Invalid log level '%s', use default one.", *flags.Flags.LogLevelFlag)
 	}
 }
 
-func setLoggerOutput() {
+// SetLoggerOutput sets the output of the logger
+func SetLoggerOutput() {
 	// Initialize logs folder
 	if _, err := os.Stat("./logs/"); os.IsNotExist(err) {
 		os.Mkdir("./logs/", os.ModePerm)
@@ -58,7 +60,7 @@ func setLoggerOutput() {
 }
 
 // Read and parse log file to json array string
-func parseLogsToString() (string, error) {
+func ParseLogsToString() (string, error) {
 	// Open log file
 	file, err := os.Open(logFilePath)
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hbollon/igopher"
+	conf "github.com/hbollon/igopher/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -32,7 +32,7 @@ func (m model) UpdateHomePage(msg tea.Msg) (model, tea.Cmd) {
 			case 0:
 				return launchBot(m)
 			case 1:
-				config = igopher.ImportConfig()
+				config = conf.ImportConfig()
 				m.screen = settingsMenu
 			case 2:
 				m.screen = settingsResetMenu

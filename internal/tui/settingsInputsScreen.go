@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hbollon/igopher"
+	conf "github.com/hbollon/igopher/internal/config/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,7 +26,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 			if m.settingsInputsScreen.index == len(m.settingsInputsScreen.input) {
 				switch m.settingsChoice {
 				case accountSettings:
-					acc := igopher.AccountYaml{
+					acc := conf.AccountYaml{
 						Username: m.settingsInputsScreen.input[0].Value(),
 						Password: m.settingsInputsScreen.input[1].Value(),
 					}
@@ -42,7 +42,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 				case scrappingSettings:
 					val, err := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
 					if err == nil {
-						scr := igopher.ScrapperYaml{
+						scr := conf.ScrapperYaml{
 							Accounts: strings.Split(m.settingsInputsScreen.input[0].Value(), ";"),
 							Quantity: val,
 						}
@@ -59,7 +59,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 						errorMessage = "Invalid quantity field, value must be numeric.\n\n"
 					}
 				case autodmSettings:
-					dm := igopher.AutoDmYaml{
+					dm := conf.AutoDmYaml{
 						DmTemplates: strings.Split(m.settingsInputsScreen.input[0].Value(), ";"),
 					}
 					err := validate.Struct(dm)
@@ -72,7 +72,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 						m.screen = settingsMenu
 					}
 				case autodmGreetingSettings:
-					gre := igopher.GreetingYaml{
+					gre := conf.GreetingYaml{
 						Template: m.settingsInputsScreen.input[0].Value(),
 					}
 					err := validate.Struct(gre)
@@ -88,7 +88,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					dmDay, err := strconv.Atoi(m.settingsInputsScreen.input[0].Value())
 					dmHour, err2 := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
 					if err == nil && err2 == nil {
-						quo := igopher.QuotasYaml{
+						quo := conf.QuotasYaml{
 							DmDay:  dmDay,
 							DmHour: dmHour,
 						}
@@ -106,7 +106,7 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 						errorMessage = invalidInputMsg
 					}
 				case scheduleSettings:
-					sche := igopher.ScheduleYaml{
+					sche := conf.ScheduleYaml{
 						BeginAt: m.settingsInputsScreen.input[0].Value(),
 						EndAt:   m.settingsInputsScreen.input[1].Value(),
 					}

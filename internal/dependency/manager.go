@@ -1,4 +1,4 @@
-package igopher
+package dependency
 
 import (
 	"context"
@@ -26,6 +26,8 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/google/go-github/v27/github"
+	"github.com/hbollon/igopher/internal/gui/comm"
+	"github.com/hbollon/igopher/internal/gui/datatypes"
 	log "github.com/sirupsen/logrus"
 	"github.com/vbauerster/mpb/v6"
 	"github.com/vbauerster/mpb/v6/decor"
@@ -460,11 +462,11 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 	}
 
 	if CheckDependencies(); len(files) == 0 {
-		msg := MessageOut{
-			Status: SUCCESS,
+		msg := datatypes.MessageOut{
+			Status: datatypes.SUCCESS,
 			Msg:    "downloads done",
 		}
-		SendMessageToElectron(msg)
+		comm.SendMessageToElectron(msg)
 		log.Info("All dependencies are already installed, skipping.")
 		return
 	}
@@ -505,7 +507,7 @@ func DownloadDependencies(downloadBrowsers, downloadLatest, forceDl bool) {
 			}()
 		}
 	}
-	if IsElectronRunning() {
+	if comm.IsElectronRunning() {
 		done := make(chan bool)
 		go followUpDownloads(dlTracking, filesToDl, done)
 		defer func(done chan bool) {
@@ -696,11 +698,11 @@ func followUpDownloads(dlTracking downloadsTracking, srcFiles []file, done chan 
 	for {
 		select {
 		case <-done:
-			msg := MessageOut{
-				Status: SUCCESS,
+			msg := datatypes.MessageOut{
+				Status: datatypes.SUCCESS,
 				Msg:    "downloads done",
 			}
-			SendMessageToElectron(msg)
+			comm.SendMessageToElectron(msg)
 			log.Infof("Downloads finished")
 			return
 		default:
@@ -733,12 +735,12 @@ func followUpDownloads(dlTracking downloadsTracking, srcFiles []file, done chan 
 				}
 			}
 
-			msg := MessageOut{
-				Status:  INFO,
+			msg := datatypes.MessageOut{
+				Status:  datatypes.INFO,
 				Msg:     "downloads tracking",
 				Payload: dlTracking,
 			}
-			SendMessageToElectron(msg)
+			comm.SendMessageToElectron(msg)
 		}
 		time.Sleep(2 * time.Second)
 	}

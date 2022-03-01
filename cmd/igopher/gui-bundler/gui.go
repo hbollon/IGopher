@@ -7,7 +7,9 @@ import (
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
 	bootstrap "github.com/asticode/go-astilectron-bootstrap"
-	"github.com/hbollon/igopher"
+	"github.com/hbollon/igopher/internal/config"
+	"github.com/hbollon/igopher/internal/gui"
+	"github.com/hbollon/igopher/internal/logger"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,9 +21,9 @@ const (
 
 func main() {
 	flag.Parse()
-	igopher.InitLogger()
-	igopher.CheckEnvironment()
-	defer igopher.BotStruct.SeleniumStruct.CleanUp()
+	logger.InitLogger()
+	config.CheckEnvironment()
+	//defer engine.BotStruct.SeleniumStruct.CleanUp()
 
 	if err := bootstrap.Run(bootstrap.Options{
 		Asset:    Asset,
@@ -39,7 +41,7 @@ func main() {
 		MenuOptions: []*astilectron.MenuItemOptions{},
 		OnWait: func(a *astilectron.Astilectron, ws []*astilectron.Window, _ *astilectron.Menu, _ *astilectron.Tray, _ *astilectron.Menu) error {
 			// Add message handler
-			igopher.HandleMessages(ws[0])
+			gui.HandleMessages(ws[0])
 
 			return nil
 		},

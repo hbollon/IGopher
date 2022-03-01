@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hbollon/igopher"
+	conf "github.com/hbollon/igopher/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -31,8 +31,8 @@ func (m model) UpdateSettingsResetMenu(msg tea.Msg) (model, tea.Cmd) {
 		case enter:
 			switch m.configResetScreen.cursor {
 			case 0:
-				config = igopher.ResetBotConfig()
-				igopher.ExportConfig(config)
+				config = conf.ResetBotConfig()
+				conf.ExportConfig(config)
 				m.screen = mainMenu
 			case 1:
 				m.screen = mainMenu

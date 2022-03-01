@@ -7,7 +7,8 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/go-playground/validator/v10"
-	"github.com/hbollon/igopher"
+	conf "github.com/hbollon/igopher/internal/config"
+	"github.com/hbollon/igopher/internal/config/types"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/termenv"
@@ -88,7 +89,7 @@ var (
 	execBot      = false
 	infoMessage  string
 	errorMessage string
-	config       igopher.BotConfigYaml
+	config       types.BotConfigYaml
 
 	validate = validator.New()
 )
@@ -407,7 +408,7 @@ func updateInputs(msg tea.Msg, m model) (model, tea.Cmd) {
 }
 
 func launchBot(m model) (model, tea.Cmd) {
-	err := igopher.CheckConfigValidity()
+	err := conf.CheckConfigValidity()
 	if err == nil {
 		execBot = true
 		return m, tea.Quit

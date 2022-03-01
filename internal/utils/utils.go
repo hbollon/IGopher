@@ -1,4 +1,4 @@
-package igopher
+package utils
 
 import (
 	"math/rand"
@@ -36,28 +36,22 @@ func init() {
 	clear["darwin"] = clear["linux"]
 }
 
-// Sleep random time between default sleepMin and sleepMax
-func randomSleep() {
-	time.Sleep(randomMillisecondDuration(sleepMin, sleepMax))
+// RandomSleep sleep random time between default sleepMin and sleepMax
+func RandomSleep() {
+	time.Sleep(RandomMillisecondDuration(sleepMin, sleepMax))
 }
 
-// Sleep random time between custom values
-func randomSleepCustom(min, max float64) {
-	time.Sleep(randomMillisecondDuration(min, max))
+// RandomSleepCustom sleep random time between custom values
+func RandomSleepCustom(min, max float64) {
+	time.Sleep(RandomMillisecondDuration(min, max))
 }
 
-// Generate time duration (in milliseconds) between two limits (in seconds)
-func randomMillisecondDuration(min, max float64) time.Duration {
+// RandomMillisecondDuration generate time duration (in milliseconds) between two limits (in seconds)
+func RandomMillisecondDuration(min, max float64) time.Duration {
 	// Convert arguments (in seconds) to milliseconds
 	min *= 1000
 	max *= 1000
 	return time.Duration(min+rand.Float64()*(max-min)) * time.Millisecond
-}
-
-// Fatal closes all selenium stuff and call logrus fatal with error printing
-func (s *Selenium) Fatal(msg string, err error) {
-	s.CleanUp()
-	logrus.Fatal(msg, err)
 }
 
 // ClearTerminal clear current terminal session according to user OS

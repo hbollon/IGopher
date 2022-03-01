@@ -8,14 +8,18 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hbollon/igopher"
+	"github.com/hbollon/igopher/internal/automation"
+	"github.com/hbollon/igopher/internal/config"
+	"github.com/hbollon/igopher/internal/config/flags"
+	"github.com/hbollon/igopher/internal/logger"
 	"github.com/hbollon/igopher/internal/process"
 	tui "github.com/hbollon/igopher/internal/tui"
+	"github.com/hbollon/igopher/internal/utils"
 	"github.com/sirupsen/logrus"
 )
 
 func init() {
-	igopher.Flags.BackgroundFlag = flag.Bool("background-task", false,
+	flags.Flags.BackgroundFlag = flag.Bool("background-task", false,
 		"Run IGopher as background task with actual configuration (configure it normally and after re-run IGopher with this flag)")
 }
 
@@ -35,29 +39,29 @@ func changeWorkingDir() {
 func main() {
 	flag.Parse()
 	changeWorkingDir()
-	igopher.InitLogger()
+	logger.InitLogger()
 
 	// Initialize environment
-	igopher.CheckEnvironment()
+	config.CheckEnvironment()
 
 	alreadyRunning, _ := process.CheckIfAlreadyRunning()
-	if *igopher.Flags.BackgroundFlag {
+	if *flags.Flags.BackgroundFlag {
 		if alreadyRunning {
 			logrus.Error("IGopher is already running! Kill it or close it through TUI interface and retry.")
 			return
 		}
 		logrus.Debug("Successfully dump pid to tmp file!")
-		igopher.LaunchBotTui()
+		automation.LaunchBotTui()
 	} else {
 		// Clear terminal session
-		igopher.ClearTerminal()
+		utils.ClearTerminal()
 
 		// Launch TUI
 		execBot := tui.InitTui(alreadyRunning)
 
 		// Launch bot if option selected
 		if execBot {
-			igopher.LaunchBotTui()
+			automation.LaunchBotTui()
 		}
 	}
 }
