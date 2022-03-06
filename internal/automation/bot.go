@@ -16,6 +16,7 @@ import (
 	"github.com/hbollon/igopher/internal/gui/comm"
 	"github.com/hbollon/igopher/internal/gui/datatypes"
 	"github.com/hbollon/igopher/internal/process"
+	"github.com/hbollon/igopher/internal/scrapper"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -76,7 +77,7 @@ func LaunchBotTui() {
 		actions.ConnectToInstagram(&BotStruct)
 		for {
 			var users []string
-			users, err = actions.FetchUsersFromUserFollowers(&BotStruct)
+			users, err = scrapper.FetchUsersFromUserFollowers(&BotStruct)
 			if err != nil {
 				BotStruct.SeleniumStruct.Fatal("Failed users fetching: ", err)
 			}
@@ -189,7 +190,7 @@ func LaunchBot(ctx context.Context) {
 				if exit := checkBotChannels(); exit {
 					return
 				}
-				users, err = actions.FetchUsersFromUserFollowers(&BotStruct)
+				users, err = scrapper.FetchUsersFromUserFollowers(&BotStruct)
 				if err != nil {
 					BotStruct.CrashCh <- fmt.Errorf("Failed users fetching: %v. Check logs tab for more details", err)
 					return
