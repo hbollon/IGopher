@@ -43,11 +43,10 @@ func (m model) UpdateSettingsProxy(msg tea.Msg) (model, tea.Cmd) {
 					if err != nil {
 						errorMessage = invalidInputMsg
 						break
-					} else {
-						config.Selenium.Proxy = proxy
-						errorMessage = ""
-						m.screen = settingsMenu
 					}
+					config.Selenium.Proxy = proxy
+					errorMessage = ""
+					m.screen = settingsMenu
 				}
 			}
 

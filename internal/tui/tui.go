@@ -117,9 +117,9 @@ type menu struct {
 }
 
 type mcList struct {
+	selected map[int]struct{}
 	choices  []string
 	cursor   int
-	selected map[int]struct{}
 }
 
 type inputs struct {

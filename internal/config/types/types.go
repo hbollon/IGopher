@@ -42,9 +42,9 @@ type IGopher struct {
 	// Scrapper
 	ScrapperManager ScrapperConfig `yaml:"scrapper"`
 	// Scheduler
-	Scheduler scheduler.SchedulerManager `yaml:"schedule"`
+	Scheduler scheduler.Manager `yaml:"schedule"`
 	// Interracted users blacklist
-	Blacklist blacklist.BlacklistManager `yaml:"blacklist"`
+	Blacklist blacklist.Manager `yaml:"blacklist"`
 	// Channels
 	InfoCh            chan string `yaml:"-"`
 	ErrCh             chan string `yaml:"-"`
@@ -115,18 +115,18 @@ type Account struct {
 
 // AutoDM store messaging module configuration
 type AutoDM struct {
-	Activated bool `json:"dmActivated" yaml:"activated"`
 	// List of all availlables message templates
 	DmTemplates []string `json:"dmTemplates" yaml:"dm_templates" validate:"required"`
 	// Greeting module add a customized DM header with recipient username
-	Greeting GreetingConfig `yaml:"greeting"`
+	Greeting  GreetingConfig `yaml:"greeting"`
+	Activated bool           `json:"dmActivated" yaml:"activated"`
 }
 
 // GreetingConfig store greeting configuration for AutoDM module
 type GreetingConfig struct {
-	Activated bool `json:"greetingActivated" yaml:"activated"`
 	// Add a string before the username
-	Template string `json:"greetingTemplate" yaml:"template" validate:"required"`
+	Template  string `json:"greetingTemplate" yaml:"template" validate:"required"`
+	Activated bool   `json:"greetingActivated" yaml:"activated"`
 }
 
 /* Yaml */

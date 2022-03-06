@@ -67,13 +67,13 @@ func HandleMessages(w *astilectron.Window) {
 
 /* Callback functiosn to handle electron messages */
 
-func resetGlobalSettingsCallback(m *datatypes.MessageIn) datatypes.MessageOut {
+func resetGlobalSettingsCallback(_ *datatypes.MessageIn) datatypes.MessageOut {
 	config = conf.ResetBotConfig()
 	conf.ExportConfig(config)
 	return datatypes.MessageOut{Status: datatypes.SUCCESS, Msg: "Global configuration was successfully reset!"}
 }
 
-func clearDataCallback(m *datatypes.MessageIn) datatypes.MessageOut {
+func clearDataCallback(_ *datatypes.MessageIn) datatypes.MessageOut {
 	if err := conf.ClearData(); err != nil {
 		return datatypes.MessageOut{Status: datatypes.ERROR, Msg: fmt.Sprintf("IGopher data clearing failed! Error: %v", err)}
 	}
@@ -228,7 +228,7 @@ func proxyFormCallback(m *datatypes.MessageIn) datatypes.MessageOut {
 	return datatypes.MessageOut{Status: datatypes.SUCCESS, Msg: "Proxy settings successfully updated!"}
 }
 
-func launchDmBotCallback(m *datatypes.MessageIn) datatypes.MessageOut {
+func launchDmBotCallback(_ *datatypes.MessageIn) datatypes.MessageOut {
 	var err error
 	if err = conf.CheckConfigValidity(); err == nil {
 		ctx, cancel = context.WithCancel(context.Background())
@@ -238,7 +238,7 @@ func launchDmBotCallback(m *datatypes.MessageIn) datatypes.MessageOut {
 	return datatypes.MessageOut{Status: datatypes.ERROR, Msg: err.Error()}
 }
 
-func stopDmBotCallback(m *datatypes.MessageIn) datatypes.MessageOut {
+func stopDmBotCallback(_ *datatypes.MessageIn) datatypes.MessageOut {
 	if bot.ExitedCh != nil {
 		cancel()
 		res := <-bot.ExitedCh
@@ -250,7 +250,7 @@ func stopDmBotCallback(m *datatypes.MessageIn) datatypes.MessageOut {
 	return datatypes.MessageOut{Status: datatypes.ERROR, Msg: "Bot is in the initialization phase, please wait before trying to stop it."}
 }
 
-func hotReloadCallback(m *datatypes.MessageIn) datatypes.MessageOut {
+func hotReloadCallback(_ *datatypes.MessageIn) datatypes.MessageOut {
 	if automation.BotStruct.Running {
 		if bot.HotReloadCh != nil {
 			bot.HotReloadCh <- true
@@ -260,12 +260,13 @@ func hotReloadCallback(m *datatypes.MessageIn) datatypes.MessageOut {
 			}
 			return datatypes.MessageOut{Status: datatypes.ERROR, Msg: "Error during bot hot reload! Please restart the bot"}
 		}
-		return datatypes.MessageOut{Status: datatypes.ERROR, Msg: "Bot is in the initialization phase, please wait before trying to hot reload it."}
+		return datatypes.MessageOut{Status: datatypes.ERROR,
+			Msg: "Bot is in the initialization phase, please wait before trying to hot reload it."}
 	}
 	return datatypes.MessageOut{Status: datatypes.ERROR, Msg: "Bot isn't running yet."}
 }
 
-func getLogsCallback(m *datatypes.MessageIn) datatypes.MessageOut {
+func getLogsCallback(_ *datatypes.MessageIn) datatypes.MessageOut {
 	logs, err := logger.ParseLogsToString()
 	if err != nil {
 		logrus.Errorf("Can't parse logs: %v", err)
@@ -275,7 +276,7 @@ func getLogsCallback(m *datatypes.MessageIn) datatypes.MessageOut {
 	return datatypes.MessageOut{Status: datatypes.SUCCESS, Msg: logs}
 }
 
-func getConfigCallback(m *datatypes.MessageIn) datatypes.MessageOut {
+func getConfigCallback(_ *datatypes.MessageIn) datatypes.MessageOut {
 	config, err := json.Marshal(config)
 	if err != nil {
 		logrus.Errorf("Can't parse config structure to Json: %v", err)

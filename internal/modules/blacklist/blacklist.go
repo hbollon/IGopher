@@ -12,8 +12,8 @@ const (
 	fileBlacklistPath = "data/blacklist.csv"
 )
 
-// BlacklistManager data
-type BlacklistManager struct {
+// Manager data
+type Manager struct {
 	// BlacklistedUsers: list of all blacklisted usernames
 	BlacklistedUsers [][]string
 	// Activated: quota manager activation boolean
@@ -21,7 +21,7 @@ type BlacklistManager struct {
 }
 
 // InitializeBlacklist check existence of the blacklist csv file and initialize it if it doesn't exist.
-func (bm *BlacklistManager) InitializeBlacklist() error {
+func (bm *Manager) InitializeBlacklist() error {
 	var err error
 	// Check if blacklist csv exist
 	_, err = os.Stat(fileBlacklistPath)
@@ -67,7 +67,7 @@ func (bm *BlacklistManager) InitializeBlacklist() error {
 }
 
 // AddUser add argument username to the blacklist
-func (bm *BlacklistManager) AddUser(user string) {
+func (bm *Manager) AddUser(user string) {
 	bm.BlacklistedUsers = append(bm.BlacklistedUsers, []string{user})
 	f, err := os.OpenFile(fileBlacklistPath, os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
@@ -84,7 +84,7 @@ func (bm *BlacklistManager) AddUser(user string) {
 }
 
 // IsBlacklisted check if the given user is already blacklisted
-func (bm *BlacklistManager) IsBlacklisted(user string) bool {
+func (bm *Manager) IsBlacklisted(user string) bool {
 	for _, username := range bm.BlacklistedUsers {
 		if username[0] == user {
 			return true
@@ -94,7 +94,7 @@ func (bm *BlacklistManager) IsBlacklisted(user string) bool {
 }
 
 // FilterScrappedUsers remove blacklisted users from WebElement slice and return it
-func (bm *BlacklistManager) FilterScrappedUsers(users []selenium.WebElement) []selenium.WebElement {
+func (bm *Manager) FilterScrappedUsers(users []selenium.WebElement) []selenium.WebElement {
 	var filteredUsers []selenium.WebElement
 	for _, user := range users {
 		username, err := user.Text()

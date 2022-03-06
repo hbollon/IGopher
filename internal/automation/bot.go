@@ -22,8 +22,10 @@ import (
 
 var (
 	// BotStruct is the main struct instance used by this bot
-	BotStruct                       confdata.IGopher
-	ReloadCh, HotReloadCh, ExitedCh chan bool
+	BotStruct   confdata.IGopher
+	ReloadCh    chan bool
+	HotReloadCh chan bool
+	ExitedCh    chan bool
 )
 
 // ErrStopBot is used to trigger bot stopping from some function

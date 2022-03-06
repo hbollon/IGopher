@@ -28,11 +28,10 @@ func changeWorkingDir() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		err = os.Chdir(dir)
-		if err != nil {
-			log.Fatal(err)
-		}
+	}
+	err = os.Chdir(dir)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 

@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// SchedulerManager data
-type SchedulerManager struct {
+// Manager data
+type Manager struct {
 	// BeginAt: Begin time setting
 	BeginAt string `yaml:"begin_at" validate:"contains=:"`
 	// EndAt: End time setting
@@ -23,7 +23,7 @@ type SchedulerManager struct {
 }
 
 // InitializeScheduler convert string time from config to time.Time instances
-func (s *SchedulerManager) InitializeScheduler() error {
+func (s *Manager) InitializeScheduler() error {
 	ttBegin, err := time.Parse("15:04", strings.TrimSpace(s.BeginAt))
 	if err != nil {
 		return err
@@ -38,7 +38,7 @@ func (s *SchedulerManager) InitializeScheduler() error {
 }
 
 // CheckTime check scheduler and pause the bot if it's not working time
-func (s *SchedulerManager) CheckTime() error {
+func (s *Manager) CheckTime() error {
 	if !s.Activated {
 		return nil
 	}
@@ -78,7 +78,7 @@ func (s *SchedulerManager) CheckTime() error {
 }
 
 // Check if current time is between scheduler working interval
-func (s *SchedulerManager) isWorkingTime() (bool, error) {
+func (s *Manager) isWorkingTime() (bool, error) {
 	if s.BeginAtTimestamp.Equal(s.EndAtTimestamp) {
 		return false, errors.New("Bad scheduler configuration")
 	}

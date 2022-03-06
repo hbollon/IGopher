@@ -34,11 +34,10 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					if err != nil {
 						errorMessage = invalidInputMsg
 						break
-					} else {
-						config.Account = acc
-						errorMessage = ""
-						m.screen = settingsMenu
 					}
+					config.Account = acc
+					errorMessage = ""
+					m.screen = settingsMenu
 				case scrappingSettings:
 					val, err := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
 					if err == nil {
@@ -50,11 +49,10 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 						if err != nil {
 							errorMessage = invalidInputMsg
 							break
-						} else {
-							config.SrcUsers = scr
-							errorMessage = ""
-							m.screen = settingsMenu
 						}
+						config.SrcUsers = scr
+						errorMessage = ""
+						m.screen = settingsMenu
 					} else {
 						errorMessage = "Invalid quantity field, value must be numeric.\n\n"
 					}
@@ -66,11 +64,10 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					if err != nil {
 						errorMessage = invalidInputMsg
 						break
-					} else {
-						config.AutoDm.DmTemplates = dm.DmTemplates
-						errorMessage = ""
-						m.screen = settingsMenu
 					}
+					config.AutoDm.DmTemplates = dm.DmTemplates
+					errorMessage = ""
+					m.screen = settingsMenu
 				case autodmGreetingSettings:
 					gre := conf.GreetingYaml{
 						Template: m.settingsInputsScreen.input[0].Value(),
@@ -79,11 +76,10 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					if err != nil {
 						errorMessage = invalidInputMsg
 						break
-					} else {
-						config.AutoDm.Greeting.Template = gre.Template
-						errorMessage = ""
-						m.screen = settingsMenu
 					}
+					config.AutoDm.Greeting.Template = gre.Template
+					errorMessage = ""
+					m.screen = settingsMenu
 				case quotasSettings:
 					dmDay, err := strconv.Atoi(m.settingsInputsScreen.input[0].Value())
 					dmHour, err2 := strconv.Atoi(m.settingsInputsScreen.input[1].Value())
@@ -96,12 +92,11 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 						if err != nil {
 							errorMessage = invalidInputMsg
 							break
-						} else {
-							config.Quotas.DmDay = quo.DmDay
-							config.Quotas.DmHour = quo.DmHour
-							errorMessage = ""
-							m.screen = settingsMenu
 						}
+						config.Quotas.DmDay = quo.DmDay
+						config.Quotas.DmHour = quo.DmHour
+						errorMessage = ""
+						m.screen = settingsMenu
 					} else {
 						errorMessage = invalidInputMsg
 					}
@@ -114,12 +109,11 @@ func (m model) UpdateSettingsInputsMenu(msg tea.Msg) (model, tea.Cmd) {
 					if err != nil {
 						errorMessage = invalidInputMsg
 						break
-					} else {
-						config.Schedule.BeginAt = sche.BeginAt
-						config.Schedule.EndAt = sche.EndAt
-						errorMessage = ""
-						m.screen = settingsMenu
 					}
+					config.Schedule.BeginAt = sche.BeginAt
+					config.Schedule.EndAt = sche.EndAt
+					errorMessage = ""
+					m.screen = settingsMenu
 				default:
 					log.Error("Unexpected settings screen value!\n\n")
 				}
