@@ -6,8 +6,14 @@ issues:
   max-same-issues: 0
 
 linters-settings:
+  goconst:
+    min-len: 2
+    min-occurrences: 3
   gocyclo:
     min-complexity: 30 # Will be decreased later in the devellopement
+  gosimple:
+    go: "1.17"
+    checks: ["all"]
   govet:
     check-shadowing: true
     settings:
@@ -22,9 +28,68 @@ linters-settings:
     locale: US
   lll:
     line-length: 140
+  revive:
+    ignore-generated-header: false
+    severity: warning
+    confidence: 0.8
+    errorCode: 1
+    warningCode: 1
+    rules:
+      - name: blank-imports
+        severity: warning
+      - name: context-as-argument
+        severity: warning
+      - name: context-keys-type
+        severity: warning
+      - name: cyclomatic
+        severity: warning
+        arguments:
+          - 30 # Maximum cyclomatic complexity
+      - name: error-return
+        severity: warning
+      - name: error-strings
+        severity: warning
+      - name: error-naming
+        severity: warning
+      - name: exported
+        severity: warning
+      - name: if-return
+        severity: warning
+      - name: increment-decrement
+        severity: warning
+      - name: var-naming
+        severity: warning
+      - name: var-declaration
+        severity: warning
+      - name: package-comments
+        severity: warning
+      - name: range
+        severity: warning
+      - name: receiver-naming
+        severity: warning
+      - name: time-naming
+        severity: warning
+      - name: unexported-return
+        severity: warning
+      - name: indent-error-flow
+        severity: warning
+      - name: errorf
+        severity: warning
+      - name: empty-block
+        severity: warning
+      - name: superfluous-else
+        severity: warning
+      - name: unreachable-code
+        severity: warning
+      - name: redefines-builtin-id
+        severity: warning
+  staticcheck:
+    go: "1.17"
+    checks: ["all"]
   
 
 linters:
+  disable-all: true
   enable:
     - dupl
     - exportloopref
@@ -33,20 +98,24 @@ linters:
     - godox
     - gofmt
     - goimports
-    - golint
+    - gosimple
     - govet
+    - ineffassign
     - lll
-    - maligned
     - misspell
     - prealloc
+    - revive
     - rowserrcheck
+    - staticcheck
+    - typecheck
     - unconvert
     - unparam
     - whitespace
-  disable:
-    - deadcode # Disabled during early devellopment
-    - errcheck
-    - gosec
-    - structcheck # Disabled during early devellopment
-    - unused # Disabled during early devellopment
-    - varcheck # Disabled during early devellopment
+
+    # Disabled during early devellopment
+    # - deadcode
+    # - errcheck
+    # - gosec
+    # - structcheck
+    # - unused
+    # - varcheck
