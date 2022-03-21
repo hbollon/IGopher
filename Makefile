@@ -1,7 +1,7 @@
 NAME          := IGopher
 FILES         := $(wildcard */*.go)
 VERSION       := $(shell git describe --always)
-BIN_DIR 	  := bin/
+BIN_DIR 	    := bin/
 BUNDLE_DIR 	  := cmd/igopher/gui-bundler/output/
 VUE_DIST_DIR  := resources/static/vue-igopher/dist/
 
@@ -79,6 +79,11 @@ bundle: build-vue install
 ## release: Build binaries for all platforms for both GUI and TUI
 .PHONY: release
 release: build-all bundle
+	cd ./cmd/igopher/gui-bundler/output/ && \
+		zip -r IGopherGUI-linux-amd64.zip linux-amd64 && \
+		zip -r IGopherGUI-windows-amd64.zip windows-amd64 && \
+		zip -r IGopherGUI-darwin-amd64.zip darwin-amd64
+
 
 ## install: Install go dependencies
 .PHONY: install
