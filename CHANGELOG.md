@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [0.4.1](https://www.github.com/hbollon/IGopher/compare/v0.4.0...v0.4.1) (2022-03-21)
+
+
+### Bug Fixes
+
+* invalid id selector in some xpaths ([#28](https://www.github.com/hbollon/IGopher/issues/28)) ([b220352](https://www.github.com/hbollon/IGopher/commit/b2203524025f8b94f4d46faae929e20001836c2d))
+* issue with new cookie validation popup ([812551a](https://www.github.com/hbollon/IGopher/commit/812551a14f4a370834e0aada037ed4e52ead83b2))
+
 ## [0.4.0](https://www.github.com/hbollon/IGopher/compare/v0.3.1...v0.4.0) (2022-01-30)
 
 
