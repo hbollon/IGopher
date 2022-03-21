@@ -20,8 +20,9 @@ func connectToInstagramWebDriver(bot *types.IGopher) {
 	}
 	utils.RandomSleep()
 	// Accept cookies if requested
-	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Accept All']", "xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Accept All']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Accept All' or text()='Allow essential and optional cookies']",
+		"xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Accept All' or text()='Allow essential and optional cookies']", "xpath")
 		elem.Click()
 		log.Debug("Cookies validation done!")
 	} else {

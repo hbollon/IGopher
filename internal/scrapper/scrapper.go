@@ -123,8 +123,8 @@ func navigateUserFollowersList(bot *types.IGopher, srcUsername string) (bool, er
 	}
 	utils.RandomSleepCustom(1, 3)
 	// Access to followers list view
-	if find, err := bot.SeleniumStruct.WaitForElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//*[@id=\"react-root\"]/section/main/div/ul/li[2]/a", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement("//section/main/div/ul/li[2]/a", "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement("//section/main/div/ul/li[2]/a", "xpath")
 		elem.Click()
 		logrus.Debug("Clicked on user followers list")
 	} else {
