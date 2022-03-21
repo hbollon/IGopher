@@ -6,6 +6,7 @@ import (
 	"github.com/hbollon/igopher/internal/config/types"
 	"github.com/hbollon/igopher/internal/simulation"
 	"github.com/hbollon/igopher/internal/utils"
+	"github.com/hbollon/igopher/internal/xpath"
 	log "github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
 )
@@ -40,8 +41,8 @@ func sendMessageWebDriver(bot *types.IGopher, user, message string) (bool, error
 
 	// Type and select user to dm
 	if find, err := bot.SeleniumStruct.WaitForElement(
-		"//section/div[2]/div/div[1]/div/div[2]/input", "xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//section/div[2]/div/div[1]/div/div[2]/input", "xpath")
+		xpath.XPathSelectors["dm_user_search"], "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["dm_user_search"], "xpath")
 		log.Debug("Finded an retrieved user searchbar")
 		if res := simulation.SimulateHandWriting(elem, user); !res {
 			return false, errors.New("Error during user searching")
@@ -68,16 +69,16 @@ func sendMessageWebDriver(bot *types.IGopher, user, message string) (bool, error
 }
 
 func typeMessage(bot *types.IGopher, message string) error {
-	if find, err := bot.SeleniumStruct.WaitForElement("//button/*[text()='Next']", "xpath", 5); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//button/*[text()='Next']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["dm_next_button"], "xpath", 5); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["dm_next_button"], "xpath")
 		elem.Click()
 	} else {
 		log.Errorf("Error during message sending: %v", err)
 		return err
 	}
 	utils.RandomSleep()
-	if find, err := bot.SeleniumStruct.WaitForElement("//textarea[@placeholder]", "xpath", 5); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//textarea[@placeholder]", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["dm_placeholder"], "xpath", 5); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["dm_placeholder"], "xpath")
 		if res := simulation.SimulateHandWriting(elem, message); !res {
 			return errors.New("Error during message typing")
 		}
@@ -86,8 +87,8 @@ func typeMessage(bot *types.IGopher, message string) error {
 		return err
 	}
 	utils.RandomSleep()
-	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Send']", "xpath", 5); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Send']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["dm_send_button"], "xpath", 5); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["dm_send_button"], "xpath")
 		elem.Click()
 	} else {
 		log.Errorf("Error during message sending: %v", err)

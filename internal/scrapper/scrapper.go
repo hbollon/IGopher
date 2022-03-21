@@ -7,6 +7,7 @@ import (
 
 	"github.com/hbollon/igopher/internal/config/types"
 	"github.com/hbollon/igopher/internal/utils"
+	"github.com/hbollon/igopher/internal/xpath"
 	"github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
 	"github.com/vbauerster/mpb/v6"
@@ -16,7 +17,7 @@ import (
 // FetchUsersFromUserFollowers scrap username list from users followers.
 // Source accounts and quantity are set by the bot user.
 func FetchUsersFromUserFollowers(bot *types.IGopher) ([]string, error) {
-	logrus.Info("Fetching users from users followers...")
+	logrus.Info("Fetching users from user's followers...")
 
 	var igUsers []string
 	// Valid configuration checking before fetching process
@@ -78,7 +79,7 @@ func FetchUsersFromUserFollowers(bot *types.IGopher) ([]string, error) {
 				}
 			}
 			utils.RandomSleepCustom(3, 4)
-			scrappedUsers, err = bot.SeleniumStruct.GetElements("//*/li/div/div/div/div/a", "xpath")
+			scrappedUsers, err = bot.SeleniumStruct.GetElements(xpath.XPathSelectors["profile_followers_list"], "xpath")
 			if err != nil {
 				logrus.Errorf(
 					"Error during users scrapping from followers dialog box for '%s' user",
@@ -123,8 +124,8 @@ func navigateUserFollowersList(bot *types.IGopher, srcUsername string) (bool, er
 	}
 	utils.RandomSleepCustom(1, 3)
 	// Access to followers list view
-	if find, err := bot.SeleniumStruct.WaitForElement("//section/main/div/ul/li[2]/a", "xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//section/main/div/ul/li[2]/a", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["profile_followers_button"], "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["profile_followers_button"], "xpath")
 		elem.Click()
 		logrus.Debug("Clicked on user followers list")
 	} else {

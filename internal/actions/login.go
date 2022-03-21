@@ -3,6 +3,7 @@ package actions
 import (
 	"github.com/hbollon/igopher/internal/config/types"
 	"github.com/hbollon/igopher/internal/utils"
+	"github.com/hbollon/igopher/internal/xpath"
 	log "github.com/sirupsen/logrus"
 	"github.com/tebeka/selenium"
 )
@@ -20,9 +21,9 @@ func connectToInstagramWebDriver(bot *types.IGopher) {
 	}
 	utils.RandomSleep()
 	// Accept cookies if requested
-	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Accept All' or text()='Allow essential and optional cookies']",
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["login_accept_cookies"],
 		"xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Accept All' or text()='Allow essential and optional cookies']", "xpath")
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["login_accept_cookies"], "xpath")
 		elem.Click()
 		log.Debug("Cookies validation done!")
 	} else {
@@ -30,8 +31,8 @@ func connectToInstagramWebDriver(bot *types.IGopher) {
 	}
 	utils.RandomSleep()
 	// Access to login screen if needed
-	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Log In']", "xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Log In']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["login_button"], "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["login_button"], "xpath")
 		elem.Click()
 		log.Debug("Log in screen access done!")
 	} else {
@@ -39,22 +40,22 @@ func connectToInstagramWebDriver(bot *types.IGopher) {
 	}
 	utils.RandomSleep()
 	// Inject username and password to input fields and log in
-	if find, err := bot.SeleniumStruct.WaitForElement("username", "name", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("username", "name")
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["login_username"], "name", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["login_username"], "name")
 		elem.SendKeys(bot.UserAccount.Username)
 		log.Debug("Username injection done!")
 	} else {
 		bot.SeleniumStruct.Fatal("Exception during username inject: ", err)
 	}
-	if find, err := bot.SeleniumStruct.WaitForElement("password", "name", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("password", "name")
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["login_password"], "name", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["login_password"], "name")
 		elem.SendKeys(bot.UserAccount.Password)
 		log.Debug("Password injection done!")
 	} else {
 		bot.SeleniumStruct.Fatal("Exception during password inject: ", err)
 	}
-	if find, err := bot.SeleniumStruct.WaitForElement("//button/*[text()='Log In']", "xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//button/*[text()='Log In']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["login_alternate_button"], "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["login_alternate_button"], "xpath")
 		elem.Click()
 		log.Debug("Sent login request")
 	} else {
@@ -62,8 +63,8 @@ func connectToInstagramWebDriver(bot *types.IGopher) {
 	}
 	utils.RandomSleepCustom(10, 15)
 	// Accept second cookies prompt if requested
-	if find, err := bot.SeleniumStruct.WaitForElement("//button[text()='Allow All Cookies']", "xpath", 10); err == nil && find {
-		elem, _ := bot.SeleniumStruct.GetElement("//button[text()='Allow All Cookies']", "xpath")
+	if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["login_alternate_button"], "xpath", 10); err == nil && find {
+		elem, _ := bot.SeleniumStruct.GetElement(xpath.XPathSelectors["login_alternate_button"], "xpath")
 		elem.Click()
 		log.Debug("Second cookies validation done!")
 		utils.RandomSleep()
@@ -72,13 +73,13 @@ func connectToInstagramWebDriver(bot *types.IGopher) {
 	}
 	// Check if login was successful
 	if bot.SeleniumStruct.IsElementPresent(selenium.ByXPATH,
-		"//*[@aria-label='Home'] | //button[text()='Save Info'] | //button[text()='Not Now']") {
+		xpath.XPathSelectors["login_information_saving"]) {
 		log.Info("Login Successful!")
 	} else {
 		if err := bot.SeleniumStruct.WebDriver.Refresh(); err != nil {
 			bot.SeleniumStruct.Fatal("Can't refresh page: ", err)
 		}
-		if find, err := bot.SeleniumStruct.WaitForElement("//*[@aria-label='Home'] | //*[text()='Save Info'] | //*[text()='Not Now']",
+		if find, err := bot.SeleniumStruct.WaitForElement(xpath.XPathSelectors["login_information_saving"],
 			"xpath", 10); err != nil || !find {
 			log.Warnf("Instagram does not ask for informations saving or app download, the login process may have failed.")
 		}
