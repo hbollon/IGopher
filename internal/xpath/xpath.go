@@ -16,9 +16,12 @@ var (
 
 		// DM related elements
 		"dm_user_search": "//section/div[2]/div/div[1]/div/div[2]/input",
-		"dm_next_button": "//button/*[text()='Next']",
 		"dm_placeholder": "//textarea[@placeholder]",
 		"dm_send_button": "//button[text()='Send']",
+
+		// DM user search elements
+		"dm_profile_pictures_links": "//div[@aria-labelledby]/div/span//img[@alt]",
+		"dm_next_button":            "//button/*[text()='Next']",
 
 		// Profile related elements
 		"profile_followers_button": "//section/main/div/ul/li[2]/a",

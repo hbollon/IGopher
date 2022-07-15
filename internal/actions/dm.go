@@ -49,7 +49,7 @@ func sendMessageWebDriver(bot *types.IGopher, user, message string) (bool, error
 		}
 		utils.RandomSleep()
 		usernames, err := bot.SeleniumStruct.WebDriver.FindElements(selenium.ByXPATH,
-			"//div[@aria-labelledby]/div/span//img[@data-testid='user-avatar']")
+			xpath.XPathSelectors["dm_profile_pictures_links"])
 		if err != nil {
 			return false, errors.New("Error during user selection")
 		}
