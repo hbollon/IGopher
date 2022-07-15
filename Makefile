@@ -80,9 +80,9 @@ bundle: build-vue install
 .PHONY: release
 release: build-all bundle
 	cd ./cmd/igopher/gui-bundler/output/ && \
-		zip -r IGopherGUI-linux-amd64.zip linux-amd64 && \
-		zip -r IGopherGUI-windows-amd64.zip windows-amd64 && \
-		zip -r IGopherGUI-darwin-amd64.zip darwin-amd64
+		zip -r ../../../../bin/IGopherGUI-linux-amd64.zip linux-amd64 && \
+		zip -r ../../../../bin/IGopherGUI-windows-amd64.zip windows-amd64 && \
+		zip -r ../../../../bin/IGopherGUI-darwin-amd64.zip darwin-amd64
 
 
 ## install: Install go dependencies
