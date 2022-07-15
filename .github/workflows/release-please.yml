@@ -9,8 +9,40 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: GoogleCloudPlatform/release-please-action@v2
+      - name: Release-please check
+        id: release
+        uses: google-github-actions/release-please-action@v3 
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: go
           changelog-path: CHANGELOG.md
+          changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"chore","section":"Miscellaneous Changes","hidden":false}]'
+
+      - name: Checkout codebase
+        uses: actions/checkout@v2
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Setup Go 1.18
+        uses: actions/setup-go@v3
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Setup NodeJS 16
+        uses: actions/setup-node@v3
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          node-version: 16
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Build and package binaries
+        if: ${{ steps.release.outputs.release_created }}
+        run: make release
+     
+      - name: Upload Assets to Release
+        uses: csexton/release-asset-action@v2
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          pattern: "bin/*"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-url: ${{ steps.release.outputs.upload_url }} 
