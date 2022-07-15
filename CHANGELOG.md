@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2](https://github.com/hbollon/IGopher/compare/v0.4.1...v0.4.2) (2022-07-15)
+
+
+### Bug Fixes
+
+* **xpath:** invalid xpath to select user to dm ([#30](https://github.com/hbollon/IGopher/issues/30)) ([760c171](https://github.com/hbollon/IGopher/commit/760c171b93f802707fb1ea7fa0805819a6d2331b))
+
+
+### Miscellaneous Changes
+
+* apply v0.4.1 changes to internals packages ([a50f4b0](https://github.com/hbollon/IGopher/commit/a50f4b07293d5a4493d6202d37148f1b4ccf4985))
+* **makefile:** create .zip archives after build tasks on release ([549c602](https://github.com/hbollon/IGopher/commit/549c602a97bf48219a2f9e08a8dd87c235cb6731))
+* update go module to 1.17 ([95ea3bf](https://github.com/hbollon/IGopher/commit/95ea3bf501179ac51111c3f8139ca02508cbe4bd))
+
 ### [0.4.1](https://www.github.com/hbollon/IGopher/compare/v0.4.0...v0.4.1) (2022-03-21)
 
 
